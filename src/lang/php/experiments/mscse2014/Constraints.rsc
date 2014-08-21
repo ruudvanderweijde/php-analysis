@@ -253,8 +253,8 @@ private void addConstraints(Expr e, M3 m3)
 				case leftShift():	constraints += { eq(typeOf(assignTo@at), integerType()) }; 
 				case rightShift():	constraints += { eq(typeOf(assignTo@at), integerType()) }; 
 				case \mod():		constraints += { eq(typeOf(assignTo@at), integerType()) };
-				case mul(): 		constraints += { subtyp(typeOf(assignTo@at), floatType()) };
-				case plus(): 		constraints += { subtyp(typeOf(assignTo@at), floatType()) };
+				case mul(): 		constraints += { subtyp(typeOf(assignTo@at), numberType()) };
+				case plus(): 		constraints += { subtyp(typeOf(assignTo@at), numberType()) };
 				
 				case div(): 
 					constraints += { 
@@ -295,18 +295,18 @@ private void addConstraints(Expr e, M3 m3)
 							subtyp(typeOf(op@at), arrayType(\any()))
 						),
 						
-						// if left or right is NOT array: result is subytpe of float 
+						// if left or right is NOT array: result is subytpe of number 
 						conditional(
 							disjunction({
 								negation(subtyp(typeOf(left@at), arrayType(\any()))),
 								negation(subtyp(typeOf(right@at), arrayType(\any())))
 							}),
-							subtyp(typeOf(op@at), floatType())
+							subtyp(typeOf(op@at), numberType())
 						),
 						// unconditional: result = array | double | int
 						disjunction({
 							subtyp(typeOf(op@at), arrayType(\any())),
-							subtyp(typeOf(op@at), floatType()) 
+							subtyp(typeOf(op@at), numberType()) 
 						})
 						// todo ?
 						// if (left XOR right = double) -> double
@@ -317,7 +317,7 @@ private void addConstraints(Expr e, M3 m3)
 					constraints += {
 						negation(subtyp(typeOf(left@at),  arrayType(\any()))), // LHS != array
 						negation(subtyp(typeOf(right@at), arrayType(\any()))), // RHS != array
-						subtyp(typeOf(op@at), floatType()) // result is subtype of float
+						subtyp(typeOf(op@at), numberType()) // result is subtype of number 
 						// todo ?
 						// if (left XOR right = double) -> double
 						// in all other cases: int
@@ -327,7 +327,7 @@ private void addConstraints(Expr e, M3 m3)
 					constraints += {
 						negation(subtyp(typeOf(left@at),  arrayType(\any()))), // LHS != array
 						negation(subtyp(typeOf(right@at), arrayType(\any()))), // RHS != array
-						subtyp(typeOf(op@at), floatType()) // result is subtype of float
+						subtyp(typeOf(op@at), numberType()) // result is subtype of number
 						// todo ?
 						// if (left XOR right = double) -> double
 						// in all other cases: int
@@ -337,7 +337,7 @@ private void addConstraints(Expr e, M3 m3)
 					constraints += {
 						negation(subtyp(typeOf(left@at),  arrayType(\any()))), // LHS != array
 						negation(subtyp(typeOf(right@at), arrayType(\any()))), // RHS != array
-						subtyp(typeOf(op@at), floatType()) // result is subtype of float
+						subtyp(typeOf(op@at), numberType()) // result is subtype of number
 						// todo ?
 						// if (left XOR right = double) -> double
 						// in all other cases: int
@@ -440,7 +440,7 @@ private void addConstraints(Expr e, M3 m3)
 			switch (operation) {
 				case unaryPlus():
 					constraints += { 
-						subtyp(typeOf(expr@at), floatType()), // type of whole expression is int or float
+						subtyp(typeOf(expr@at), numberType()), // type of whole expression is int or number
 						negation(subtyp(typeOf(operand@at), arrayType(\any()))) // type of the expression is not an array
 						// todo ?
 						// in: float -> out: float
@@ -450,7 +450,7 @@ private void addConstraints(Expr e, M3 m3)
 										
 				case unaryMinus():		
 					constraints += { 
-							subtyp(typeOf(expr@at), floatType()), // type of whole expression is int or float
+							subtyp(typeOf(expr@at), numberType()), // type of whole expression is int or number
 							negation(subtyp(typeOf(operand@at), arrayType(\any()))) // type of the expression is not an array
 							// todo
 							// in: float -> out: float

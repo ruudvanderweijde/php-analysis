@@ -236,9 +236,9 @@ public test bool testOpAssign() {
 		"[$o] \<: any()", "[$p] \<: any()", "[$o] = integerType()", "neg([$p] \<: arrayType(any()))", // $o /= $p
 		"[$q] \<: any()", "[$r] \<: any()", "[$q] = integerType()", "neg([$r] \<: arrayType(any()))", // $q -= $r
 	
-		// LHS = integer || float => LHS <: floatType()	
-		"[$s] \<: any()", "[$t] \<: any()", "[$s] \<: floatType()", // $s *= $t
-		"[$u] \<: any()", "[$v] \<: any()", "[$u] \<: floatType()"  // $u += $v
+		// LHS = integer || number => LHS <: numberType()	
+		"[$s] \<: any()", "[$t] \<: any()", "[$s] \<: numberType()", // $s *= $t
+		"[$u] \<: any()", "[$v] \<: any()", "[$u] \<: numberType()"  // $u += $v
 	];
 	list[str] expectedT = [];
 	return testConstraints("opAssign", expectedC, expectedT);
@@ -248,12 +248,12 @@ public test bool testUnaryOp() {
 	list[str] expectedC = [
 		// +$a;
 		"[$a] \<: any()",
-		"[+$a] \<: floatType()", // expression is float or int
+		"[+$a] \<: numberType()", // expression is number or int
 		"neg([$a] \<: arrayType(any()))", // $a is not an array
 		
 		// -$b;
 		"[$b] \<: any()",
-		"[-$b] \<: floatType()", // expression is float or int
+		"[-$b] \<: numberType()", // expression is number or int
 		"neg([$b] \<: arrayType(any()))", // $b is not an array
 		
 		// !$c;
@@ -317,27 +317,27 @@ public test bool testBinaryOp() {
 	list[str] expectedC = [
 		// $a + $b;
 		"[$a] \<: any()", "[$b] \<: any()",
-		"or([$a + $b] \<: arrayType(any()), [$a + $b] \<: floatType())", // always array, or subtype of floatType()
+		"or([$a + $b] \<: arrayType(any()), [$a + $b] \<: numberType())", // always array, or subtype of numberType()
 		"if (and([$a] \<: arrayType(any()), [$b] \<: arrayType(any()))) then ([$a + $b] \<: arrayType(any()))", // ($a = array && $b = array) => [E] = array
-		"if (or(neg([$a] \<: arrayType(any())), neg([$b] \<: arrayType(any())))) then ([$a + $b] \<: floatType())", // ($a != array || $b = array) => [E] <: float 
+		"if (or(neg([$a] \<: arrayType(any())), neg([$b] \<: arrayType(any())))) then ([$a + $b] \<: numberType())", // ($a != array || $b = array) => [E] <: number 
 		
 		// $c - $d;	
 		"[$c] \<: any()", "[$d] \<: any()",
 		"neg([$c] \<: arrayType(any()))",
 		"neg([$d] \<: arrayType(any()))",
-		"[$c - $d] \<: floatType()",
+		"[$c - $d] \<: numberType()",
 	
 		// $e * $f;	
 		"[$e] \<: any()", "[$f] \<: any()",
 		"neg([$e] \<: arrayType(any()))",
 		"neg([$f] \<: arrayType(any()))",
-		"[$e * $f] \<: floatType()",
+		"[$e * $f] \<: numberType()",
 	
 		// $g / $h;	
 		"[$g] \<: any()", "[$h] \<: any()",
 		"neg([$g] \<: arrayType(any()))",
 		"neg([$h] \<: arrayType(any()))",
-		"[$g / $h] \<: floatType()",
+		"[$g / $h] \<: numberType()",
 	
 		// $i % $j;	
 		"[$i] \<: any()", "[$j] \<: any()",
