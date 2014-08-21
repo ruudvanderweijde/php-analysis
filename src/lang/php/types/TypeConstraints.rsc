@@ -68,6 +68,7 @@ data TypeSet
 	| Single(TypeSymbol T)
 	| Set(set[TypeSymbol] Ts)
 	| Subtypes(TypeSet subs)
+	| Supertypes(TypeSet subs)
 	| Union(set[TypeSet] args)
 	| Intersection(set[TypeSet] args)
 	;
@@ -86,18 +87,13 @@ TypeSet Intersection ({Subtypes(TypeSet x), x, set[TypeSet] rest})
 	= Intersection (Subtypes(x), rest);
 TypeSet Intersection ({EmptySet(), set[TypeSet] _}) = EmptySet();
 TypeSet Intersection ({Universe(), set[TypeSet] x}) = Intersection({x});
-TypeSet Intersection ({set[TypeSet] _, EmptySet()}) = EmptySet();
-TypeSet Intersection ({set[TypeSet] x, Universe()}) = Intersection({x});
-//TypeSet Intersection ({EmptySet(), Set(set[TypeSet] _)}) = EmptySet();
-//TypeSet Intersection ({Universe(), Set(set[TypeSet] x)}) = Intersection({x});
 TypeSet Intersection ({Set(_), EmptySet()}) = EmptySet();
 TypeSet Intersection ({x:Set(_), Universe()}) = Intersection({x});
 TypeSet Intersection ({Set (set[TypeSymbol] t1), Set (set[TypeSymbol] t2), set[TypeSet] rest}) 
 	= Intersection ({Set (t1 & t2), rest});
 
-TypeSet Union({Universe(), set[TypeSet] _}) = Universe();
-TypeSet Union({EmptySet(), set[TypeSet] x}) = Union({x});
-TypeSet Union({set[TypeSet] _, Universe()}) = Universe();
-TypeSet Union({set[TypeSet] x, EmptySet()}) = Union({x});
+TypeSet Union({x}) = x;
+TypeSet Union({Universe(), Set(_)}) = Universe();
+TypeSet Union({EmptySet(), Set(x)}) = Union({x});
 TypeSet Union({Set(set[TypeSymbol] t1), Set (set[TypeSymbol] t2), set[TypeSet] rest}) 
 	= Union({Set(t1 + t2), rest});	

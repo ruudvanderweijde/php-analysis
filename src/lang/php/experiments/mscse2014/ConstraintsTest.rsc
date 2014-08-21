@@ -93,18 +93,20 @@ public test bool testScalars() {
 		
 	];
 	list[str] expectedT = [
-		//"[\"$encapsed string\"] = { stringType() }",
-		//"[\"string\"] = { stringType() }",
-		//"[\"{$encapsed} string\"] = { stringType() }",
-		//"[\'also a string\'] = { stringType() }",
-		//"[0.0] = { floatType() }",
-		//"[0.5] = { floatType() }",
-		//"[0] = { integerType() }",
-		//"[1000.0382] = { floatType() }",
-		//"[100] = { integerType() }",
-		//"[10] = { integerType() }",
-		//"[1] = { integerType() }",
-		//"[2] = { integerType() }"
+		"[\"$encapsed string\"] = { stringType() }",
+		"[\"string\"] = { stringType() }",
+		"[\"{$encapsed} string\"] = { stringType() }",
+		"[$encapsed] = { any() }",
+		"[$encapsed] = { any() }",
+		"[\'also a string\'] = { stringType() }",
+		"[0.0] = { floatType() }",
+		"[0.5] = { floatType() }",
+		"[0] = { integerType() }",
+		"[1000.0382] = { floatType() }",
+		"[100] = { integerType() }",
+		"[10] = { integerType() }",
+		"[1] = { integerType() }",
+		"[2] = { integerType() }"
 	];
 	return testConstraints("scalar", expectedC, expectedT);
 }
@@ -906,7 +908,7 @@ public bool testConstraints(str fileName, list[str] expectedC, list[str] expecte
 	if (isEmpty(expectedT)) {
 		test2 = true;
 	} else {
-		map[TypeOf var, set[TypeSymbol] possibles] solveResult = solveConstraints(constraints, m3, system);
+		map[TypeOf var, TypeSet possibles] solveResult = solveConstraints(constraints, m3, system);
 		test2 = comparePrettyPrintedTypes(expectedT, solveResult);
 	}
 
@@ -927,7 +929,7 @@ private bool comparePrettyPrintedConstraints(list[str] expectedC, set[Constraint
 //
 // Compare pretty printed constraints
 //
-private bool comparePrettyPrintedTypes(list[str] expectedT, map[TypeOf, set[TypeSymbol]] actual) {
+private bool comparePrettyPrintedTypes(list[str] expectedT, map[TypeOf, TypeSet] actual) {
 	// FOR NOW: when actual is empty, do not perform this test
 	if (isEmpty(expectedT)) return true;
 	

@@ -725,7 +725,10 @@ private void addConstraints(Expr e, M3 m3)
 				case integer(_):			constraints += { eq(typeOf(s@at), integerType()) };
 				case string(_):				constraints += { eq(typeOf(s@at), stringType()) };
 				case encapsed(list[Expr] parts): {
-					for (p <- parts, scalar(_) !:= p) addConstraints(p, m3);
+					for (p <- parts, scalar(_) !:= p) {
+						println("part: <p>");
+					addConstraints(p, m3);
+					}
 					constraints += { eq(typeOf(s@at), stringType()) };
 				}
 			}
@@ -1008,7 +1011,7 @@ public void addConstraintsForCallableExpression(Expr expr)
 
 // start of solving constraints (move this stuff somewhere else)
 
-public map[TypeOf var, set[TypeSymbol] possibles] solveConstraints(set[Constraint] constraints, M3 m3, System system)
+public map[TypeOf var, TypeSet possibles] solveConstraints(set[Constraint] constraints, M3 m3, System system)
 {
 	// change (eq|subtyp) TypeOf, TypeSymbol 
 	//     to (eq|subtyp) TypeOf, typeOf(TypeSymbol)
@@ -1036,13 +1039,13 @@ public map[TypeOf var, set[TypeSymbol] possibles] solveConstraints(set[Constrain
     			//println("Merge 1: <readFile(v.ident)> && <readFile(t.ident)>");
     			//println(estimates[v]);
     			//println(estimates[t]);
-     			estimates[v] = estimates[v] & estimates[t];
+     			estimates[v] = Intersection({estimates[v], estimates[t]});
      		}
     		for (v <- estimates, subtyp(v, t:typeOf(loc ident)) <- constraints) {
     			//println("Merge 2: <readFile(v.ident)> && <readFile(t.ident)>");
     			//println(estimates[v]);
     			//println(estimates[t]);
-     			estimates[v] = estimates[v] & estimates[t];
+     			estimates[v] = Intersection({estimates[v], estimates[t]});
      		}
     		//for (v <- estimates, eq(v, typeOf(TypeSymbol t)) <- constraints) {
      		//	estimates[v] = estimates[v] & {t};
@@ -1055,11 +1058,12 @@ public map[TypeOf var, set[TypeSymbol] possibles] solveConstraints(set[Constrain
     		possibleTypes = {};
     		for (t <- invertedUses[decl]) {
    			    // check if it is not universe
-    			if (getSubTypes(subtypes, {\any()}) != estimates[typeOf(t)]) {
+    			if (estimates[typeOf(t)] != Universe()) {
     				possibleTypes = estimates[typeOf(t)];
     			}
     		}
-    		if (!isEmpty(possibleTypes)) {
+    		
+    		if (possibleTypes != {}) {
 	    		for (t <- invertedUses[decl]) {
 	    			estimates[typeOf(t)] = possibleTypes;
     			}
@@ -1089,23 +1093,22 @@ public map[TypeOf var, set[TypeSymbol] possibles] solveConstraints(set[Constrain
  	return estimates;
 }
 
-public map[TypeOf, set[TypeSymbol]] initialEstimates (set[Constraint] constraints, rel[TypeSymbol, TypeSymbol] subtypes) 
+public map[TypeOf, TypeSet] initialEstimates (set[Constraint] constraints, rel[TypeSymbol, TypeSymbol] subtypes) 
 {
- 	map[TypeOf, set[TypeSymbol]] result = ();
+ 	map[TypeOf, TypeSet] result = ();
  	
  	visit (constraints) {
  		case eq(TypeOf t, typeOf(TypeSymbol ts)): {
- 			//println("ABC");
- 			result = addToMap(result, t, {ts}); 
+ 			result = addToMap(result, t, Single(ts)); 
  		}
  		case subtype(TypeOf t, typeOf(TypeSymbol ts)): {
- 			result = addToMap(result, t, getSubTypes(subtypes, {ts})); 
+ 			result = addToMap(result, t, Subtypes(Set({ts}))); 
  		}
- 		case supertype(TypeOf t, typeOf(TypeSymbol ts)): {
- 			result = addToMap(result, t, getSuperTypes(subtypes, {ts})); 
- 		}
+ 		//case supertype(TypeOf t, typeOf(TypeSymbol ts)): {
+ 		//	result = addToMap(result, t, Supertypes(Set({ts}))); 
+ 		//}
  		case TypeOf t:typeOf(loc ident): {
- 			result = addToMap(result, t, getSubTypes(subtypes, {\any()}));
+ 			result = addToMap(result, t, Universe());
  		}
  	};
  	return result;
@@ -1115,10 +1118,10 @@ public set[TypeSymbol]   getSubTypes(rel[TypeSymbol, TypeSymbol] subtypes, set[T
 public set[TypeSymbol] getSuperTypes(rel[TypeSymbol, TypeSymbol] subtypes, set[TypeSymbol] ts) = domain(rangeR(invert(subtypes*), ts));
 
 // Stupid wrapper to add or take the intersection of values
-public map[TypeOf, set[TypeSymbol]] addToMap(map[TypeOf, set[TypeSymbol]] m, TypeOf k, set[TypeSymbol] ts)
+public map[TypeOf, TypeSet] addToMap(map[TypeOf, TypeSet] m, TypeOf k, TypeSet ts)
 {
 	if (m[k]?) {
-		m[k] = m[k] & ts;	
+		m[k] = Intersection({m[k], ts});	
 	} else {
 		m[k] = ts;	
 	}
