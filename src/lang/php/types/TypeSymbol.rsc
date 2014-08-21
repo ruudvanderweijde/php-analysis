@@ -10,11 +10,12 @@ data TypeSymbol
   | classType(loc decl)
   | floatType()
   | integerType()
+  | numberType()
   | nullType()
   | objectType()
   | resourceType()
-  | stringType()
   | scalarType()
+  | stringType()
   ; 
  
 //default bool subtyp(TypeSymbol s, TypeSymbol t) = s == t;

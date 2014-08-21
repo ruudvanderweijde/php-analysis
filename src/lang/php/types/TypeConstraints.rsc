@@ -3,7 +3,7 @@ module lang::php::types::TypeConstraints
 import lang::php::ast::AbstractSyntax;
 import lang::php::types::TypeSymbol;
 
-alias TypeFacts = rel[loc decl, Fact fact];
+//alias TypeFacts = rel[loc decl, Fact fact];
 
 // these facts can be extracted from the M3.
 //data Fact
@@ -18,11 +18,6 @@ alias TypeFacts = rel[loc decl, Fact fact];
 //	| functionParameters(PhpParams params)
 //	;
 
-data TypeEnvironment
-	= var()
-	| method()
-	;
-	
 data TypeOf 
 	= typeOf(loc ident)
 	| typeOf(TypeSymbol ts)
@@ -36,8 +31,9 @@ data Constraint
     | subtyp(TypeOf a, TypeSymbol ts)
     | supertyp(TypeOf a, TypeOf t)
     | supertyp(TypeOf a, TypeSymbol ts)
-  
-  	| lub(set[TypeOf] elms) 
+ 
+ 	// kind of like 'typeEnvironment' 
+  	//| varDecl(rel[loc declaration, loc location] decl)
   	
    	// query the m3 to solve these 
     | isAFunction(TypeOf a)

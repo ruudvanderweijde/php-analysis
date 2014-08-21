@@ -42,7 +42,9 @@ public test bool testVariable() {
 	list[str] expectedC = [
 		"[$a] \<: any()"
 	];
-	list[str] expectedT = [];
+	list[str] expectedT = [
+		"[$a] = { any() }"
+	];
 	return testConstraints("variable", expectedC, expectedT);
 }
 public test bool testNormalAssign() {
@@ -65,7 +67,6 @@ public test bool testNormalAssign() {
 		"[$a] = { integerType() }",
 		"[$a = 2] = { integerType() }",
 		"[$a] = { integerType() }",
-		"[$a] = { integerType(), integerType() }",
 		"[$b = $a] = { integerType() }",
 		"[$b] = { integerType() }",
 		"[$b] = { integerType() }",

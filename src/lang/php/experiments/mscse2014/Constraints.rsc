@@ -48,7 +48,7 @@ public set[Constraint] getConstraints(System system, M3 m3)
 
 private void addConstraints(Script script, M3 m3)
 { 
-	addConstraintsOnAllVarsWithinScope(script);
+	addConstraintsOnAllVarsWithinScope(script, m3);
 	for (stmt <- script.body) {
 		addConstraints(stmt, m3);
 	}
@@ -136,7 +136,7 @@ private void addConstraints(Stmt statement, M3 m3)
 		
 		case f:function(str name, bool byRef, list[Param] params, list[Stmt] body): {
 			addDeclarationConstraint(f);
-			addConstraintsOnAllVarsWithinScope(f);
+			addConstraintsOnAllVarsWithinScope(f, m3);
 			addConstraintsOnAllReturnStatementsWithinScope(f);
 			
 			addConstraints(body, m3);
@@ -199,7 +199,7 @@ private void addConstraints(ClassItem ci, &T <: node parentNode, M3 m3)
 		
 		case m:method(str name, set[Modifier] modifiers, bool byRef, list[Param] params, list[Stmt] body): {
 			addDeclarationConstraint(m);
-			addConstraintsOnAllVarsWithinScope(m);
+			addConstraintsOnAllVarsWithinScope(m, m3);
 			addConstraintsOnAllReturnStatementsWithinScope(m);
 			
 			for (stmt <- body) addConstraints(stmt, m3);
@@ -947,10 +947,25 @@ private void addConstraints(Expr e, M3 m3)
 	}
 }
 
-public void addConstraintsOnAllVarsWithinScope(&T <: node t) 
+public void addConstraintsOnAllVarsWithinScope(&T <: node t, m3) 
 {
 	// get all vars that have @decl annotations (which means that they are writable vars)
-	constraints += { eq(typeOf(v@decl), typeOf(v@at)) | /v:var(_) <- t, v@decl? && v@scope == t@decl };
+	
+	// todo also add method calls, they can have $a->b(); and should also be linked to $a;
+	//for (/v:var(_) <- t, t@scope == v@scope) {
+	//	set[loc] decls = m3@uses[v@at];
+	//	println(decls);
+	//	println("-------------------------------------");
+	//	println(t);
+	//	println(v);
+	//	assert size(decls) == 1 : "There should only be one declarations for a variable";
+	//	constraints += varDecl( {< getOneFrom(decls), v@at >} );
+	//}
+	
+	// just use the uses relation of m3 here...
+
+	// old:
+	//constraints += { eq(typeOf(v@decl), typeOf(v@at)) | /v:var(_) <- t, v@decl? && v@scope == t@decl };
 }
 
 public void addConstraintsOnAllReturnStatementsWithinScope(&T <: node t) 
@@ -1012,23 +1027,46 @@ public map[TypeOf var, set[TypeSymbol] possibles] solveConstraints(set[Constrain
 		println("<toStr(to)> :: <estimates[to]>");
 	}
 	
+	rel[loc decl, loc location] invertedUses = invert(m3@uses + invert(m3@declarations));
+
 	solve (estimates) {
-		//for (v <- estimates, subtyp(t:typeOf(loc ident), v) <- constraints) {
-		for (v <- estimates, subtyp(t:typeOf(loc ident), v) <- constraints) {
-			//println("Merge 1: <readFile(v.ident)> && <readFile(t.ident)>");
-			//println(estimates[v]);
-			//println(estimates[t]);
- 			estimates[v] = estimates[v] & estimates[t];
- 		}
-		for (v <- estimates, subtyp(v, t:typeOf(loc ident)) <- constraints) {
-			//println("Merge 2: <readFile(v.ident)> && <readFile(t.ident)>");
-			//println(estimates[v]);
-			//println(estimates[t]);
- 			estimates[v] = estimates[v] & estimates[t];
- 		}
-		//for (v <- estimates, eq(v, typeOf(TypeSymbol t)) <- constraints) {
- 		//	estimates[v] = estimates[v] & {t};
-		//}
+		solve (estimates) {
+    		//for (v <- estimates, subtyp(t:typeOf(loc ident), v) <- constraints) {
+    		for (v <- estimates, subtyp(t:typeOf(loc ident), v) <- constraints) {
+    			//println("Merge 1: <readFile(v.ident)> && <readFile(t.ident)>");
+    			//println(estimates[v]);
+    			//println(estimates[t]);
+     			estimates[v] = estimates[v] & estimates[t];
+     		}
+    		for (v <- estimates, subtyp(v, t:typeOf(loc ident)) <- constraints) {
+    			//println("Merge 2: <readFile(v.ident)> && <readFile(t.ident)>");
+    			//println(estimates[v]);
+    			//println(estimates[t]);
+     			estimates[v] = estimates[v] & estimates[t];
+     		}
+    		//for (v <- estimates, eq(v, typeOf(TypeSymbol t)) <- constraints) {
+     		//	estimates[v] = estimates[v] & {t};
+    		//}
+    	}
+    
+    	// for each variable decl, check the types
+    	for (decl <- invertedUses.decl, isVariable(decl)) { // for all declarations
+    		// try to resolve variable types...
+    		possibleTypes = {};
+    		for (t <- invertedUses[decl]) {
+   			    // check if it is not universe
+    			if (getSubTypes(subtypes, {\any()}) != estimates[typeOf(t)]) {
+    				possibleTypes = estimates[typeOf(t)];
+    			}
+    		}
+    		if (!isEmpty(possibleTypes)) {
+	    		for (t <- invertedUses[decl]) {
+	    			estimates[typeOf(t)] = possibleTypes;
+    			}
+    		} else {
+    			println("types, could not be resolved for <decl>");	
+    		}
+    	}
 		
 		
 		
@@ -1073,8 +1111,8 @@ public map[TypeOf, set[TypeSymbol]] initialEstimates (set[Constraint] constraint
  	return result;
 }
 
-public set[TypeSymbol]   getSubTypes(rel[TypeSymbol, TypeSymbol] subtypes, set[TypeSymbol] ts) = domain(rangeR(subtypes, ts));
-public set[TypeSymbol] getSuperTypes(rel[TypeSymbol, TypeSymbol] subtypes, set[TypeSymbol] ts) = domain(rangeR(invert(subtypes), ts));
+public set[TypeSymbol]   getSubTypes(rel[TypeSymbol, TypeSymbol] subtypes, set[TypeSymbol] ts) = domain(rangeR(subtypes*, ts));
+public set[TypeSymbol] getSuperTypes(rel[TypeSymbol, TypeSymbol] subtypes, set[TypeSymbol] ts) = domain(rangeR(invert(subtypes*), ts));
 
 // Stupid wrapper to add or take the intersection of values
 public map[TypeOf, set[TypeSymbol]] addToMap(map[TypeOf, set[TypeSymbol]] m, TypeOf k, set[TypeSymbol] ts)
@@ -1091,19 +1129,28 @@ public map[TypeOf, set[TypeSymbol]] addToMap(map[TypeOf, set[TypeSymbol]] m, Typ
 public rel[TypeSymbol, TypeSymbol] getSubTypes(M3 m3, System system) 
 {
 	rel[TypeSymbol, TypeSymbol] subtypes
-		// subtypes of any()
-		= { < rootType, \any() > | rootType <- { arrayType(\any()), booleanType(), floatType(), nullType(), objectType(), resourceType(), stringType()  } }
-		// add int() as subtype of float()
-		+ { < integerType(), floatType() > }
-		// use the extends relation from M3
+		// subtypes of any() are array(), scalar() and object()
+		= { < subType, \any() > | subType <- { arrayType(), scalarType(), objectType() } }
+		
+		// subtypes of scalar() are resource, string() and null()
+		+ { < subType, scalarType() > | subType <- { resourceType(), stringType(), nullType() } }
+		// subtypes of string() are boolean() and number()
+		+ { < subType, scalarType() > | subType <- { booleanType(), numberType() } }
+		// subtypes of number() are integer() and float()
+		+ { < subType, numberType() > | subType <- { integerType(), floatType() } }
+		
+		// class(c) is a subtype of the extended class of c
+		// we use the extends relation from M3
 		+ { < classType(c), classType(e) > | <c,e> <- m3@extends }
-		// add subtype of object for all classes which do not extends a class
+		// class(c) without an extending class is a subtype of object()
 		+ { < classType(c@decl), objectType() > | l <- system, /c:class(n,_,noName(),_,_) <- system[l] };
 		
+		// TODO, add subtypes for arrays
+		
 	// compute reflexive transitive closure and return the result 
-	subtypes = subtypes*;
+	// do not do this, or else we cannot find the Lowest_common_ancestor
+	//subtypes = subtypes*;
 
-	// todo, add subtypes for arrays
 	return subtypes;
 }
 
