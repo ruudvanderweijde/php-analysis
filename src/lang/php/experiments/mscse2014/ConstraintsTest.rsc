@@ -40,10 +40,26 @@ public void main()
 
 public test bool testVariable() {
 	list[str] expectedC = [
-		"[$a] \<: any()"
+		"[$a] \<: any()", 
+		"[$a] \<: any()", 
+		"[$a] \<: any()",
+		"[$a] \<: any()",
+		"[\"string\"] = stringType()",
+		"[\"string\"] \<: [$a]",
+		"[100] = integerType()",
+		"[$a] \<: [$a = \"string\"]",
+		"[$a] \<: [$a = 100]",
+		"[100] \<: [$a]"
 	];
 	list[str] expectedT = [
-		"[$a] = { any() }"
+		"[$a] = { any() }",
+		"[$a] = { stringType() }",
+		"[$a] = { integerType() }",
+		"[$a] = { any() }",
+		"[\"string\"] = { stringType() }",
+		"[100] = { integerType() }",
+		"[$a = \"string\"] = { stringType() }",
+		"[$a = 100] = { integerType() }"
 	];
 	return testConstraints("variable", expectedC, expectedT);
 }

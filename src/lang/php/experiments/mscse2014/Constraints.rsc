@@ -979,7 +979,7 @@ public void addConstraintsOnAllReturnStatementsWithinScope(&T <: node t)
 	if (!isEmpty(returnStmts)) {
 		// if there are return statements, the disjunction of them is the return value of the function
 		constraints += { 
-			lub(
+			disjunction(
 				{ eq(typeOf(t@at), typeOf(e@at)) | rs <- returnStmts, someExpr(e) := rs }
 				+ { eq(typeOf(t@at), nullType()) | rs <- returnStmts, noExpr() := rs }
 			)};
@@ -1052,6 +1052,8 @@ public map[TypeOf var, TypeSet possibles] solveConstraints(set[Constraint] const
     		//}
     	}
     
+    	// LEAST UPPER BOUND CHECK (least common ancestor) 
+    	
     	// for each variable decl, check the types
     	for (decl <- invertedUses.decl, isVariable(decl)) { // for all declarations
     		// try to resolve variable types...
@@ -1071,11 +1073,6 @@ public map[TypeOf var, TypeSet possibles] solveConstraints(set[Constraint] const
     			println("types, could not be resolved for <decl>");	
     		}
     	}
-		
-		
-		
-		// last step is: check lub
-		// union of known types
  	}
 
 	iprintln("After solve:");	

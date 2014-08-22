@@ -71,6 +71,7 @@ data TypeSet
 	| Supertypes(TypeSet subs)
 	| Union(set[TypeSet] args)
 	| Intersection(set[TypeSet] args)
+	| LUB(set[TypeSet] args) // actually least common ancestor
 	;
 	
 TypeSet Set({\any()})        = Root();
@@ -83,8 +84,8 @@ TypeSet Subtypes(Universe())          = Universe();
 TypeSet Subtypes(Subtypes(TypeSet x)) = Subtypes(x);
 
 TypeSet Intersection ({x}) = x;
-TypeSet Intersection ({Subtypes(TypeSet x), x, set[TypeSet] rest}) 
-	= Intersection (Subtypes(x), rest);
+//TypeSet Intersection ({Subtypes(TypeSet x), x, set[TypeSet] rest}) 
+//	= Intersection (Subtypes(x), rest);
 TypeSet Intersection ({EmptySet(), set[TypeSet] _}) = EmptySet();
 TypeSet Intersection ({Universe(), set[TypeSet] x}) = Intersection({x});
 TypeSet Intersection ({Set(_), EmptySet()}) = EmptySet();
@@ -97,3 +98,12 @@ TypeSet Union({Universe(), Set(_)}) = Universe();
 TypeSet Union({EmptySet(), Set(x)}) = Union({x});
 TypeSet Union({Set(set[TypeSymbol] t1), Set (set[TypeSymbol] t2), set[TypeSet] rest}) 
 	= Union({Set(t1 + t2), rest});	
+	
+TypeSet LUB({x}) = x;
+TypeSet LUB({EmptySet(), set[TypeSet] _}) = EmptySet();
+TypeSet LUB({Universe(), set[TypeSet] x}) = Intersection({x});
+TypeSet LUB({Set(set[TypeSymbol] t1), Set (set[TypeSymbol] t2), set[TypeSet] rest}) 
+	= LUB({Set(LCA(t1, t2)), rest});	
+	
+TypeSet LCA(Set(set[TypeSymbol] t1), Set (set[TypeSymbol] t2)) =
+	t1;
