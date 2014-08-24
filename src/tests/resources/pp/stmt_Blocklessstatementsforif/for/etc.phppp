@@ -1,24 +1,26 @@
 <?php
-if ($a) {
-    $A;
-} elseif ($b) {
-    $B;
-} else {
-    $C;
+if($a) {
+	$A;
+}
+elseif ($b) {
+  $B;
+}
+else {
+  $C;
 }
 
-for (; ;) {
-    $foo;
+for(; ; ) {
+	$foo;
 }
-foreach ($a as $b) {
-    $AB;
+foreach($a as $b) {
+	$AB;
 }
-while ($a) {
-    $A;
+while($a) {
+	$A;
 }
 do {
-    $A;
+	$A;
 } while ($a);
-declare(a = 'b') {
-$C;
+declare(a='b') {
+	$C;
 }

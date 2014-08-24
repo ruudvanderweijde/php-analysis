@@ -11,12 +11,10 @@ try {
 }
 
 // no finally
-try {
-} catch (A $b) {
-}
+try { }
+catch (A $b) { }
 
 // no catch
-try {
-} finally {
-}
+try { }
+finally { }
 

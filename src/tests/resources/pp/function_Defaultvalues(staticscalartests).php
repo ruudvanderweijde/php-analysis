@@ -10,6 +10,4 @@ function a(
     $i = [],
     $j = ['foo'],
     $k = ['foo', 'bar' => 'baz']
-)
-{
-}
+) {}

@@ -1,17 +1,14 @@
 <?php
 
 // "classical" loop
-for ($i = 0; $i < $c; ++$i) {
-}
+for ($i = 0; $i < $c; ++$i) {}
 
 // multiple expressions
-for (; $a, $b;) {
-}
+for (;$a,$b;) {}
 
 // infinite loop
-for (; ;) {
-}
+for (;;) {}
 
 // alternative syntax
-for (; ;):
+for (;;):
 endfor;

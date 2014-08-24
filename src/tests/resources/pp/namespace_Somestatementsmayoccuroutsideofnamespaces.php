@@ -1,5 +1,5 @@
 <?php
-declare(A = 'B');
+declare(A='B');
 namespace B {
 
 }

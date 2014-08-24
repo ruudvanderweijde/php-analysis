@@ -1,10 +1,6 @@
 <?php
 
-class A
-{
+class A {
     var $foo;
-
-    function bar()
-    {
-    }
+    function bar() {}
 }

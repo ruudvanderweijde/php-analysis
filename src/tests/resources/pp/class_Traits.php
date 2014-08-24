@@ -1,14 +1,10 @@
 <?php
 
-trait A
-{
-    public function a()
-    {
-    }
+trait A {
+    public function a() {}
 }
 
-class B
-{
+class B {
     use C;
     use D {
         a as protected b;

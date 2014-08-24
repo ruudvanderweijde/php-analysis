@@ -1,19 +1,21 @@
 <?php
-function ($a)
+function ($a) 
 {
-    $a;
-}
-
-;
+	$a;
+};
 function ($a) use ($b)
 {
-
-}
-
-;
-function () use ($a, &$b)
+	
+};
+function () use ($a,&$b)
 {
-
-}
-
-;/* this closure not supported yet by pretty printer */;/* this closure not supported yet by pretty printer */;
+	
+};
+function &($a) 
+{
+	
+};
+static function () 
+{
+	
+};

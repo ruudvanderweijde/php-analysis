@@ -1,7 +1,7 @@
 <?php
 namespace Foo\Bar {
-    foo;
+	foo;
 }
 namespace Bar {
-    bar;
+	bar;
 }

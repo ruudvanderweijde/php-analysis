@@ -2,7 +2,7 @@
 
 array();
 array('a');
-array('a',);
+array('a', );
 array('a', 'b');
 array('a', &$b, 'c' => 'd', 'e' => &$f);
 

@@ -1,7 +1,6 @@
 <?php
 
-function a()
-{
+function a() {
     global $a, ${'b'}, $$c;
     static $c, $d = 'e';
 }

@@ -1,5 +1,4 @@
 <?php
-function a($b = null, $c = 'foo', $d = A::B, $f = +1, $g = -1.000000, $h = array(), $i = array(), $j = array('foo'), $k = array('foo', 'bar' => 'baz'))
-{
-
+function a($b = null, $c = 'foo', $d = A::B, $f = +1, $g = -1.000000, $h = array(), $i = array(), $j = array('foo'), $k = array('foo','bar' => 'baz')) {
+	
 }

@@ -2,7 +2,7 @@
 
 // ternary
 $a ? $b : $c;
-$a ? : $c;
+$a ?: $c;
 
 // precedence
 $a ? $b : $c ? $d : $e;

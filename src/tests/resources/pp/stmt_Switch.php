@@ -11,8 +11,5 @@ switch ($a):
 endswitch;
 
 // leading semicolon
-switch ($a) {
-;
-}
-switch ($a):;
-endswitch;
+switch ($a) { ; }
+switch ($a): ; endswitch;

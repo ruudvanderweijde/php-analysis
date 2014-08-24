@@ -1,5 +1,3 @@
 <?php
 
-final class A
-{
-}
+final class A {}

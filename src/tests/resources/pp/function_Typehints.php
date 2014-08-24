@@ -1,5 +1,3 @@
 <?php
 
-function a($b, array $c, callable $d, E $f)
-{
-}
+function a($b, array $c, callable $d, E $f) {}

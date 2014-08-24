@@ -1,11 +1,10 @@
 <?php
-use A as B;
-use A;
 use A\B;
 use C\D as E;
-use F\G as H;
-use foo\BAR as BAZ;
-use foo\BAR;
-use foo\bar as baz;
+use F\G as H, J;
+use A;
+use A as B;
 use foo\bar;
-use J;
+use foo\bar as baz;
+use foo\BAR;
+use foo\BAR as BAZ;

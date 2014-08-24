@@ -1,15 +1,13 @@
 <?php
-switch ($a) {
-    case 0:
-    case 1:
-    default:
+switch($a) {
+	case 0:case 1:default:
 }
-switch ($a) {
-
+switch($a) {
+	
 }
-switch ($a) {
-
+switch($a) {
+	
 }
-switch ($a) {
-
+switch($a) {
+	
 }

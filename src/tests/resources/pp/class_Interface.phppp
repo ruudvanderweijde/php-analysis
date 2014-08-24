@@ -1,8 +1,5 @@
 <?php
-
-interface A extends C, D
-{
-    public function a()
-    {
-    }
+interface A extends C, D {
+	public function a() {
+}
 }

@@ -108,22 +108,19 @@ public str pp(clone(Expr expr)) = "clone <pp(expr)>";
 
 //	| closure(list[Stmt] statements, list[Param] params, list[ClosureUse] closureUses, bool byRef, bool static)
 // TODO: Add remaining closure cases...
-public str pp(closure(list[Stmt] statements, list[Param] params, list[ClosureUse] closureUses, false, false)) = 
-	"function (<intercalate(",",[pp(p)|p<-params])>) use (<intercalate(",",[pp(cu)|cu<-closureUses])>)
+public str pp(closure(list[Stmt] statements, list[Param] params, list[ClosureUse] closureUses, bool byRef, bool static)) = 
+	"<static?"static ":"">function <byRef?"&":"">(<intercalate(",",[pp(p)|p<-params])>) <pp(closureUses)>
 	'{
 	'	<for(s<-statements) {><pp(s)><}>
-	'}"
+	'}";
+	
+public str pp(list[ClosureUse] closureUses) = "use (<intercalate(",",[pp(cu)|cu<-closureUses])>)"
 	when !isEmpty(closureUses);
-
-public str pp(closure(list[Stmt] statements, list[Param] params, list[ClosureUse] closureUses, false, false)) = 
-	"function (<intercalate(",",[pp(p)|p<-params])>)
-	'{
-	'	<for(s<-statements) {><pp(s)><}>
-	'}"
+public str pp(list[ClosureUse] closureUses) = ""
 	when isEmpty(closureUses);
-
-public str pp(closure(_,_,_,_,_)) = 
-	"/* this closure not supported yet by pretty printer */";
+	
+// TODO: this closure not supported yet by pretty printer
+public str pp(c:closure(_,_,_,_,_)) { throw "Unsupported: <c>"; }
 	
 //	| fetchConst(Name name)
 public str pp(fetchConst(Name name)) = "<pp(name)>";
@@ -145,10 +142,14 @@ public str pp(call(NameOrExpr funName, list[ActualParameter] parameters)) =
 	"<pp(funName)>(<intercalate(",",[pp(p)|p<-parameters])>)";
 
 //	| methodCall(Expr target, NameOrExpr methodName, list[ActualParameter] parameters)
+public str pp(methodCall(Expr target, expr(scalar(methodName)), list[ActualParameter] parameters)) =
+	"<pp(target)>-\>{<pp(methodName)>}(<intercalate(",",[pp(p)|p<-parameters])>)";
 public str pp(methodCall(Expr target, NameOrExpr methodName, list[ActualParameter] parameters)) =
 	"<pp(target)>-\><pp(methodName)>(<intercalate(",",[pp(p)|p<-parameters])>)";
 
 //	| staticCall(NameOrExpr staticTarget, NameOrExpr methodName, list[ActualParameter] parameters)
+public str pp(staticCall(NameOrExpr staticTarget, expr(scalar(methodName)), list[ActualParameter] parameters)) =
+	"<pp(staticTarget)>::{<pp(methodName)>}(<intercalate(",",[pp(p)|p<-parameters])>)";
 public str pp(staticCall(NameOrExpr staticTarget, NameOrExpr methodName, list[ActualParameter] parameters)) =
 	"<pp(staticTarget)>::<pp(methodName)>(<intercalate(",",[pp(p)|p<-parameters])>)";
 
@@ -165,25 +166,30 @@ public str pp(isSet(list[Expr] exprs)) = "isset(<intercalate(",",[pp(e)|e<-exprs
 public str pp(Expr::print(Expr expr)) = "print(<pp(expr)>)";
 
 //	| propertyFetch(Expr target, NameOrExpr propertyName)
+public str pp(propertyFetch(Expr target, expr(scalar(s)))) 		   = "<pp(target)>::${<pp(s)>}";
 public str pp(propertyFetch(Expr target, NameOrExpr propertyName)) = "<pp(target)>-\><pp(propertyName)>";
 
 //	| shellExec(list[Expr] parts)
 // TODO: literal text is handled as string and will add quotes, this is not correct.
-public str pp(shellExec(list[Expr] parts)) = "`<intercalate(" ",[pp(p)|p<-parts])>`";
+public str pp(shellExec(list[Expr] parts)) = "`<intercalate(" ",[ppShellExec(p)|p<-parts])>`";
+public str ppShellExec(scalar(string(s))) = replaceAll("<s>", "`", "\\`");
+public str ppShellExec(Expr expr) = "{<pp(expr)>}";
 
 //	| ternary(Expr cond, OptionExpr ifBranch, Expr elseBranch)
-public str pp(ternary(Expr c, OptionExpr ib, Expr eb)) = "<pp(c)>?<pp(ib)>:<pp(eb)>";
+public str pp(ternary(Expr c, OptionExpr ib, Expr eb)) = "<pp(c)> ? <pp(ib)> : <pp(eb)>";
 
 //	| staticPropertyFetch(NameOrExpr className, NameOrExpr propertyName)
+public str pp(staticPropertyFetch(NameOrExpr cn, expr(scalar(s)))) = "<pp(cn)>::${<pp(s)>}";
 public str pp(staticPropertyFetch(NameOrExpr cn, NameOrExpr pn)) = "<pp(cn)>::$<pp(pn)>";
 
 //	| scalar(Scalar scalarVal)
 public str pp(scalar(Scalar scalarVal)) = pp(scalarVal);
 
 //	| var(NameOrExpr varName)	
-public str pp(var(NameOrExpr varName)) = "$<pp(varName)>";
 //public str pp(var(name(Name varName))) = "$<varName>";
-//public str pp(var(expr(Expr expr))) = "${<pp(expr)>}";
+public str pp(var(expr(scalar(s)))) = "${<pp(s)>}";
+public str pp(var(NameOrExpr varName)) = "$<pp(varName)>";
+//public str pp(var(expr(Expr expr))) = "$<pp(expr)>";
 
 //  | yield(OptionExpr keyExpr, OptionExpr valueExpr)
 public str pp(yield(noExpr(), noExpr())) = "yield";
@@ -293,8 +299,8 @@ public str pp(namespaceConstant()) = "__NAMESPACE__";
 public str pp(traitConstant()) = "__TRAIT__";
 public str pp(Scalar::float(real r)) = "<r>";
 public str pp(integer(int i)) = "<i>";
-public str pp(Scalar::string(str s)) = "\'<s>\'";
-public str pp(encapsed(list[Expr] parts)) = intercalate(".",[pp(p) | p <- parts]);
+public str pp(Scalar::string(str s)) = "\'<replaceAll("<s>", "\'", "\\\'")>\'";
+public str pp(encapsed(list[Expr] parts)) = intercalate(" . ",[pp(p) | p <- parts]);
 
 //public data Stmt 
 //	= \break(OptionExpr breakExpr)
@@ -305,7 +311,7 @@ public str pp(\break(noExpr())) = "break;";
 public str pp(classDef(ClassDef classDef)) = pp(classDef);
 
 //	| const(list[Const] consts)
-public str pp(Stmt::const(list[Const] consts)) = "const <intercalate(",",[pp(c)|c<-consts])>;";
+public str pp(Stmt::const(list[Const] consts)) = "const <intercalate(", ",[pp(c)|c<-consts])>;";
 
 //	| \continue(OptionExpr continueExpr)
 public str pp(\continue(someExpr(Expr continueExpr))) = "continue <pp(continueExpr)>;";
@@ -313,9 +319,9 @@ public str pp(\continue(noExpr())) = "continue;";
 
 //	| declare(list[Declaration] decls, list[Stmt] body)
 public str pp(declare(list[Declaration] decls, list[Stmt] body)) = 
-	"declare(<intercalate(",",[pp(d)|d<-decls])>);" when isEmpty(body);
+	"declare(<intercalate(", ",[pp(d)|d<-decls])>);" when isEmpty(body);
 public str pp(declare(list[Declaration] decls, list[Stmt] body)) = 
-	"declare(<intercalate(",",[pp(d)|d<-decls])>) {
+	"declare(<intercalate(", ",[pp(d)|d<-decls])>) {
 	'	<for(b<-body) {><pp(b)><}>
 	'}" when !isEmpty(body);
 
@@ -326,7 +332,7 @@ public str pp(do(Expr cond, list[Stmt] body)) =
 	'} while (<pp(cond)>);";
 
 //	| echo(list[Expr] exprs)
-public str pp(echo(list[Expr] exprs)) = "echo(<intercalate(".",[pp(e)|e<-exprs])>);";
+public str pp(echo(list[Expr] exprs)) = "echo(<intercalate(" . ",[pp(e)|e<-exprs])>);";
 
 //	| exprstmt(Expr expr)
 public str pp(exprstmt(Expr expr)) = "<pp(expr)>;";
@@ -334,7 +340,7 @@ public str pp(exprstmt()) = "";
 
 //	| \for(list[Expr] inits, list[Expr] conds, list[Expr] exprs, list[Stmt] body)
 public str pp(\for(list[Expr] inits, list[Expr] conds, list[Expr] exprs, list[Stmt] body)) = 
-	"for(<intercalate(",",[pp(i)|i<-inits])> ; <intercalate(",",[pp(c)|c<-conds])> ; <intercalate(",",[pp(e)|e<-exprs])>) {
+	"for(<intercalate(", ",[pp(i)|i<-inits])>; <intercalate(", ",[pp(c)|c<-conds])>; <intercalate(", ",[pp(e)|e<-exprs])>) {
 	'	<for (b <- body) {><pp(b)><}>
 	'}";
 
@@ -358,16 +364,16 @@ public str pp(foreach(Expr arrayExpr, noExpr(), true, Expr asVar, list[Stmt] bod
 	
 //	| function(str name, bool byRef, list[Param] params, list[Stmt] body)
 public str pp(function(str name, true, list[Param] params, list[Stmt] body)) = 
-	"function &<name>(<intercalate(",",[pp(p)|p<-params])>) {
+	"function &<name>(<intercalate(", ",[pp(p)|p<-params])>) {
 	'	<for (b <- body) {><pp(b)><}>
 	'}";
 public str pp(function(str name, false, list[Param] params, list[Stmt] body)) = 
-	"function <name>(<intercalate(",",[pp(p)|p<-params])>) {
+	"function <name>(<intercalate(", ",[pp(p)|p<-params])>) {
 	'	<for (b <- body) {><pp(b)><}>
 	'}";
 
 //	| global(list[Expr] exprs)
-public str pp(global(list[Expr] exprs)) = "global <intercalate(",",[pp(e)|e<-exprs])>;";
+public str pp(global(list[Expr] exprs)) = "global <intercalate(", ",[pp(e)|e<-exprs])>;\n";
 
 //	| goto(Name label)
 public str pp(goto(Name label)) = "goto <pp(label)>;";
@@ -431,7 +437,7 @@ public str pp(\return(someExpr(Expr returnExpr))) = "return <pp(returnExpr)>;";
 public str pp(\return(noExpr())) = "return;";
 
 //	| static(list[StaticVar] vars)
-public str pp(Stmt::static(list[StaticVar] vars)) = "static <intercalate(",",[pp(v)|v<-vars])>;";
+public str pp(Stmt::static(list[StaticVar] vars)) = "static <intercalate(", ",[pp(v)|v<-vars])>;";
 
 //	| \switch(Expr cond, list[Case] cases)
 public str pp(\switch(Expr cond, list[Case] cases)) = 
@@ -459,10 +465,10 @@ public str pp(tryCatchFinally(list[Stmt] body, list[Catch] catches, list[Stmt] f
 	'}";
 
 //	| unset(list[Expr] unsetVars)
-public str pp(Stmt::unset(list[Expr] unsetVars)) = "unset(<intercalate(",",[pp(u)|u<-unsetVars])>);";
+public str pp(Stmt::unset(list[Expr] unsetVars)) = "unset(<intercalate(", ",[pp(u)|u<-unsetVars])>);";
 
 //	| use(list[Use] uses)
-public str pp(Stmt::use(list[Use] uses)) = "use <intercalate(",",[pp(u)|u<-uses])>;";
+public str pp(Stmt::use(list[Use] uses)) = "use <intercalate(", ",[pp(u)|u<-uses])>;";
 
 //	| \while(Expr cond, list[Stmt] body)
 public str pp(\while(Expr cond, list[Stmt] body)) = 
@@ -531,31 +537,31 @@ public str pp(ClassItem::property(set[Modifier] modifiers, list[Property] prop))
 	'<}>";
 
 //	| constCI(list[Const] consts)
-public str pp(constCI(list[Const] consts)) = "const <intercalate(",",[pp(c)|c<-consts])>;";
+public str pp(constCI(list[Const] consts)) = "const <intercalate(", ",[pp(c)|c<-consts])>;";
 
 //	| method(str name, set[Modifier] modifiers, bool byRef, list[Param] params, list[Stmt] body)
 // TODO classes of interfaces have no body
 public str pp(method(str name, set[Modifier] modifiers, true, list[Param] params, list[Stmt] body)) =
-	"<intercalate(" ", [pp(m)|m<-modifiers])> function &<name>(<intercalate(",",[pp(p)|p<-params])>) {<for (b <- body) {>
+	"<intercalate(" ", [pp(m)|m<-modifiers])> function &<name>(<intercalate(", ",[pp(p)|p<-params])>) {<for (b <- body) {>
 	'	<pp(b)><}>
 	'}"
 	when !(\abstract() in modifiers); 
 
 public str pp(method(str name, set[Modifier] modifiers, true, list[Param] params, list[Stmt] body)) =
-	"<intercalate(" ", [pp(m)|m<-modifiers])> function &<name>(<intercalate(",",[pp(p)|p<-params])>);";
+	"<intercalate(" ", [pp(m)|m<-modifiers])> function &<name>(<intercalate(", ",[pp(p)|p<-params])>);";
 
 public str pp(method(str name, set[Modifier] modifiers, false, list[Param] params, list[Stmt] body)) =
-	"<intercalate(" ", [pp(m)|m<-modifiers])> function <name>(<intercalate(",",[pp(p)|p<-params])>) {<for (b <- body) {>
+	"<intercalate(" ", [pp(m)|m<-modifiers])> function <name>(<intercalate(", ",[pp(p)|p<-params])>) {<for (b <- body) {>
 	'	<pp(b)><}>
 	'}"
 	when !(\abstract() in modifiers); 
 
 public str pp(method(str name, set[Modifier] modifiers, false, list[Param] params, list[Stmt] body)) =
-	"<intercalate(" ", [pp(m)|m<-modifiers])> function <name>(<intercalate(",",[pp(p)|p<-params])>);";
+	"<intercalate(" ", [pp(m)|m<-modifiers])> function <name>(<intercalate(", ",[pp(p)|p<-params])>);";
 
 //	| traitUse(list[Name] traits, list[Adaptation] adaptations)
 public str pp(traitUse(list[Name] traits, list[Adaptation] adaptations)) =
-	"use <intercalate(",",[pp(t)|t<-traits])> {
+	"use <intercalate(", ",[pp(t)|t<-traits])> {
 	'	<for (a <- adaptations) {><pp(a)><}> 
 	'}";
 	
@@ -571,9 +577,9 @@ public str pp(traitAlias(someName(traitName), Name methName, set[Modifier] newMo
 	
 // Apaptation::traitPrecedence(OptionName traitName, Name methName, set[Name] insteadOf)
 public str pp(traitPrecedence(noName(), Name methName, set[Name] insteadOf)) =
-	"<pp(methName)> insteadof <intercalate(",", [pp(i)|i<-insteadOf])>;";
+	"<pp(methName)> insteadof <intercalate(", ", [pp(i)|i<-insteadOf])>;";
 public str pp(traitPrecedence(someName(traitName), Name methName, set[Name] insteadOf)) =
-	"<pp(traitName)>::<pp(methName)> insteadof <intercalate(",", [pp(i)|i<-insteadOf])>;";
+	"<pp(traitName)>::<pp(methName)> insteadof <intercalate(", ", [pp(i)|i<-insteadOf])>;";
 
 //public data Property = property(str propertyName, OptionExpr defaultValue);
 public str pp(Property::property(str propertyName, someExpr(Expr defaultValue))) = "$<propertyName> = <pp(defaultValue)>";
@@ -603,11 +609,11 @@ public str pp(class(str className, set[Modifier] modifiers, noName(), list[Name]
 	'	<for (m <- members) {><pp(m)><}>
 	'}" when isEmpty(modifiers) && isEmpty(implements);
 public str pp(class(str className, set[Modifier] modifiers, someName(Name extends), list[Name] implements, list[ClassItem] members)) =
-	"class <className> extends <pp(extends)> implements <intercalate(",",[pp(i)|i<-implements])> {
+	"class <className> extends <pp(extends)> implements <intercalate(", ",[pp(i)|i<-implements])> {
 	'	<for (m <- members) {><pp(m)><}>
 	'}" when isEmpty(modifiers) && !isEmpty(implements);
 public str pp(class(str className, set[Modifier] modifiers, noName(), list[Name] implements, list[ClassItem] members)) =
-	"class <className> implements <intercalate(",",[pp(i)|i<-implements])> {
+	"class <className> implements <intercalate(", ",[pp(i)|i<-implements])> {
 	'	<for (m <- members) {><pp(m)><}>
 	'}" when isEmpty(modifiers) && !isEmpty(implements);
 public str pp(class(str className, set[Modifier] modifiers, someName(Name extends), list[Name] implements, list[ClassItem] members)) =
@@ -619,11 +625,11 @@ public str pp(class(str className, set[Modifier] modifiers, noName(), list[Name]
 	'	<for (m <- members) {><pp(m)><}>
 	'}" when !isEmpty(modifiers) && isEmpty(implements);
 public str pp(class(str className, set[Modifier] modifiers, someName(Name extends), list[Name] implements, list[ClassItem] members)) =
-	"<intercalate(" ",[pp(m)|m<-modifiers])> class <className> extends <pp(extends)> implements <intercalate(",",[pp(i)|i<-implements])> {
+	"<intercalate(" ",[pp(m)|m<-modifiers])> class <className> extends <pp(extends)> implements <intercalate(", ",[pp(i)|i<-implements])> {
 	'	<for (m <- members) {><pp(m)><}>
 	'}" when !isEmpty(modifiers) && !isEmpty(implements);
 public str pp(class(str className, set[Modifier] modifiers, noName(), list[Name] implements, list[ClassItem] members)) =
-	"<intercalate(" ",[pp(m)|m<-modifiers])> class <className> implements <intercalate(",",[pp(i)|i<-implements])> {
+	"<intercalate(" ",[pp(m)|m<-modifiers])> class <className> implements <intercalate(", ",[pp(i)|i<-implements])> {
 	'	<for (m <- members) {><pp(m)><}>
 	'}" when !isEmpty(modifiers) && !isEmpty(implements);
 	
@@ -636,7 +642,7 @@ public str pp(interface(str interfaceName, list[Name] extends, list[ClassItem] m
 	'	<for (m <- members) {><pp(m)><}>
 	'}" when isEmpty(extends);
 public str pp(interface(str interfaceName, list[Name] extends, list[ClassItem] members)) =
-	"interface <interfaceName> extends <intercalate(",",[pp(e)|e<-extends])> {
+	"interface <interfaceName> extends <intercalate(", ",[pp(e)|e<-extends])> {
 	'	<for (m <- members) {><pp(m)><}>
 	'}" when !isEmpty(extends);
 

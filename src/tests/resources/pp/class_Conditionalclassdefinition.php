@@ -1,7 +1,5 @@
 <?php
 
 if (true) {
-    class A
-    {
-    }
+    class A {}
 }

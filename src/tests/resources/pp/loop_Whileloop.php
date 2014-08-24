@@ -1,7 +1,6 @@
 <?php
 
-while ($a) {
-}
+while ($a) {}
 
 while ($a):
 endwhile;

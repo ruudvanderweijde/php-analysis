@@ -1,7 +1,5 @@
 <?php
 
 if (true) {
-    function A()
-    {
-    }
+    function A() {}
 }

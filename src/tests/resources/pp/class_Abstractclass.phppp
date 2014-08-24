@@ -1,10 +1,5 @@
 <?php
-
-abstract class A
-{
-    public function a()
-    {
-    }
-
-    abstract public function b();
+abstract class A {
+	public function a() {
+}abstract public function b();
 }
