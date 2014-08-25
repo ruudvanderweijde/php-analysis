@@ -7,120 +7,169 @@ import lang::php::m3::Core;
 import lang::php::m3::Containment;
 import lang::php::types::TypeSymbol;
 
+import IO;
 import List;
 import Relation;
 import Set;
 import String;
 
+// The parsing of @param is performed as follows:
+//
+// If      `@param ___ $___` is found, only try to match this structure
+// Then if `@param $___ ___` is found, only try to match this structure
+// Then if `@param ___` is found, only try to match this structure
+//
+// This means that mixing up different styles within one code block can lead to partly results.
+//
 public M3 addAnnotationsForNode(&T <: node relatedNode, M3 m3)
 {
 	str phpdoc = relatedNode@phpdoc;
 	
-	return parseAnnotations(phpdoc, relatedNode, m3);
+	m3@annotations += parseAnnotations(phpdoc, relatedNode, m3);
+	
+	return m3;
 }
 
 private rel[loc decl, Annotation annotation] parseAnnotations(str input, &T <: node relatedNode, M3 m3)
 {
 	rel[loc decl, Annotation annotation] annotations = {};
 
-	println("entering parseAnnotations with str: <input>");	
-	println("entering parseAnnotations with relatedNode: <relatedNode>");	
 	// for methods and functions:
 	// read @param type $paramName
 	// read @return type
-	if (n:method(_,_,_,list[Param] params,_) := relatedNode || n:function(_,_,list[Param] params,_) := relatedNode) {
-	
-		// Only read one of the 3 variation of the @param annotation:
-		
-		// #1 match `@param type $var` 
-		if (/@param\s+<types:[^\$\s]+>\s+\$<varName:[^\s]+>/i := input) {
-			for (/@param\s+<types:[^\$\s]+>\s+\$<varName:[^\s]+>/i := input) {
-				if (/p:param(varName,_,_,_) := params) {
-					annotations += { <p@decl, parameterType(parseTypes(types))> };
-				}
-			}
+	if (method(_,_,_,list[Param] params,_) := relatedNode || function(_,_,list[Param] params,_) := relatedNode) {
+		// read @param annotation
+		annotations += getParamAnnotations(input, relatedNode, m3, params);
 			
-		// #2 match `@param $var type` 
-		} elseif (/@param\s+\$<varName:[^\s]+>\s+<types:[^\$\s]+>/m := input) {
-			for (/@param\s+\$<varName:[^\s]+>\s+<types:[^\$\s]+>/m := input) {
-				if (/p:param(varName,_,_,_) := params) {
-					annotations += { <p@decl, parameterType(parseTypes(types))> };
-				}
-			}
-			
-		// #3 match `@param type` 
-		} elseif (/@param\s+<types:[^\$\s]+><varName:>/i := input) {
-			// no parameter names are provided. Use an iterator to determain the type of the parameters
-			// for instance, method `method($first, $second, $third)` and annotations matches:
-			// @param int		// $first.decl = int
-			// @param string	// $second.decl = string
-			//					// $third will be ignored
-			// 
-			for (/@param\s+<types:[^\$\s]+><varName:>/i := input) {
-				if (!isEmpty(params)) {
-					<p,params> = pop(params);
-					annotations += { <p@decl, parameterType(parseTypes(types))> };
-				}
-			}
-		}
-		
 		// return type should always look like: @return types
 		if (/@return\s+<types:[^\s]+>/ := input) {
-			annotations = { <n@decl, returnType(parseTypes(types))> };
+			annotations = { <relatedNode@decl, returnType(parseTypes(types, relatedNode, m3))> };
 		}
 		
 	} else {
-		// for all nodes:	
-		// read @var types $varName
-		// read @type types $varName
-		
-		// #1 match `@(var|type) type $var` 
-		if (/@(var|type)\s+<types:[^\$\s]+>\s+\$<varName:[^\s]+>/i := input) {
-			for (/@(var|type)\s+<types:[^\$\s]+>\s+\$<varName:[^\s]+>/i := input) {
-				println("Matches #1:");
-				println(types);
-				println(varName);
-				//if (/p:param(varName,_,_,_) := params) {
-				//	annotations += { <p@decl, parameterType(parseTypes(types))> };
-				//}
-			}
-			
-		// #2 match `@(var|type) $var type` 
-		} elseif (/@(var|type)\s+\$<varName:[^\s]+>\s+<types:[^\$\s]+>/m := input) {
-			for (/@(var|type)\s+\$<varName:[^\s]+>\s+<types:[^\$\s]+>/m := input) {
-				println("Matches #2:");
-				println(types);
-				println(varName);
-				//if (/p:param(varName,_,_,_) := params) {
-				//	annotations += { <p@decl, parameterType(parseTypes(types))> };
-				//}
-			}
-			
-		// #3 match `@param type` 
-		} elseif (/@(var|type)\s+<types:[^\$\s]+><varName:>/i := input) {
-				println("Matches #3:");
-				println(types);
-				println(varName);
-			// no parameter names are provided. Use an iterator to determain the type of the parameters
-			// for instance, method `method($first, $second, $third)` and annotations matches:
-			// @param int		// $first.decl = int
-			// @param string	// $second.decl = string
-			//					// $third will be ignored
-			// 
-			//for (/@param\s+<types:[^\$\s]+><varName:>/i := input) {
-			//	if (!isEmpty(params)) {
-			//		<p,params> = pop(params);
-			//		annotations += { <p@decl, parameterType(parseTypes(types))> };
-			//	}
-			//}
+		// read @(var|type) annotations for var(_) and property(_,_)
+		 
+		if (var(_) := relatedNode || property(_,_) := relatedNode) {
+			annotations += getVarAnnotations(input, relatedNode, m3);
+		} elseif (ClassDef := relatedNode) {
+			; // ignore class annotations
+		} else {
+			throw "Annotation on unsupported node :: <relatedNode>";	
 		}
+	}	
 	
-        //if (preg_match_all('/@var\s+\$([^\s]+)\s+([^\s]+)/i', $doc, $matches)) {
-        //;
-        //}
-	}
 	
 	return annotations;	
+}
+
+private rel[loc decl, Annotation annotation] getParamAnnotations(str input, &T <: node relatedNode, M3 m3, list[Param] params) {
+	rel[loc decl, Annotation annotation] annotations = {};
+	
+	// Only read one of the 3 variation of the @param annotation:
+	
+	// #1 match `@param type $var` 
+	if (/@param\s+<types:[^\$\s]+>\s+\$<varName:[^\s]+>/i := input) {
+		for (/@param\s+<types:[^\$\s]+>\s+\$<varName:[^\s]+>/i := input) {
+			if (/p:param(varName,_,_,_) := params) {
+				annotations += { <p@decl, parameterType(parseTypes(types, relatedNode, m3))> };
+			}
+		}
+		
+	// #2 match `@param $var type` 
+	} elseif (/@param\s+\$<varName:[^\s]+>\s+<types:[^\$\s]+>/m := input) {
+		for (/@param\s+\$<varName:[^\s]+>\s+<types:[^\$\s]+>/m := input) {
+			if (/p:param(varName,_,_,_) := params) {
+				annotations += { <p@decl, parameterType(parseTypes(types, relatedNode, m3))> };
+			}
+		}
+		
+	// #3 match `@param type` 
+	} elseif (/@param\s+<types:[^\$\s]+><varName:>/i := input) {
+		// no parameter names are provided. Use an iterator to determain the type of the parameters
+		// for instance, method `method($first, $second, $third)` and annotations matches:
+		// @param int		// $first.decl = int
+		// @param string	// $second.decl = string
+		//					// $third will be ignored
+		// 
+		for (/@param\s+<types:[^\$\s]+><varName:>/i := input) {
+			if (!isEmpty(params)) {
+				<p,params> = pop(params);
+				annotations += { <p@decl, parameterType(parseTypes(types, relatedNode, m3))> };
+			}
+		}
+	}
+	
+	return annotations;
+}
+
+private rel[loc decl, Annotation annotation] getVarAnnotations(str input, &T <: node relatedNode, M3 m3) 
+{
+		//if (var(_) := relatedNode || property(_,_)) {
+		//	annotations += getVarAnnotations(input, relatedNode, m3);
+		//	// somehow: var(name(name(str name))) is not allowed...
+		//	if (v.name? && v.name.name?) 
+		//		annotations += getVarAnnotations(input, v@decl, v.name.name, relatedNode, m3);
+		//} elseif (property(_, list[Property] ps) := relatedNode) {
+		//	for (p:property(name,_) <- ps) {
+		//		annotations += getVarAnnotations(input, p@decl, name, relatedNode, m3);
+		//	}		
+		//} elseif (ClassDef := relatedNode) {
+		//	; // ignore class annotations
+		//} else {
+		//	throw "Annotation on unsupported node :: <relatedNode>";	
+		//}
+	rel[loc decl, Annotation annotation] annotations = {};
+	
+	 //#1 match `@(var|type) type $var` 
+	if (/@(var|type)\s+<types:[^\$\s]+>\s+\$<varName:[^\s]+>/i := input) {
+		if (v:var(_) := relatedNode && v.name? && v.name.name?) { // var(name(name(str name))) results in: Expected Expr, but got ClassItem
+			// relatedNode is a variable
+			if (/@(var|type)\s+<types:[^\$\s]+>\s+\$<varName>/i := input) {
+				annotations += { <v@decl, varType(parseTypes(types, relatedNode, m3))> };
+			}
+		} elseif (property(_,list[Property] ps) := relatedNode) {
+			// Try to match the fields with the name
+			for (/@(var|type)\s+<types:[^\$\s]+>\s+\$<varName:[^\s]+>/i := input) {
+				if (/p:Property::property(varName,_) := ps) {
+					annotations += { <p@decl, varType(parseTypes(types, relatedNode, m3))> };
+				}
+			}
+		}
+			//iprintln(annotations);
+		
+	// #2 match `@(var|type) $var type` 
+	} elseif (/@(var|type)\s+\$<varName:[^\s]+>\s+<types:[^\$\s]+>/m := input) {
+		if (v:var(_) := relatedNode && v.name? && v.name.name?) { // var(name(name(str name))) results in: Expected Expr, but got ClassItem
+			// relatedNode is a variable
+			if (/@(var|type)\s+<types:[^\$\s]+>\s+\$<varName>/i := input) {
+				annotations += { <v@decl, varType(parseTypes(types, relatedNode, m3))> };
+			}
+		} elseif (property(_,list[Property] ps) := relatedNode) {
+			// Try to match the fields with the name
+			for (/@(var|type)\s+\$<varName:[^\s]+>\s+<types:[^\$\s]+>/m := input) {
+				if (/p:Property::property(varName,_) := ps) {
+					annotations += { <p@decl, varType(parseTypes(types, relatedNode, m3))> };
+				}
+			}
+		}
+		
+	// #3 match `@(var|type) type` 
+	} elseif (/@(var|type)\s+<types:[^\$\s]+>/i := input) {
+		if (v:var(_) := relatedNode && v.name? && v.name.name?) { // var(name(name(str name))) results in: Expected Expr, but got ClassItem
+			// relatedNode is a variable
+			annotations += { <v@decl, varType(parseTypes(types, relatedNode, m3))> };
+		} elseif (property(_,list[Property] ps) := relatedNode) {
+			// Iterate over the class fields
+			for (/@(var|type)\s+<types:[^\$\s]+><varName:>/i := input) {
+				if (!isEmpty(ps)) {
+					<p,ps> = pop(ps);
+					annotations += { <p@decl, varType(parseTypes(types, relatedNode, m3))> };
+				}
+			}
+		}
+	}
+	
+	return annotations;
 }
 
 private set[TypeSymbol] parseTypes(str typeString, &T <: node relatedNode, M3 m3) {
@@ -192,7 +241,7 @@ private set[TypeSymbol] parseTypeRaw(str typeString, &T <: node relatedNode, M3 
 			typeSymbol = { callableType() };
 			
 		case /^(self|\$this)$/i:
-			typeSymbol = { class(c) | c <- getClassTraitOrInterface(m3@containment, relatedNode@scope) };
+			typeSymbol = { classType(getClassTraitOrInterface(m3@containment, relatedNode@scope)) };
 			
 		case /^(static|parent)$/i:
 			typeSymbol = { objectType() }; 
