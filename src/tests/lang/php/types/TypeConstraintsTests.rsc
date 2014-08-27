@@ -41,6 +41,7 @@ private set[TypeSet] singles = { Single(s) | s <- types};
 private set[TypeSet] getMixed() 
 	= { getOneFrom(singles) | x <- [getOneFrom([0..2])..getOneFrom([1..5])] }
 	+ { Universe() | x <- [1..getOneFrom([0..2])] }
+	+ { Root() | x <- [1..getOneFrom([0..2])] }
 	+ { EmptySet() | x <- [1..getOneFrom([0..2])] }
 	;
 
@@ -67,6 +68,7 @@ private void assertUnionRules(int n)
 		res = Union(input);
 		
 		if ({Universe() ,_*} := input) assert Universe() == res : "<input> :: <res>";
+		elseif ({Root() ,_*} := input) assert Set(({\any()} | it + s | Set(s) <- input)) == res : "<input> :: <res>";
 		elseif ({Set(_) ,_*} := input) assert Set(({} | it + s | Set(s) <- input)) == res : "<input> :: <res>";
 		elseif ({EmptySet()} := input) assert EmptySet() == res : "<input> :: <res>";
 		else 					       assert Set({}) == res : "<input> :: <res>";
@@ -89,6 +91,9 @@ private void assertIntersectionRules(int n)
 		res = Intersection(input);
 		
 		if ({EmptySet() ,_*} := input) assert EmptySet() == res : "<input> :: <res>";
+		elseif ({Root()}     := input) assert Root() == res : "<input> :: <res>";
+		elseif ({Root(),Universe()} := input) assert Root() == res : "<input> :: <res>";
+		elseif ({Root() ,_*} := input) assert Set(({\any()} & {*s | Set(s) <- input} | it & s | Set(s) <- input)) == res : "<input> :: <res>";
 		elseif ({Set(_) ,_*} := input) assert Set(({*s | Set(s) <- input} | it & s | Set(s) <- input)) == res : "<input> :: <res>";
 		elseif ({Universe()} := input) assert Universe() == res : "<input> :: <res>";
 		else 						   assert Set({}) == res : "<input> :: <res>";
@@ -105,14 +110,15 @@ private void assertMixes(int n)
 	bool testM(TypeSet m) = 
 		EmptySet() := m ||	
 		Universe() := m || 
+		Root() := m || 
 		Set(set[TypeSymbol] _) := m;
 		
 	// use the methods getMix1 and getMix2, 
 	// The result should always EmptySet, Universe, or Set(literaltyps)
 	for (x <- [0..n]) {
 		TypeSet m1 = getMix1();
-		assert testM(m1): "testM failed for: <m1>";
+		assert testM(m1): "Failed to reduce: <m1>";
 		TypeSet m2 = getMix2();
-		assert testM(m2);
+		assert testM(m2) : "Failed to reduce: <m2>";
 	}
 }
