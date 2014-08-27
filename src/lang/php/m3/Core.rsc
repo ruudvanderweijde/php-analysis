@@ -22,8 +22,8 @@ import Prelude;
 /* todo move to different file. This didnt work beacuse of an import loop */
 data Annotation = 
 	returnType(set[TypeSymbol]) | 
-	parameterType(loc var, set[TypeSymbol]) | 
-	varType(loc var, set[TypeSymbol]);
+	parameterType(set[TypeSymbol]) | 
+	varType(set[TypeSymbol]);
 	
 alias M3Collection = map[loc fileloc, M3 model];
 

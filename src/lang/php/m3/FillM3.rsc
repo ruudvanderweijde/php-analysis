@@ -15,6 +15,8 @@ import lang::php::ast::NormalizeAST;
 import lang::php::ast::Scopes;
 import lang::php::ast::System;
 
+import lang::php::parser::Annotation;
+
 import Set;
 
 private System modifiedSystem = ();
@@ -61,11 +63,12 @@ private M3 createM3forScript(loc filename, Script script)
 		m3 = fillExtendsAndImplements(m3, script); // fill extends, implements and traitUse, by trying to look up class names 
 		m3 = fillModifiers(m3, script); // fill modifiers for classes, class fields and class methods 
 		m3 = fillPhpDocAnnotations(m3, script); // fill documentation, defined as @phpdoc
-	
+
 		m3 = calculateAliasesFlowInsensitive(m3, script); // fill aliases 
 		m3 = calculateUsesFlowInsensitive(m3, script); // fill uses which are resolvable without type information
 		
 		m3 = fillParameters(m3, script); // add the parameters of all the methods
+		m3 = fillAnnotations(m3, script); // read and parse the annotations and add them to @annotations
 	}
 	catch Exception e:
 	{
@@ -243,6 +246,18 @@ private set[loc] getConstructorForClass(loc class, M3 m3) {
 	}
 	// the class of the method is not in global namespace and is not called "__construct"	
 	return false; 
+}
+
+private M3 fillAnnotations(M3 m3, Script script) 
+{
+	visit (script)
+	{
+		case n:node _: 
+			if (n@phpdoc?)
+				m3 = addAnnotationsForNode(n, m3);
+	}
+	
+	return m3;
 }
 // getSystem helper methods
 private bool isCacheUsed(loc l, bool useCache) = useCache && cacheFileExists(l);

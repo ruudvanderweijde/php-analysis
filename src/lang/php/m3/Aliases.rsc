@@ -85,9 +85,6 @@ public M3 addUseToAliases(M3 m3, Use u, loc currentNamespace)
 		- aliasing an interface name,
 		- and aliasing a namespace name
 	*/
-		
-	// assume asName is a simple name
-	// TODO: can asName be (fully) qualified?	
 	m3@aliases += { <appendName(asName, \type, currentNamespace), nameToLoc(importedName, \type)> |
 					\type <- ["class", "interface", "namespace"] };
 	return m3;

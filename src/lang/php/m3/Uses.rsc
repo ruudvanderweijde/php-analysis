@@ -10,6 +10,24 @@ import lang::php::\syntax::Names;
 import Prelude;
 import Traversal;
 
+// keep track of global vars
+private map[loc scope, set[str] vars] globalVars = ();
+private void addGlobalVar(NameOrExpr var) { 
+	if (var@scope != globalNamespace) {
+		// add global declaration to the map
+		if (var@scope in globalVars) {
+			globalVars[var@scope] += globalVars[var@scope] + { "<delAnnotationsRec(var)>" };
+		} else {
+			globalVars += (var@scope: { "<delAnnotationsRec(var)>" } );
+		}
+	}
+}
+private bool isGlobalVar(NameOrExpr var) {
+	if (var@scope in globalVars && "<delAnnotationsRec(var)>" in globalVars[var@scope]) 
+		return true;
+	
+	return false;
+}
 
 public M3 calculateUsesFlowInsensitive(M3 m3, node ast)
 {
@@ -92,8 +110,6 @@ public M3 calculateUsesFlowInsensitive(M3 m3, node ast)
         	}
         }
 
-        // TODO class_exists() ?
-    	
         // function call and variable / const access
     	
         case call(name(nameNode), _):
@@ -114,15 +130,26 @@ public M3 calculateUsesFlowInsensitive(M3 m3, node ast)
         
         case v:var(varNode):
         {
-            if (v@decl?) // Special case for assign with Operation. They can be both declarations AND uses
-            {	
-                parentNode = getTraversalContextNodes()[1];
-                /* if parent is $i++; or $i += 1; */
-                if (unaryOperation(_,_) := parentNode || assignWOp(_,_,_) := parentNode) {
-                    m3 = addVarUse(m3, varNode, v@at, varNode@scope);
-            	}
-            } else { // add all vars uses that have no declarations
-                m3 = addVarUse(m3, varNode, v@at, varNode@scope);
+            parentNode = getTraversalContextNodes()[1];
+            if (global(_) := parentNode) {
+	        	// this is a global declarations, like: global $a;
+	        	// A variable with the same name within this scope refers to the globalscope.
+	            addGlobalVar(varNode);
+	            m3 = addVarUse(m3, varNode, v@at, globalNamespace);
+            } else {
+            	if (isGlobalVar(varNode)) {
+	            	m3 = addVarUse(m3, varNode, v@at, globalNamespace);
+	            } else {
+		            if (v@decl?) // Special case for assign with Operation. They can be both declarations AND uses
+		            {	
+		                /* if parent is $i++; or $i += 1; */
+		                if (unaryOperation(_,_) := parentNode || assignWOp(_,_,_) := parentNode) {
+	                    m3 = addVarUse(m3, varNode, v@at, varNode@scope);
+		            	}
+		            } else { // add all vars uses that have no declarations
+		                m3 = addVarUse(m3, varNode, v@at, varNode@scope);
+		        	}
+	        	}
         	}
         }
     	
@@ -431,7 +458,6 @@ M3 addVarUse(M3 m3, str name, loc pos, loc scope) =
 M3 addVarUse(M3 m3, str name, loc pos, loc scope, bool isUnResolved)
 {
     list[str] types;
-    
     if (isNamespace(scope))
     {
         types = ["globalVar"];
