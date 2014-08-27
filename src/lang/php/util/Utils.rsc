@@ -63,8 +63,6 @@ public Script loadPHPFile(loc l, bool addLocationAnnotations, bool addUniqueIds)
 	if (l.scheme notin {"file","home"}) return errscript("Only file and home locations are supported");
 	if (!isFile(l)) return errscript("Location <l> must be a file");
 
-	logMessage("Loading file <l>", 2);
-	
 	list[str] opts = [ ];
 	if (addLocationAnnotations) opts += "-l";
 	if (includeLocationInfo) opts += "--addDecl";
