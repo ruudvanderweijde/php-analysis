@@ -1,9 +1,11 @@
 module lang::php::experiments::mscse2014::ConstraintsTest
 extend lang::php::experiments::mscse2014::Constraints;
+extend lang::php::experiments::mscse2014::ConstraintSolver;
 extend lang::php::experiments::mscse2014::mscse2014;
 
 import lang::php::types::TypeConstraints;
 import lang::php::util::Config;
+import lang::php::pp::PrettyPrinter;
 
 import Set; // toList
 import List; // sort
@@ -39,27 +41,68 @@ public void main()
 }
 
 public test bool testVariable() {
+	// $a = "string";
+	// $b = 100;
+	// $c = true ? $a : $b;
 	list[str] expectedC = [
-		"[$a] \<: any()", 
-		"[$a] \<: any()", 
-		"[$a] \<: any()",
-		"[$a] \<: any()",
+		//// variable occurences
+		//"[$a] \<: any()", "[$a] \<: any()", "[$b] \<: any()", "[$b] \<: any()", "[$c] \<: any()", 
+		//// scalars
+		//"[\"string\"] = stringType()", "[100] = integerType()", "[true] = booleanType()",
+		//// assignments
+		//"[\"string\"] \<: [$a]", "[$a] \<: [$a = \"string\"]",
+		//"[100] \<: [$b]", "[$b] \<: [$b = 100]",
+		//// ternary assignment
+		//"[true ? $a : $b] \<: [$c]", "[$c] \<: [$c = true ? $a : $b]",
+		//"or([true ? $a : $b] \<: [$a], [true ? $a : $b] \<: [$b])",
+		//// variable mapping
+		//"var(|php+globalVar:///a|) = [$a]",
+		//"var(|php+globalVar:///a|) = [$a]",
+		//"var(|php+globalVar:///b|) = [$b]",
+		//"var(|php+globalVar:///b|) = [$b]",
+		//"var(|php+globalVar:///c|) = [$c]"
+
+// test	
+		"[$a = \"string\"] = [$a]",
+		"[$a] = [\"string\"]",
+		"[$b = 100] = [$b]",
+		"[$b] = [100]",
+		"[$c = true ? $a : $b] = [$c]",
+		"[$c] = [true ? $a : $b]",
+		//"[true ? $a : $b] = [$c]",
 		"[\"string\"] = stringType()",
-		"[\"string\"] \<: [$a]",
+		"[$a] \<: any()",
+		"[$a] \<: any()",
+		"[$b] \<: any()",
+		"[$b] \<: any()",
+		"[$c] \<: any()",
 		"[100] = integerType()",
-		"[$a] \<: [$a = \"string\"]",
-		"[$a] \<: [$a = 100]",
-		"[100] \<: [$a]"
+		"[true] = booleanType()",
+		"or([true ? $a : $b] = [$a], [true ? $a : $b] = [$b])"
 	];
 	list[str] expectedT = [
-		"[$a] = { any() }",
-		"[$a] = { stringType() }",
-		"[$a] = { integerType() }",
-		"[$a] = { any() }",
-		"[\"string\"] = { stringType() }",
-		"[100] = { integerType() }",
+		// 2 variable $a
+		"[$a] = { stringType() }", "[$a] = { stringType() }", 
+		// 2 variable $b
+		"[$b] = { integerType() }", "[$b] = { integerType() }", 
+		// 3 constants
+		"[100] = { integerType() }", "[\"string\"] = { stringType() }", "[true] = { booleanType() }", 
+		// 2 assignments
 		"[$a = \"string\"] = { stringType() }",
-		"[$a = 100] = { integerType() }"
+		"[$b = 100] = { integerType() }",
+		// ternary solutions 
+		"[true ? $a : $b] = { integerType(), stringType() }", 
+		"[$c] = { integerType(), stringType() }", 
+		"[$c = true ? $a : $b] = { integerType(), stringType() }"
+		
+//		[$a] = { stringType() }
+//[$b = 100] = { integerType() }
+//[$b] = { integerType() }
+//[$b] = { integerType() }
+//[$c = true ? $a : $b] = { any() }
+//[$c] = { any() }
+//[true ? $a : $b] = { any() }
+//[true] = { booleanType() }
 	];
 	return testConstraints("variable", expectedC, expectedT);
 }
@@ -905,32 +948,38 @@ public bool testConstraints(str fileName, list[str] expectedC, list[str] expecte
 	loc l = getFileLocation(fileName);
 	projectLocation = l;
 	
-	System system = getSystem(l, false);
 	resetModifiedSystem(); // this is only needed for the tests
-	M3 m3 = getM3ForSystem(system, false);
+	System system = getSystem(l, false);
+	M3 m3 = getM3ForSystem(system);
 	system = getModifiedSystem();
-	//m3 = calculateAfterM3Creation(m3, system);
+	m3 = calculateAfterM3Creation(m3, system);
 
 	set[Constraint] actual = getConstraints(system, m3);
+	map[loc file, lrel[loc decl, loc location] vars] variableMapping = getVariableMapping();
 
 	// for debugging purposes
 	//printResult(fileName, expectedC, actual);
 	
 	// assert that expectedCConstraints is equal to ActualConstraints
 	bool test1 = comparePrettyPrintedConstraints(expectedC, actual);
+	if (!test1) {
+		println("Constraints test failed..");
+		return return false;
+	}
 
 	bool test2;
-	
 	if (isEmpty(expectedT)) {
 		test2 = true;
 	} else {
-		map[TypeOf var, TypeSet possibles] solveResult = solveConstraints(constraints, m3, system);
+		map[TypeOf var, TypeSet possibles] solveResult = solveConstraints(constraints, variableMapping, m3, system);
 		test2 = comparePrettyPrintedTypes(expectedT, solveResult);
 	}
 
-	if (!test1) println("Constraints test failed..");
-	if (!test2) println("Solving constraints test failed..");
-	return test1 && test2;
+	if (!test2) {
+		println("Solving constraints test failed..");
+		return false;
+	}
+	return true;
 }
 
 //
@@ -965,10 +1014,12 @@ private bool comparePrettyPrinted(list[str] e, list[str] a) {
 	{
 		iprintln("Actual: <a>");
 		iprintln("Expected: <e>");
-		iprintln("Not in actual:");
-		for (nia <- notInActual) println(nia);
-		iprintln("Not in expectedC:");
-		for (nie <- notInExpected) println(nie);
+		iprintln("Correct:");
+		for (correct <- (((e+a)-notInActual)-notInExpected)) println(correct);
+		iprintln("(- = Not in actual)");
+		for (nia <- notInActual) { print("- "); println(nia); }
+		iprintln("(+ = Not in expected)");
+		for (nie <- notInExpected) { print("+ "); println(nie); }
 	}
 	
 	return a == e;
@@ -1026,12 +1077,14 @@ private str toStr(typeOf(TypeSymbol ts))				= "<toStr(ts)>";
 private str toStr(TypeOf::arrayType(set[TypeOf] expr))	= "arrayType(<intercalate(", ", sort([ toStr(e) | e <- sort(toList(expr))]))>)";
 private str toStr(TypeSymbol t) 						= "<t>";
 private str toStr(Modifier m) 							= "<m>";
+default str toStr(TypeOf::typeSymbol(TypeSymbol ts)) 	= "<toStr(ts)>";
+default str toStr(TypeOf::var(loc ts)) 					= "var(<ts>)";
 
 private str toStr(set[TypeSymbol] ts)					= "{ <intercalate(", ", sort([ toStr(t) | t <- sort(toList(ts))]))> }";
 // deprecated
 private str toStr(TypeSet::Universe())							= "{ any() }";
 private str toStr(TypeSet::EmptySet())							= "{}";
-private str toStr(TypeSet::Root())								= "{ any() }";
+//private str toStr(TypeSet::Root())								= "{ any() }";
 private str toStr(TypeSet::Single(TypeSymbol t))				= "<toStr(t)>";
 private str toStr(TypeSet::Set(set[TypeSymbol] ts))				= "{ <intercalate(", ", sort([ toStr(t) | t <- sort(toList(ts))]))> }";
 private str toStr(TypeSet::Subtypes(TypeSet subs))				= "sub({ <intercalate(", ", sort([ toStr(s) | s <- sort(toList(subs))]))> }";

@@ -20,11 +20,14 @@ import lang::php::types::TypeSymbol;
 import lang::php::types::TypeConstraints;
 
 import lang::php::experiments::mscse2014::Constraints;
+import lang::php::experiments::mscse2014::ConstraintSolver;
 
 //loc projectLocation = |file:///PHPAnalysis/systems/WerkspotNoTests/WerkspotNoTests-oldWebsiteNoTests/plugins/wsCorePlugin/modules/craftsman/lib|;
-//loc projectLocation = |file:///PHPAnalysis/systems/WerkspotNoTests/WerkspotNoTests-oldWebsiteNoTests/plugins|;
+loc projectLocation = |file:///PHPAnalysis/systems/WerkspotNoTests/WerkspotNoTests-oldWebsiteNoTests/plugins/wsCorePlugin/modules|;
 //loc projectLocation = |file:///PHPAnalysis/systems/WerkspotNoTests/WerkspotNoTests-oldWebsiteNoTests/|;
-loc projectLocation = |file:///PHPAnalysis/systems/Kohana|;
+//loc projectLocation = |file:///PHPAnalysis/systems/Kohana|;
+//loc projectLocation = |file:///Users/ruud/git/php-analysis/src/tests/resources/experiments/mscse2014/variable|;
+//loc projectLocation = |file:///PHPAnalysis/systems/doctrine_lexer/doctrine_lexer-v1.0|;
 //loc projectLocation = |file:///Users/ruud/test/types|;
 //loc projectLocation = |file:///Users/ruud/tmp/solve/scalar|;
 
@@ -32,73 +35,52 @@ private loc getProjectLocation() = projectLocation;
 private void setProjectLocation(loc pl) { projectLocation = pl; }
 
 loc cacheFolder = |file:///Users/ruud/tmp/m3/|;
-loc firstM3CacheFile = cacheFolder + "first_m3_<projectLocation.file>.bin";
 loc finalM3CacheFile = cacheFolder + "final_m3_<projectLocation.file>.bin";
 
-loc getLastM3CacheFile() = cacheFolder + "last_m3_<getProjectLocation().file>.bin";
-loc getModifiedSystemCacheFile() = cacheFolder + "last_system_<getProjectLocation().file>.bin";
-loc getLastConstraintsCacheFile() = cacheFolder + "last_constraints_<getProjectLocation().file>.bin";
-loc getParsedSystemCacheFile() = cacheFolder + "plain_system_<getProjectLocation().file>.bin";
+loc getLastM3CacheFile() = cacheFolder + "<getProjectLocation().file>_m3_last.bin";
+loc getModifiedSystemCacheFile() = cacheFolder + "<getProjectLocation().file>_system_last.bin";
+loc getLastConstraintsCacheFile() = cacheFolder + "<getProjectLocation().file>_constraints_last.bin";
+loc getParsedSystemCacheFile() = cacheFolder + "<getProjectLocation().file>_system_parsed.bin";
 
 
 private map[str,str] corpus = (
-	//"osCommerce":"2.3.1",
-	//"ZendFramework":"1.11.12",
-	//"CodeIgniter":"2.1.2",
-	//"Symfony":"2.0.12",
-	//"SilverStripe":"2.4.7",
-	//"WordPress":"3.4",
-	//"Joomla":"2.5.4",
-	//"phpBB":"3",
-	//"Drupal":"7.14",
-	//"MediaWiki":"1.19.1",
-	//"Gallery":"3.0.4",
-	//"SquirrelMail":"1.4.22",
-	//"Moodle":"2.3",
-	//"Smarty":"3.1.11",
-	//"Kohana":"3.2",
-	//"phpMyAdmin":"3.5.0-english",
-	//"PEAR":"1.9.4",
-	//"CakePHP":"2.2.0-0",
-	//"DoctrineORM":"2.2.2"//,
 	
 	// sorted in LOC
-	"doctrine_lexer":"1.0", // 1
-	"doctrine_inflector":"1.0", // 2
-	"psr_log":"1.0.0", // 3
-	"symfony_filesystem":"2.5.3", // 4
-	"symfony_event-dispatcher":"2.5.3", // 5
-	"phpunit_php-token-stream":"1.2.2", // 6
-	"symfony_yaml":"2.5.3", // 7
-	"symfony_debug":"2.5.3", // 8
-	"doctrine_collections":"1.2", // 9
-	"doctrine_cache":"1.3.0", // 10
-	"symfony_dom-crawler":"2.5.3", // 11
-	"symfony_process":"2.5.3", // 12
-	"doctrine_annotations":"1.2.0", // 13
-	"symfony_translation":"2.5.3", // 14
-	"symfony_browser-kit":"2.5.3", // 15
-	"symfony_finder":"2.5.3", // 16
-	"symfony_css-selector":"2.5.3", // 17
-	"symfony_routing":"2.5.3", // 18
-	"phpunit_phpunit-mock-objects":"2.2.0", // 19
-	"monolog_monolog":"1.10.0", // 20
-	"phpunit_php-code-coverage":"2.0.10", // 21
-	"symfony_console":"2.5.3", // 22
-	"symfony_http-foundation":"2.5.3", // 23
-	"twig_twig":"1.16.0", // 24
-	"doctrine_common":"2.4.2", // 25
-	"swiftmailer_swiftmailer":"5.2.1", // 26
-	"guzzle_guzzle":"3.9.2", // 27
-	"symfony_http-kernel":"2.5.3", // 28
-	"phpunit_phpunit":"4.2.2", // 29
-	"doctrine_dbal":"2.4.2", // 30
-	
-	"WerkspotNoTests":"oldWebsiteNoTests"
+	"doctrine_lexer": "v1.0", // 1
+	"sebastianbergmann_php-timer": "1.0.5", // 2 
+	"sebastianbergmann_php-text-template": "1.2.0", // 3
+	"doctrine_inflector": "v1.0", // 4
+	"php-fig_log": "1.0.0", // 5
+	"sebastianbergmann_php-file-iterator": "1.3.4", // 6
+	"symfony_Filesystem": "v2.5.3" // 7
+	//"symfony_Yaml": "v2.5.3", // 8
+	//"sebastianbergmann_php-token-stream": "1.2.2", // 9
+	//"doctrine_collections": "v1.2", // 10
+	//"symfony_Process": "v2.5.3", // 11
+	//"symfony_Finder": "v2.5.3", // 12
+	//"symfony_DomCrawler": "v2.5.3", // 13
+	//"symfony_Translation": "v2.5.3", // 14
+	//"symfony_Console": "v2.5.3", // 15
+	//"symfony_HttpFoundation": "v2.5.3", // 16
+	//"fabpot_Twig": "v1.16.0", // 17
+	//"symfony_EventDispatcher": "v2.5.3", // 18
+	//"swiftmailer_swiftmailer": "v5.2.1", // 19
+	//"sebastianbergmann_php-code-coverage": "2.0.10", // 20
+	//"sebastianbergmann_phpunit": "4.2.2", // 21
+	//"sebastianbergmann_phpunit-mock-objects": "2.2.0", // 22
+	//"doctrine_annotations": "v1.2.0", // 23
+	//"doctrine_common": "v2.4.2", // 24
+	//"symfony_HttpKernel": "v2.5.3", // 25
+	//"doctrine_cache": "v.1.3.0", // 26
+	//"doctrine_dbal": "v2.4.2", // 27
+	//"guzzle_guzzle3": "v3.9.2", // 28 
+	//"doctrine_doctrine2": "v2.4.4", // 29
+	//"Seldaek_monolog": "1.10.0" // 30
+	//"WerkspotNoTests":"oldWebsiteNoTests"
 );
 
 public void run() {
-	println("Run instructions:");
+	println("Run instructions: (current selected project: `<projectLocation>`)");
 	println("----------------");
 	println("1) Run run1() to parse the files (and save the parsed files to the cache)");
 	println("2) Run run2() to create the m3 (and save system and m3 to cache)");
@@ -109,11 +91,11 @@ public void run() {
 
 public void run1() {
 	println("This first step will save the parsed files to the filesystem");
-	logMessage("Get system...", 1);
 	
-	bool useCache = false;
 	resetModifiedSystem(); // this is only needed when running multiple tests
-	System system = getSystem(getProjectLocation(), useCache);
+	logMessage("Run 1 [1/2] :: parsing php files to ASTs...", 1);
+	System system = getSystem(getProjectLocation(), false); // useCache = false
+	logMessage("Run 1 [2/2] :: writing parsed system to cache...", 1);
 	writeBinaryValueFile(getParsedSystemCacheFile(), system);
 	
 	println("The scripts are now parsed into ASTs. Please run run2() now.");
@@ -124,19 +106,21 @@ public void run2() {
 	assert isFile(getParsedSystemCacheFile()) : "Please run run1() first. Error: file(<getParsedSystemCacheFile()>) was not found";
 	
 	println("This second step will save a modified system and create a global M3 file");
-	logMessage("Reading parsed system from cache...", 1);
+	logMessage("Run 2 [1/5] :: Reading parsed system from cache...", 1);
 	System system = readBinaryValueFile(#System, getParsedSystemCacheFile());
 	
-	bool useCache = false;
-	logMessage("Get M3 For System...", 1);
 	resetModifiedSystem(); // this is only needed when running multiple tests
-	M3 m3 = getM3ForSystem(system, useCache);
-	logMessage("Get modified system...", 1);
+	
+	logMessage("Run 2 [2/5] :: create M3 for system...", 1);
+	M3 m3 = getM3ForSystem(system);
+	
+	logMessage("Run 2 [3/5] :: get modified system...", 1);
 	system = getModifiedSystem(); // for example the script is altered with scope information
-	logMessage("Calculate After M3 Creation...", 1);
+	
+	logMessage("Run 2 [4/5] :: calculate after m3 creation...", 1);
 	m3 = calculateAfterM3Creation(m3, system);
 
-	logMessage("Writing system and m3 to filesystem", 1);	
+	logMessage("Run 2 [5/5] :: writing system and m3 to filesystem", 1);	
 	writeBinaryValueFile(getLastM3CacheFile(), m3);
 	writeBinaryValueFile(getModifiedSystemCacheFile(), system);
 	
@@ -145,8 +129,8 @@ public void run2() {
 
 public void run3() {
 	// precondition: system and m3 cache file must exist
-	assert isFile(getModifiedSystemCacheFile()) : "Please run run1() first. Error: file(<getModifiedSystemCacheFile()>) was not found";
-	assert isFile(getLastM3CacheFile())     	: "Please run run1() first. Error: file(<getLastM3CacheFile()>) was not found";
+	assert isFile(getModifiedSystemCacheFile()) : "Please run run2() first. Error: file(<getModifiedSystemCacheFile()>) was not found";
+	assert isFile(getLastM3CacheFile())     	: "Please run run2() first. Error: file(<getLastM3CacheFile()>) was not found";
 	
 	logMessage("Reading system from cache...", 1);
 	System system = readBinaryValueFile(#System, getModifiedSystemCacheFile());
@@ -158,7 +142,8 @@ public void run3() {
 	
 	logMessage("Writing contraints to the file system", 1);
 	writeBinaryValueFile(getLastConstraintsCacheFile(), constraints);
-	logMessage("Writing done. Now please run run4() (once it is created...)", 1);
+	logMessage("Writing done. Now please run run4()", 1);
+	println("To view the constraints run:\n1) import ValueIO;\n2) import lang::php::types::TypeSymbol;\n3) import lang::php::types::TypeConstraints;\n4) constraints = readBinaryValueFile(#set[Constraint], <getLastConstraintsCacheFile()>);");
 
 	// not sure yet, if this is the way to go... because there 
 	//
@@ -196,22 +181,13 @@ public void run4()
 	println(solveResult);
 }
 
-private M3 getM3ForSystem(System system, bool useCache)
+private M3 getM3ForSystem(System system)
 {
-	M3 globalM3;
+	logMessage("Get M3 [1/2] :: create M3 per file", 1);
+	M3Collection m3s = getM3CollectionForSystem(system, getProjectLocation());
 	
-	if (useCache && isFile(firstM3CacheFile)) {
-		logMessage("Reading M3 from cache...", 1);
-		globalM3 = readBinaryValueFile(#M3, firstM3CacheFile);
-	} else {
-		logMessage("Get m3 collection...", 1);
-		M3Collection m3s = getM3CollectionForSystem(system, getProjectLocation());
-		logMessage("Get m3 ...", 1);
-		globalM3 = M3CollectionToM3(m3s, getProjectLocation());
-		logMessage("Writing first m3 to cache ...", 1);
-		writeBinaryValueFile(firstM3CacheFile, globalM3);
-		logMessage("Writing done.", 1);
-	}
+	logMessage("Get M3 [2/2] :: create global M3", 1);
+	M3 globalM3 = M3CollectionToM3(m3s, getProjectLocation());
 	
 	return globalM3;
 }
@@ -243,20 +219,6 @@ public rel[loc,loc] getPropagatedImplementations(M3 m3)
 	
 	return implSet;
 }
-
-//public rel[TypeSymbol, TypeSymbol] getSubTypes(M3 m3, System system) 
-//{
-//	rel[TypeSymbol, TypeSymbol] subtypes
-//		// add int() as subtype of float()
-//		= { < integerType(), floatType() > }
-//		// use the extends relation from M3
-//		+ { < classType(c), classType(e) > | <c,e> <- m3@extends }
-//		// add subtype of object for all classes which do not extends a class
-//		+ { < classType(c@decl), objectType() > | l <- system, /c:class(n,_,noName(),_,_) <- system[l] };
-//		
-//	// compute reflexive transitive closure and return the result 
-//	return subtypes*;
-//}
 
 // Helper methods, maybe remove this some at some moment
 // Display number of duplicate classnames or classpaths (path is namespace+classname)
@@ -319,7 +281,7 @@ public void printIncludeScopeInfo() {
 public void run1ForAll() {
 	loc projectLoc;	
 	for(c <- corpus) {
-		setProjectLocation(toLocation("file:///PHPAnalysis/systems/<c>"));
+		setProjectLocation(toLocation("file:///PHPAnalysis/systems/<c>/<c>-<corpus[c]>"));
 		if (isFile(getParsedSystemCacheFile())) {
 			println("Skipped! If you want to recreate the files, please remove this file: <getParsedSystemCacheFile()>");	
 		} else {
@@ -332,13 +294,28 @@ public void run1ForAll() {
 public void run2ForAll() {
 	loc projectLoc;	
 	for(c <- corpus) {
-		setProjectLocation(toLocation("file:///PHPAnalysis/systems/<c>"));
+		setProjectLocation(toLocation("file:///PHPAnalysis/systems/<c>/<c>-<corpus[c]>"));
 		if (isFile(getModifiedSystemCacheFile()) && isFile(getLastM3CacheFile())) {
 			println("Skipped! If you want to recreate the files, please remove these files: <getModifiedSystemCacheFile()> and <getLastM3CacheFile()>");
 		} else {
 			println("Run2 for location: <getProjectLocation()>");
 			run2();
 		}
+	}
+}	
+
+public void run3ForAll() {
+	loc projectLoc;	
+	for(c <- corpus) {
+		setProjectLocation(toLocation("file:///PHPAnalysis/systems/<c>/<c>-<corpus[c]>"));
+		
+		// run unconditionally.
+	//	if (isFile(getModifiedSystemCacheFile()) && isFile(getLastM3CacheFile())) {
+	//		println("Skipped! If you want to recreate the files, please remove these files: <getModifiedSystemCacheFile()> and <getLastM3CacheFile()>");
+	//	} else {
+			println("Run3 for location: <getProjectLocation()>");
+			run3();
+	//	}
 	}
 }	
 

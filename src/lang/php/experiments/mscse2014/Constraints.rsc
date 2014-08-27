@@ -22,19 +22,22 @@ import Map; // for size
 import Relation; // for domainu
 
 private set[Constraint] constraints = {};
+private map[loc file, lrel[loc decl, loc location] vars] variableMapping = ();
+public map[loc file, lrel[loc decl, loc location] vars] getVariableMapping() = variableMapping;
 
 // only callable method (from another file)
 public set[Constraint] getConstraints(System system, M3 m3) 
 {
 	// reset the constraints of previous runs
 	constraints = {};
+	variableMapping = ();
 	
 	int counter = 0, total = size(system);
 	logMessage("Get constraints for system (<total> files)", 1);
 	
 	for(s <- system) {
 		counter+=1; 
-		if (total > 20 && counter%(total/20) == 0) logMessage("<counter> items are done... (<(counter*total)/100>%", 1);
+		if (total > 20 && counter%(total/20) == 0) logMessage("<counter> items are done... (<(counter*100)/total>)%", 1);
 		addConstraints(system[s], m3);
 	}	
 	
@@ -48,7 +51,7 @@ public set[Constraint] getConstraints(System system, M3 m3)
 
 private void addConstraints(Script script, M3 m3)
 { 
-	addConstraintsOnAllVarsWithinScope(script, m3);
+	addConstraintsOnAllVarsForScript(script, m3);
 	for (stmt <- script.body) {
 		addConstraints(stmt, m3);
 	}
@@ -135,11 +138,16 @@ private void addConstraints(Stmt statement, M3 m3)
 		case exprstmt(Expr expr): 				addConstraints(expr, m3);
 		
 		case f:function(str name, bool byRef, list[Param] params, list[Stmt] body): {
-			addDeclarationConstraint(f);
-			addConstraintsOnAllVarsWithinScope(f, m3);
-			addConstraintsOnAllReturnStatementsWithinScope(f);
+			if (f@phpdoc? && /@jms-builtin/ := f@phpdoc) {
+				// builtin function	
+				addConstraintsForBuiltIn(f, params);
+			} else { 
+				addDeclarationConstraint(f);
+				//addConstraintsOnAllVarsWithinScope(f, m3);
+				addConstraintsOnAllReturnStatementsWithinScope(f);
 			
-			addConstraints(body, m3);
+				addConstraints(body, m3);
+			}
 			// todo add parameters
 		}
 		
@@ -198,11 +206,16 @@ private void addConstraints(ClassItem ci, &T <: node parentNode, M3 m3)
 		}
 		
 		case m:method(str name, set[Modifier] modifiers, bool byRef, list[Param] params, list[Stmt] body): {
-			addDeclarationConstraint(m);
-			addConstraintsOnAllVarsWithinScope(m, m3);
-			addConstraintsOnAllReturnStatementsWithinScope(m);
+			if (parentNode@phpdoc? && /@jms-builtin/ := parentNode@phpdoc || m@phpdoc? && /@jms-builtin/ := m@phpdoc) {
+				// builtin class or method 
+				addConstraintsForBuiltIn(m, params);
+			} else { 
+				addDeclarationConstraint(m);
+				//addConstraintsOnAllVarsWithinScope(m, m3);
+				addConstraintsOnAllReturnStatementsWithinScope(m);
 			
-			for (stmt <- body) addConstraints(stmt, m3);
+				for (stmt <- body) addConstraints(stmt, m3);
+			}
 			// todo params
 		}
 	//| traitUse(list[Name] traits, list[Adaptation] adaptations)
@@ -235,8 +248,10 @@ private void addConstraints(Expr e, M3 m3)
 		
 		case a:assign(Expr assignTo, Expr assignExpr): {
 			// add direct constraints
-			constraints += { subtyp(typeOf(assignExpr@at), typeOf(assignTo@at)) }; 
-			constraints += { subtyp(typeOf(assignTo@at), typeOf(a@at)) };
+			//constraints += { subtyp(typeOf(assignExpr@at), typeOf(assignTo@at)) }; 
+			//constraints += { subtyp(typeOf(assignTo@at), typeOf(a@at)) };
+			constraints += { eq(typeOf(assignTo@at), typeOf(assignExpr@at)) }; 
+			constraints += { eq(typeOf(a@at), typeOf(assignTo@at)) };
 			// add indirect constraints
 			addConstraints(assignTo, m3);
 			addConstraints(assignExpr, m3);
@@ -692,8 +707,8 @@ private void addConstraints(Expr e, M3 m3)
 			addConstraints(elseBranch, m3);
 			constraints += { 
 				disjunction({
-					subtyp(typeOf(t@at), typeOf(ifBranch@at)),
-					subtyp(typeOf(t@at), typeOf(elseBranch@at))
+					eq(typeOf(t@at), typeOf(ifBranch@at)),
+					eq(typeOf(t@at), typeOf(elseBranch@at))
 				})
 			};
 		}
@@ -726,8 +741,7 @@ private void addConstraints(Expr e, M3 m3)
 				case string(_):				constraints += { eq(typeOf(s@at), stringType()) };
 				case encapsed(list[Expr] parts): {
 					for (p <- parts, scalar(_) !:= p) {
-						println("part: <p>");
-					addConstraints(p, m3);
+						addConstraints(p, m3);
 					}
 					constraints += { eq(typeOf(s@at), stringType()) };
 				}
@@ -950,20 +964,41 @@ private void addConstraints(Expr e, M3 m3)
 	}
 }
 
-public void addConstraintsOnAllVarsWithinScope(&T <: node t, m3) 
+// triggered from `script`, `function` and `method`
+//public void addConstraintsOnAllVarsWithinScope(&T <: node t, m3) 
+public void addConstraintsOnAllVarsForScript(&T <: node t, m3) 
 {
-	// get all vars that have @decl annotations (which means that they are writable vars)
+	lrel[loc decl, loc location] variables = [];
 	
-	// todo also add method calls, they can have $a->b(); and should also be linked to $a;
-	//for (/v:var(_) <- t, t@scope == v@scope) {
-	//	set[loc] decls = m3@uses[v@at];
+	// get all vars that have @decl annotations (which means that they are writable vars)
+	for (/v:var(name(name(_))) <- t, var(name(name("this"))) !:= v) {
+		set[loc] decls = { d | d <- m3@uses[v@at], isVariable(d) };
+		if (isEmpty(decls) && v@decl?) {
+			decls += v@decl;
+		}
+		if (size(decls) != 1) {
+			iprintln(v);
+			iprintln(decls);
+			iprintln(m3@uses[v@at]);
+			iprintln(m3@uses);
+		}
+		assert size(decls) == 1 : "There should only be one declarations for a variable, var: <v> :: decls: <decls>";
+		variables += [ <getOneFrom(decls), v@at> ];
+		//constraints += eq(var(), typeOf(v@at));
+	}
+	
+	// variable variables will be ignored...
+	//for (/v:var(expr(_)) <- t, t@scope == v@scope) {
+	//	println("variable var: <v>");
+	//	set[loc] decls = { d | d <- m3@uses[v@at], isVariable(d) };
 	//	println(decls);
-	//	println("-------------------------------------");
-	//	println(t);
-	//	println(v);
-	//	assert size(decls) == 1 : "There should only be one declarations for a variable";
-	//	constraints += varDecl( {< getOneFrom(decls), v@at >} );
 	//}
+
+	if (!isEmpty(variables)) {
+		variableMapping[m3.id] = variables;
+	}
+	//iprintln(variableMapping);
+	//exit();
 	
 	// just use the uses relation of m3 here...
 
@@ -995,6 +1030,19 @@ public void addDeclarationConstraint(&T <: node t)
 	// constraints += { eq(typeOf(t@decl), typeOf(t@at)) };
 }
 
+public void addConstraintsForBuiltIn(&T <: node t, list[Param] params)
+{
+	// Add constraints for builtin
+	// Because the body of the functions and methods are emtpy, 
+	// we cannot read constraints from their, or else they will be incorrect.
+	// Instead add general constraints. Later: reading annotations can restrict this.
+
+	// return type of the function/method
+	constraints += { eq(typeOf(t@at), nullType()) }; 
+	
+	// todo: handle parameters
+}
+
 public void addConstraintsForCallableExpression(Expr expr)
 {
 	constraints += {
@@ -1008,153 +1056,6 @@ public void addConstraintsForCallableExpression(Expr expr)
 		)
 	};
 }
-
-// start of solving constraints (move this stuff somewhere else)
-
-public map[TypeOf var, TypeSet possibles] solveConstraints(set[Constraint] constraints, M3 m3, System system)
-{
-	// change (eq|subtyp) TypeOf, TypeSymbol 
-	//     to (eq|subtyp) TypeOf, typeOf(TypeSymbol)
-	// this is easier than rewiting all code
-	constraints = visit(constraints) {
-		case       eq(TypeOf a, TypeSymbol ts) =>       eq(a, typeOf(ts))
-		case   subtyp(TypeOf a, TypeSymbol ts) =>   subtyp(a, typeOf(ts))
-		case supertyp(TypeOf a, TypeSymbol ts) => supertyp(a, typeOf(ts))
- 	};
-  
-  	subtypes = getSubTypes(m3, system);
-	estimates = initialEstimates(constraints, subtypes);
-
-	iprintln("Initial results:");	
-	for (to:typeOf(est) <- estimates) {
-		println("<toStr(to)> :: <estimates[to]>");
-	}
-	
-	rel[loc decl, loc location] invertedUses = invert(m3@uses + invert(m3@declarations));
-
-	solve (estimates) {
-		solve (estimates) {
-    		//for (v <- estimates, subtyp(t:typeOf(loc ident), v) <- constraints) {
-    		for (v <- estimates, subtyp(t:typeOf(loc ident), v) <- constraints) {
-    			//println("Merge 1: <readFile(v.ident)> && <readFile(t.ident)>");
-    			//println(estimates[v]);
-    			//println(estimates[t]);
-     			estimates[v] = Intersection({estimates[v], estimates[t]});
-     		}
-    		for (v <- estimates, subtyp(v, t:typeOf(loc ident)) <- constraints) {
-    			//println("Merge 2: <readFile(v.ident)> && <readFile(t.ident)>");
-    			//println(estimates[v]);
-    			//println(estimates[t]);
-     			estimates[v] = Intersection({estimates[v], estimates[t]});
-     		}
-    		//for (v <- estimates, eq(v, typeOf(TypeSymbol t)) <- constraints) {
-     		//	estimates[v] = estimates[v] & {t};
-    		//}
-    	}
-    
-    	// LEAST UPPER BOUND CHECK (least common ancestor) 
-    	
-    	// for each variable decl, check the types
-    	for (decl <- invertedUses.decl, isVariable(decl)) { // for all declarations
-    		// try to resolve variable types...
-    		possibleTypes = {};
-    		for (t <- invertedUses[decl]) {
-   			    // check if it is not universe
-    			if (estimates[typeOf(t)] != Universe()) {
-    				possibleTypes = estimates[typeOf(t)];
-    			}
-    		}
-    		
-    		if (possibleTypes != {}) {
-	    		for (t <- invertedUses[decl]) {
-	    			estimates[typeOf(t)] = possibleTypes;
-    			}
-    		} else {
-    			println("types, could not be resolved for <decl>");	
-    		}
-    	}
- 	}
-
-	iprintln("After solve:");	
-	for (to:typeOf(est) <- estimates) {
-		println("<toStr(to)> :: <estimates[to]>");
-	}
-
-		// replace all resolved TypeSymbol.	
-		//println(estimates); 
- 		//estimates = innermost visit(estimates) {
- 		//	case Subtypes(Set({s , set[Type] rest })) => Union({Single(s ), Set ( subtypes [s ]), Subtypes(Set({ rest }))}) 
- 		//};
- 	
- 		
- 	return estimates;
-}
-
-public map[TypeOf, TypeSet] initialEstimates (set[Constraint] constraints, rel[TypeSymbol, TypeSymbol] subtypes) 
-{
- 	map[TypeOf, TypeSet] result = ();
- 	
- 	visit (constraints) {
- 		case eq(TypeOf t, typeOf(TypeSymbol ts)): {
- 			result = addToMap(result, t, Single(ts)); 
- 		}
- 		case subtype(TypeOf t, typeOf(TypeSymbol ts)): {
- 			result = addToMap(result, t, Subtypes(Set({ts}))); 
- 		}
- 		//case supertype(TypeOf t, typeOf(TypeSymbol ts)): {
- 		//	result = addToMap(result, t, Supertypes(Set({ts}))); 
- 		//}
- 		case TypeOf t:typeOf(loc ident): {
- 			result = addToMap(result, t, Universe());
- 		}
- 	};
- 	return result;
-}
-
-public set[TypeSymbol]   getSubTypes(rel[TypeSymbol, TypeSymbol] subtypes, set[TypeSymbol] ts) = domain(rangeR(subtypes*, ts));
-public set[TypeSymbol] getSuperTypes(rel[TypeSymbol, TypeSymbol] subtypes, set[TypeSymbol] ts) = domain(rangeR(invert(subtypes*), ts));
-
-// Stupid wrapper to add or take the intersection of values
-public map[TypeOf, TypeSet] addToMap(map[TypeOf, TypeSet] m, TypeOf k, TypeSet ts)
-{
-	if (m[k]?) {
-		m[k] = Intersection({m[k], ts});	
-	} else {
-		m[k] = ts;	
-	}
-	
-	return m;
-}
-
-public rel[TypeSymbol, TypeSymbol] getSubTypes(M3 m3, System system) 
-{
-	rel[TypeSymbol, TypeSymbol] subtypes
-		// subtypes of any() are array(), scalar() and object()
-		= { < subType, \any() > | subType <- { arrayType(), scalarType(), objectType() } }
-		
-		// subtypes of scalar() are resource, string() and null()
-		+ { < subType, scalarType() > | subType <- { resourceType(), stringType(), nullType() } }
-		// subtypes of string() are boolean() and number()
-		+ { < subType, scalarType() > | subType <- { booleanType(), numberType() } }
-		// subtypes of number() are integer() and float()
-		+ { < subType, numberType() > | subType <- { integerType(), floatType() } }
-		
-		// class(c) is a subtype of the extended class of c
-		// we use the extends relation from M3
-		+ { < classType(c), classType(e) > | <c,e> <- m3@extends }
-		// class(c) without an extending class is a subtype of object()
-		+ { < classType(c@decl), objectType() > | l <- system, /c:class(n,_,noName(),_,_) <- system[l] };
-		
-		// TODO, add subtypes for arrays
-		
-	// compute reflexive transitive closure and return the result 
-	// do not do this, or else we cannot find the Lowest_common_ancestor
-	//subtypes = subtypes*;
-
-	return subtypes;
-}
-
-// end of solving constraints (move this stuff somewhere else)
 
 public void addConstraintsForStaticMethodCallLHS(NameOrExpr staticTarget, &T <: node parentNode, M3 m3) {
 	constraints += { subtyp(typeOf(staticTarget@at), objectType()) }; // LHS is an object
