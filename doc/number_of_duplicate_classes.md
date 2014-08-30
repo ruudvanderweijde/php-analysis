@@ -20,8 +20,8 @@
 * Unique mixed paths: 4181 (100%)
 * Unique mixed names: 4152 (99%)
 
-Type | Total | Unique Paths* | Unique Names* | Number of non unique:
-- | - | - | - | -
+Type | Total | Unique Paths | Unique Names | Number of non unique
+--- | --- | --- | --- | ---
 class | 4021 | 4021 (100%) | 3997 (99%) | 24
 interface | 160 | 160 (100%) | 156 (97%) | 4
 trait | 0 | 0 (100%) | 0 (100%) | 0
