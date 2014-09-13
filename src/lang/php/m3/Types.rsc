@@ -51,7 +51,7 @@ public set[Constraint] getConstraintsForScript(M3 m3, Script script)
 	
 	// Constraints are:
 	
-	// $a = $b; typeOf($b) <: typeOf($a);	
+	// $a = $b; TypeOfA::typeOf($b) <: TypeOfA::typeOf($a);	
 
 	// variable within a scope ( global | function | method )
 	// type of a variable is the disjunction of the types of all occurances within the scope

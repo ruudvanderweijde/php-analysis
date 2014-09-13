@@ -7,9 +7,11 @@ data TypeSymbol
   = arrayType()
   | arrayType(TypeSymbol arrayType)
   | booleanType()
+  | callableType() // added to parse annotations
   | classType(loc decl)
   | floatType()
   | integerType()
+  | interfaceType(loc decl)
   | numberType()
   | nullType()
   | objectType()
@@ -20,6 +22,6 @@ data TypeSymbol
  
 //default bool subtyp(TypeSymbol s, TypeSymbol t) = s == t;
 
-default TypeSymbol lub(TypeSymbol s, TypeSymbol t) = s == t ? s : \any();
+//default TypeSymbol lub(TypeSymbol s, TypeSymbol t) = s == t ? s : \any();
 
 public set[TypeSymbol] allTypes = {  arrayType(\any()), booleanType(), floatType(), integerType(), nullType(), objectType(), resourceType(), stringType() }; 

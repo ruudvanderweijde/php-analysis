@@ -21,6 +21,8 @@ import String;
 //
 // This means that mixing up different styles within one code block can lead to partly results.
 //
+// Note: This file needs some reformatting...
+//
 public M3 addAnnotationsForNode(&T <: node relatedNode, M3 m3)
 {
 	str phpdoc = relatedNode@phpdoc;
