@@ -23,11 +23,12 @@ import lang::php::experiments::mscse2014::Constraints;
 import lang::php::experiments::mscse2014::ConstraintSolver;
 
 //loc projectLocation = |file:///PHPAnalysis/systems/WerkspotNoTests/WerkspotNoTests-oldWebsiteNoTests/plugins/wsCorePlugin/modules/craftsman/lib|;
-loc projectLocation = |file:///PHPAnalysis/systems/WerkspotNoTests/WerkspotNoTests-oldWebsiteNoTests/plugins/wsCorePlugin/modules|;
+//loc projectLocation = |file:///PHPAnalysis/systems/WerkspotNoTests/WerkspotNoTests-oldWebsiteNoTests/plugins/wsCorePlugin/modules/craftsman|;
 //loc projectLocation = |file:///PHPAnalysis/systems/WerkspotNoTests/WerkspotNoTests-oldWebsiteNoTests/|;
 //loc projectLocation = |file:///PHPAnalysis/systems/Kohana|;
 //loc projectLocation = |file:///Users/ruud/git/php-analysis/src/tests/resources/experiments/mscse2014/variable|;
-//loc projectLocation = |file:///PHPAnalysis/systems/doctrine_lexer/doctrine_lexer-v1.0|;
+loc projectLocation = |file:///PHPAnalysis/systems/doctrine_lexer/doctrine_lexer-v1.0|;
+//loc projectLocation = |file:///PHPAnalysis/systems/doctrine_common/doctrine_common-v2.4.2|;
 //loc projectLocation = |file:///Users/ruud/test/types|;
 //loc projectLocation = |file:///Users/ruud/tmp/solve/scalar|;
 
@@ -124,6 +125,7 @@ public void run2() {
 	writeBinaryValueFile(getLastM3CacheFile(), m3);
 	writeBinaryValueFile(getModifiedSystemCacheFile(), system);
 	
+	//printSubTypeGraph();
 	logMessage("M3 and System are written to the file system. Please run run3() now.",1);
 }
 
@@ -327,3 +329,22 @@ public void printIncludeScopeInfoForAll() {
 		printIncludeScopeInfo();
 	}
 }	
+
+public void printSubTypeGraph()
+{
+	assert isFile(getModifiedSystemCacheFile()) : "Please run run2() first. Error: file(<getModifiedSystemCacheFile()>) was not found";
+	assert isFile(getLastM3CacheFile())     	: "Please run run2() first. Error: file(<getLastM3CacheFile()>) was not found";
+	
+	logMessage("Reading system from cache...", 1);
+	System system = readBinaryValueFile(#System, getModifiedSystemCacheFile());
+	logMessage("Reading M3 from cache...", 1);
+	M3 m3 = readBinaryValueFile(#M3, getLastM3CacheFile());
+	logMessage("Reading done.", 1);
+	
+	iprintln(m3@extends);
+	iprintln(m3@implements);
+	
+	//subtypes = getSubTypes(m3, system);
+	
+	//displaySubTypes(subtypes);
+}

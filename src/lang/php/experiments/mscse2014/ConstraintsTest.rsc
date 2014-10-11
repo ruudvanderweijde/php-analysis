@@ -1,4 +1,5 @@
 module lang::php::experiments::mscse2014::ConstraintsTest
+
 extend lang::php::experiments::mscse2014::Constraints;
 extend lang::php::experiments::mscse2014::ConstraintSolver;
 extend lang::php::experiments::mscse2014::mscse2014;
@@ -45,64 +46,31 @@ public test bool testVariable() {
 	// $b = 100;
 	// $c = true ? $a : $b;
 	list[str] expectedC = [
-		//// variable occurences
-		//"[$a] \<: any()", "[$a] \<: any()", "[$b] \<: any()", "[$b] \<: any()", "[$c] \<: any()", 
-		//// scalars
-		//"[\"string\"] = stringType()", "[100] = integerType()", "[true] = booleanType()",
-		//// assignments
-		//"[\"string\"] \<: [$a]", "[$a] \<: [$a = \"string\"]",
-		//"[100] \<: [$b]", "[$b] \<: [$b = 100]",
-		//// ternary assignment
-		//"[true ? $a : $b] \<: [$c]", "[$c] \<: [$c = true ? $a : $b]",
-		//"or([true ? $a : $b] \<: [$a], [true ? $a : $b] \<: [$b])",
-		//// variable mapping
-		//"var(|php+globalVar:///a|) = [$a]",
-		//"var(|php+globalVar:///a|) = [$a]",
-		//"var(|php+globalVar:///b|) = [$b]",
-		//"var(|php+globalVar:///b|) = [$b]",
-		//"var(|php+globalVar:///c|) = [$c]"
-
-// test	
-		"[$a = \"string\"] = [$a]",
-		"[$a] = [\"string\"]",
-		"[$b = 100] = [$b]",
-		"[$b] = [100]",
-		"[$c = true ? $a : $b] = [$c]",
-		"[$c] = [true ? $a : $b]",
-		//"[true ? $a : $b] = [$c]",
+		"[$a] \<: [$a = \"string\"]",
 		"[\"string\"] = stringType()",
-		"[$a] \<: any()",
-		"[$a] \<: any()",
-		"[$b] \<: any()",
-		"[$b] \<: any()",
-		"[$c] \<: any()",
-		"[100] = integerType()",
+		"[\"string\"] \<: [$a]",
+		"[$b] \<: [$b = 100]",
+		"[100] \<: [$b]",
+		"[$c] \<: [$c = true ? $a : $b]",
+		"[true ? $a : $b] \<: [$c]",
+		"[100] = integerType()" ,
 		"[true] = booleanType()",
-		"or([true ? $a : $b] = [$a], [true ? $a : $b] = [$b])"
+		"or([true ? $a : $b] \<: [$a], [true ? $a : $b] \<: [$b])"
 	];
 	list[str] expectedT = [
 		// 2 variable $a
-		"[$a] = { stringType() }", "[$a] = { stringType() }", 
+		"[$a] = super({ stringType() })", "[$a] = super({ stringType() })", 
 		// 2 variable $b
-		"[$b] = { integerType() }", "[$b] = { integerType() }", 
-		// 3 constants
+		"[$b] = super({ integerType() })", "[$b] = super({ integerType() })",
+		//// 3 constants
 		"[100] = { integerType() }", "[\"string\"] = { stringType() }", "[true] = { booleanType() }", 
-		// 2 assignments
-		"[$a = \"string\"] = { stringType() }",
-		"[$b = 100] = { integerType() }",
+		// result of the 2 assignments
+		"[$a = \"string\"] = super({ stringType() })",
+		"[$b = 100] = super({ integerType() })",
 		// ternary solutions 
 		"[true ? $a : $b] = { integerType(), stringType() }", 
 		"[$c] = { integerType(), stringType() }", 
 		"[$c = true ? $a : $b] = { integerType(), stringType() }"
-		
-//		[$a] = { stringType() }
-//[$b = 100] = { integerType() }
-//[$b] = { integerType() }
-//[$b] = { integerType() }
-//[$c = true ? $a : $b] = { any() }
-//[$c] = { any() }
-//[true ? $a : $b] = { any() }
-//[true] = { booleanType() }
 	];
 	return testConstraints("variable", expectedC, expectedT);
 }
@@ -112,14 +80,14 @@ public test bool testNormalAssign() {
 		// $b = $a; 
 		// $c = $d = $b; 
 		"[$a] \<: any()", "[$a] \<: any()", "[$b] \<: any()",
-		"[2] \<: [$a]", "[2] = integerType()", // assign of int
-		"[$a] \<: [$b]", // assign assign of vars
-		"[$a] \<: [$a = 2]", "[$b] \<: [$b = $a]", // type of full expr is the type of the assignment
+		"[$a] = [2]", "[2] = integerType()", // assign of int
+		"[$b] = [$a]", // assign assign of vars
+		"[$a = 2] = [$a]", "[$b = $a] = [$b]", // type of full expr is the type of the assignment
 		
 		"[$c] \<: any()", "[$d] \<: any()", "[$b] \<: any()",
-		"[$b] \<: [$d]", "[$d = $b] \<: [$c]",
-		"[$d] \<: [$d = $b]",
-		"[$c] \<: [$c = $d = $b]"
+		"[$d] = [$b]", "[$c] = [$d = $b]",
+		"[$d = $b] = [$d]",
+		"[$c = $d = $b] = [$c]"
 	];
 	list[str] expectedT = [
 		"[2] = { integerType() }",
@@ -299,7 +267,30 @@ public test bool testOpAssign() {
 		"[$s] \<: any()", "[$t] \<: any()", "[$s] \<: numberType()", // $s *= $t
 		"[$u] \<: any()", "[$v] \<: any()", "[$u] \<: numberType()"  // $u += $v
 	];
-	list[str] expectedT = [];
+	list[str] expectedT = [
+		"[$a] = { integerType() }",
+		"[$b] = { any() }",
+		"[$c] = { integerType() }",
+		"[$d] = { any() }",
+		"[$e] = { integerType() }",
+		"[$f] = { any() }",
+		"[$g] = { integerType() }",
+		"[$h] = { any() }",
+		"[$i] = { integerType() }",
+		"[$j] = { any() }",
+		"[$k] = { integerType() }",
+		"[$l] = { any() }",
+		"[$m] = { stringType() }",
+		"[$n] = { any() }",
+		"[$o] = { integerType() }",
+		"[$p] = { any() }",
+		"[$q] = { integerType() }",
+		"[$r] = { any() }",
+		"[$s] = { floatType(), integerType(), numberType() }",
+		"[$t] = { any() }",
+		"[$u] = { floatType(), integerType(), numberType() }",
+		"[$v] = { any() }"
+	];
 	return testConstraints("opAssign", expectedC, expectedT);
 }
 
@@ -438,25 +429,27 @@ public test bool testTernary() {
 		// $a = true ? $b : "string";
 		"[$a] \<: any()", "[$b] \<: any()", // $a and $b
 		"[true] = booleanType()", "[\"string\"] = stringType()", // true and "string"
-		"or([true ? $b : \"string\"] \<: [\"string\"], [true ? $b : \"string\"] \<: [$b])", // [E] = [E2] OR [E3]
-		"[true ? $b : \"string\"] \<: [$a]", // [E] <: $a
-		"[$a] \<: [$a = true ? $b : \"string\"]", // result of the whole expression is a subtype of $a
+		"or([true ? $b : \"string\"] = [\"string\"], [true ? $b : \"string\"] = [$b])", // [E] = [E2] OR [E3]
+		"[$a] = [true ? $b : \"string\"]", // $a = [E]
+		"[$a = true ? $b : \"string\"] = [$a]", // result of the whole expression is a subtype of $a
 		
 		// $c = TRUE ? : "str";
 		"[$c] \<: any()", 
 		"[TRUE] = booleanType()", "[\"str\"] = stringType()", // TRUE and "string"
 		"or([TRUE ? : \"str\"] \<: [\"str\"], [TRUE ? : \"str\"] \<: [TRUE])", // [E] = [E1] OR [E3]
-		"[TRUE ? : \"str\"] \<: [$c]", // [E] <: $c
-		"[$c] \<: [$c = TRUE ? : \"str\"]", // result of the whole expression is a subtype of $c
+		"[$c] = [TRUE ? : \"str\"]", // [E] = $c
+		"[$c = TRUE ? : \"str\"] = [$c]", // result of the whole expression is a subtype of $c
 	
 		// $d = $e = 3 ? "l" : "r";
 		"[$d] \<: any()", "[$e] \<: any()", 
 		"[3] = integerType()", "[\"l\"] = stringType()", "[\"r\"] = stringType()", // 3, "l" and "r"
-		"or([3 ? \"l\" : \"r\"] \<: [\"l\"], [3 ? \"l\" : \"r\"] \<: [\"r\"])", // [E] = [E1] OR [E3]
-		"[3 ? \"l\" : \"r\"] \<: [$e]", // [E] <: $e
-		"[$e = 3 ? \"l\" : \"r\"] \<: [$d]", // $e <: $d
-		"[$d] \<: [$d = $e = 3 ? \"l\" : \"r\"]", // result of the whole expression is a subtype of $c
-		"[$e] \<: [$e = 3 ? \"l\" : \"r\"]" // result of the whole expression is a subtype of $c
+		"or([3 ? \"l\" : \"r\"] = [\"l\"], [3 ? \"l\" : \"r\"] = [\"r\"])",// [E] = [E1] OR [E3]
+		"[$e] = [3 ? \"l\" : \"r\"]", // [E] <: $e
+		"[$d] = [$e = 3 ? \"l\" : \"r\"]", // $d = $e
+		"[$d = $e = 3 ? \"l\" : \"r\"] = [$d]",// result of the whole expression is a subtype of $c
+		"[$e = 3 ? \"l\" : \"r\"] = [$e]" // result of the whole expression is a subtype of $c
+		
+//or([3 ? \"l\" : \"r\"] = [\"l\"], [3 ? \"l\" : \"r\"] = [\"r\"])
 	];
 	list[str] expectedT = [];
 	return testConstraints("ternary", expectedC, expectedT);
@@ -604,8 +597,10 @@ public test bool testarrayType() {
 		"[$d[]] \<: any()", 
 		"neg([$d] \<: objectType())",
 		"[1] = integerType()",
-		"[1] \<: [$d[]]",
-		"[$d[]] \<: [$d[] = 1]"
+		//"[1] \<: [$d[]]",
+		"[$d[]] = [1]",
+		//"[$d[]] \<: [$d[] = 1]",
+		"[$d[] = 1] = [$d[]]"
 	];
 	list[str] expectedT = [];
 	return testConstraints("array", expectedC, expectedT);
@@ -946,10 +941,10 @@ public test bool testMethodCall() {
 public bool testConstraints(str fileName, list[str] expectedC, list[str] expectedT)
 {
 	loc l = getFileLocation(fileName);
-	projectLocation = l;
+	//projectLocation = l;
 	
 	resetModifiedSystem(); // this is only needed for the tests
-	System system = getSystem(l, false);
+	System system = getSystem(l);
 	M3 m3 = getM3ForSystem(system);
 	system = getModifiedSystem();
 	m3 = calculateAfterM3Creation(m3, system);
@@ -1087,7 +1082,8 @@ private str toStr(TypeSet::EmptySet())							= "{}";
 //private str toStr(TypeSet::Root())								= "{ any() }";
 private str toStr(TypeSet::Single(TypeSymbol t))				= "<toStr(t)>";
 private str toStr(TypeSet::Set(set[TypeSymbol] ts))				= "{ <intercalate(", ", sort([ toStr(t) | t <- sort(toList(ts))]))> }";
-private str toStr(TypeSet::Subtypes(TypeSet subs))				= "sub({ <intercalate(", ", sort([ toStr(s) | s <- sort(toList(subs))]))> }";
+private str toStr(TypeSet::Subtypes(TypeSet subs))				= "sub(<toStr(subs)>)";
+private str toStr(TypeSet::Supertypes(TypeSet supers))			= "super(<toStr(supers)>)";
 private str toStr(TypeSet::Union(set[TypeSet] args))			= "<intercalate(", ", sort([ toStr(s) | s <- sort(toList(args))]))>";
 private str toStr(TypeSet::Intersection(set[TypeSet] args))		= "<intercalate(", ", sort([ toStr(s) | s <- sort(toList(args))]))>";
 
