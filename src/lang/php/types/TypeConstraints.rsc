@@ -81,7 +81,7 @@ TypeSet Intersection({})               = EmptySet();
 TypeSet Intersection({x})              = x;
 TypeSet Intersection({Universe(), *x}) = Intersection(x);
 TypeSet Intersection({EmptySet(), _*}) = EmptySet();
-TypeSet Intersection({(), _*}) = EmptySet();
+//TypeSet Intersection({(), _*}) = EmptySet();
 TypeSet Intersection({Set(set[TypeSymbol] t1), Root()}) = Intersection({Set(t1 & { \any() } )});
 TypeSet Intersection({Set(set[TypeSymbol] t1), Set(set[TypeSymbol] t2), rest*}) =
 	Intersection({Set(t1 & t2), *rest});	
