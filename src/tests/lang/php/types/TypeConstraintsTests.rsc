@@ -1,6 +1,7 @@
 module tests::lang::php::types::TypeConstraintsTests
 extend lang::php::types::TypeConstraints;
 
+import IO;
 import List;
 import Set;
 import Relation;

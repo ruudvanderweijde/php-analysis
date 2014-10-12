@@ -3,36 +3,36 @@ module lang::php::types::TypeConstraints
 import lang::php::ast::AbstractSyntax;
 import lang::php::types::TypeSymbol;
 
-data TypeOfA
+data TypeOf
 	= typeOf(loc ident)
 	| typeSymbol(TypeSymbol ts)
 	| function(loc ident)
 	| var(loc decl)
-	| arrayType(set[TypeOfA] expressions)
+	| arrayType(set[TypeOf] expressions)
 	;
 
 data Constraint 
-	= eq(TypeOfA a, TypeOfA t)
-	| eq(TypeOfA a, TypeSymbol ts) // are rewritten to typeSymbol(ts)
-	//| lub(TypeOfA a, TypeOfA t)
-    | subtyp(TypeOfA a, TypeOfA t)
-    | subtyp(TypeOfA a, TypeSymbol ts)
-    | supertyp(TypeOfA a, TypeOfA t)
-    | supertyp(TypeOfA a, TypeSymbol ts)
+	= eq(TypeOf a, TypeOf t)
+	| eq(TypeOf a, TypeSymbol ts) // are rewritten to typeSymbol(ts)
+	//| lub(TypeOf a, TypeOf t)
+    | subtyp(TypeOf a, TypeOf t)
+    | subtyp(TypeOf a, TypeSymbol ts)
+    | supertyp(TypeOf a, TypeOf t)
+    | supertyp(TypeOf a, TypeSymbol ts)
  
  	// kind of like 'typeEnvironment' 
   	//| varDecl(rel[loc declaration, loc location] decl)
   	
    	// query the m3 to solve these 
-    | isAFunction(TypeOfA a)
-    | isAMethod(TypeOfA a)
-    | hasName(TypeOfA a, str name)
+    | isAFunction(TypeOf a)
+    | isAMethod(TypeOf a)
+    | hasName(TypeOf a, str name)
     
-    | isItemOfClass(TypeOfA a, TypeOfA t)
-    | hasMethod(TypeOfA a, str name)
-    | hasMethod(TypeOfA a, str name, set[ModifierConstraint] modifiers)
-    //| parentHasMethod(TypeOfA a, str name)
-    //| parentHasMethod(TypeOfA a, str name, set[ModifierConstraint] modifiers)
+    | isItemOfClass(TypeOf a, TypeOf t)
+    | hasMethod(TypeOf a, str name)
+    | hasMethod(TypeOf a, str name, set[ModifierConstraint] modifiers)
+    //| parentHasMethod(TypeOf a, str name)
+    //| parentHasMethod(TypeOf a, str name, set[ModifierConstraint] modifiers)
     
     | conditional(Constraint preCondition, Constraint result)
     | disjunction(set[Constraint] constraints)
@@ -46,7 +46,7 @@ data ModifierConstraint
 	| notAllowed(set[Modifier] modifiers)
 	;
 
-alias TypeEnv = map[TypeOfA, TypeSet];
+alias TypeEnv = map[TypeOf, TypeSet];
 alias TypeHierarchy = rel[TypeSymbol, TypeSymbol];
 
 data TypeSet
