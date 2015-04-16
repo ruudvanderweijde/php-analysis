@@ -45,10 +45,20 @@ public test bool testVariables() {
 	return testVariable1() && testVariable2() && testVariable3();
 }
 
+@doc { $a = "string"; }
 public test bool testVariable1() {
-	// $a = "string";
-	list[str] expectedConstraints = ["[$a] = [$a = \"string\"]", "[\"string\"] = stringType()", "[\"string\"] \<: [$a]"];
-	list[str] expectedTypes = ["$a = { stringType() }", "[\"string\"] = { stringType() }", "[$a = \"string\"] = { stringType() }"];
+	list[str] expectedConstraints = [
+	    "[|php+globalVar:///a|] = [$a]",
+		"[$a] = [$a = \"string\"]", 
+		"[\"string\"] = stringType()", 
+		"[\"string\"] \<: [$a]"
+	];
+	list[str] expectedTypes = [
+		"$a = { stringType() }", 
+		"[\"string\"] = { stringType() }", 
+		"[$a = \"string\"] = { stringType() }"
+	];
+	
 	return testConstraints("variable1", expectedConstraints, expectedTypes);
 }
 public test bool testVariable2() {

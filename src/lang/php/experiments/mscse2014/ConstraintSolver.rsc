@@ -40,7 +40,7 @@ public map[TypeOf var, TypeSet possibles] solveConstraints(set[Constraint] const
 		case supertyp(TypeOf a, TypeSymbol ts) => supertyp(a, typeSymbol(ts))
  	};
  	
- 	// this line is not needed
+ 	// this line is not needed because we use varMap now
 	//rel[loc decl, loc TypeOf] varUses = { <d,t> | <d,t> <- invert(m3@uses + invert(m3@declarations)), isVariable(d) };
   
   	subtypes = getSubTypes(m3, system);
@@ -69,262 +69,6 @@ public map[TypeOf var, TypeSet possibles] solveConstraints(set[Constraint] const
   	}
   	
   	return estimates;
-  	
-  	solve (estimates) {
-    	
-    	//// propagate the constraints
-    	//Constraint propagate(Constraint constraint) { 
-    	//	println("-------------- CONSTRAINT");
-    	//	iprintln(constraint);
-    	//	println("-------------- ESTIMATES");
-    	//	iprintln(estimates);
-    	//	println("--------------");
-    	//	for(estimate <- estimates) {
-    	//	println(estimate);
-    	//	println(estimates[estimate]);
-    	//	println("--------------");
-	    //	return subtype(estimates[estimate], constraint);
-	    //		switch(constraint) {
-	    //			case subtype(estimate, x): return subtype(estimates[estimate], constraint);
-	    //		}
-    	//	}
-    	//}
-    	//constraints = mapper(constraints, propagate);
-    	
-		solve (estimates) {	// solve constraints
-    		println("-----------------\nNEW ROUND!\n-----------------");
-    		iprintln(estimates);
-   
-    		// Subtype relation
-    		for (v <- estimates, c:subtyp(v, r:typeOf(t)) <- constraints) {
-     			//estimates[v] = Intersection({ estimates[v], Subtypes(estimates[r]) });
-         		println("-----------------\nFIRST HIT!\n-----------------\n");
-         		println("constraint:\n<c>\n-----------------");
-         		println("<v>\n<r>\n-----------------");
-         		println("<estimates[v]>\n<estimates[r]>\n-----------------");
-     			estimates[v] = Intersection({ estimates[v], estimates[r] });
-	    		iprintln(estimates);
-     		}
-     		
-    		for (v <- estimates, c:subtyp(l:typeOf(t), v) <- constraints) {;
-         		println("-----------------\nSECOND HIT!\n-----------------\n");
-         		println("constraint:\n<c>\n-----------------");
-         		println("<v>\n<l>\n-----------------");
-         		println("<estimates[v]>\n<estimates[l]>\n-----------------");
-     			estimates[v] = Intersection({ estimates[v], estimates[l] });
-	    		iprintln(estimates);
-     			//estimates[v] = Intersection({ estimates[v], Supertypes(estimates[l]) });
-     			//estimates[v] = Intersection({ estimates[v], Set(reach(subtypes, estimates[l])) });
-     		}
-     		
-    		for (v <- estimates, c:eq(v, r:typeOf(t)) <- constraints) {;
-         		println("-----------------\nTHIRD HIT!\n-----------------\n");
-         		println("constraint:\n<c>\n-----------------");
-         		println("<v>\n<r>\n-----------------");
-         		println("<estimates[v]>\n<estimates[r]>\n-----------------");
-     			estimates[v] = Intersection({ estimates[v], estimates[r] });
-	    		iprintln(estimates);
-     			//estimates[v] = Intersection({ estimates[v], Supertypes(estimates[l]) });
-     			//estimates[v] = Intersection({ estimates[v], Set(reach(subtypes, estimates[l])) });
-     		}
-     		
-    		for (v <- estimates, c:eq(l:typeOf(t), v) <- constraints) {;
-         		println("-----------------\nFOURTH HIT!\n-----------------\n");
-         		println("constraint:\n<c>\n-----------------");
-         		println("<v>\n<l>\n-----------------");
-         		println("<estimates[v]>\n<estimates[l]>\n-----------------");
-     			estimates[v] = Intersection({ estimates[v], estimates[l] });
-	    		iprintln(estimates);
-     			//estimates[v] = Intersection({ estimates[v], Supertypes(estimates[l]) });
-     			//estimates[v] = Intersection({ estimates[v], Set(reach(subtypes, estimates[l])) });
-     		}
-     		
-    		//for (v <- estimates, subtyp(l:typeOf(t), v) <- constraints) {
-    			// l is a subtypes of 
-    			//println("#1: <toStr(v)> = <estimates[v]>");
-    			//println("#1: <toStr(l)> = <estimates[l]>");
-     		//	println("Intersection({ <estimates[v]>, Supertypes(<estimates[l]>)) })");
-     		//	println(v);
-     		//	iprintln(estimates);
-     			//TypeSet intersection = Intersection({ estimates[v], Supertypes(estimates[l]) });
-     			//println(intersection);
-     			//if (TypeOf !:= estimates) { 
-     			//	println("estimates");
-     			//}
-     			//if (TypeSet !:= intersection) { 
-     			//	println("intersection");
-     			//}
-     			//estimates[v] = Intersection({ estimates[v], Supertypes(estimates[l]) });
-    		//	//println("#2: <toStr(v)> = <estimates[v]>");
-    		//	//println("#2: <toStr(l)> = <estimates[l]>");
-    		//}
-    		
-    		//for (v <- estimates, supertyp(v, r:typeOf(t)) <- constraints) {
-    		//	println("#3: <toStr(v)> = <estimates[v]>");
-    		//	println("#3: <toStr(r)> = <estimates[r]>");
-     	//		println("Intersection({ <estimates[v]>, Supertypes(<estimates[r]>) })");
-     	//		estimates[v] = Intersection({ estimates[v], Supertypes(estimates[r]) });
-    		//	println("#4: <toStr(v)> = <estimates[v]>");
-    		//	println("#4: <toStr(r)> = <estimates[r]>");
-    		//}
-    		//for (v <- estimates, supertyp(r:typeSymbol(t), v) <- constraints) {
-    		//	println("MATCH 2 :: <v> :: <r>");	
-    		//}
-    		//for (v <- estimates, subtyp(r:typeSymbol(t), v) <- constraints) {
-    		//	println("MATCH 2 :: <v> :: <r>");	
-    		//}
-    		//for (typeOf(v) <- estimates, s:subtyp(tov:typeOf(v), tot:typeOf(t)) <- constraints) {
-    		//	println("MATCH 3 :: <s>");	
-    		//
-    		//}
-    		//for (v <- estimates, eq(v, r:typeOf(t)) <- constraints) {
-    		//	;
-    		//}
-    		//for (v <- estimates, subtyp(v, r:typeSymbol(t)) <- constraints) {
-    		//	println("\>\>\>\> Start");
-    		//	println(v);
-    		//	//println(v);
-     	//		println(estimates[v]);
-     	//		println(t);
-     	//		println(Subtypes(Single(t)));
-     	//		println("Intersection(<estimates[v]>, Subtypes(Single(<t>)));");
-     	//		estimates[v] = Intersection({ estimates[v], Subtypes(Single(t)) });
-     	//		println(estimates[v]);
-    		//	println("\<\<\<\< End");
-    		//;
-    		//}
-    		//for (v <- estimates, subtyp(l:v, r:typeOf(t)) <- constraints) {
-    		//	//println("\>\>\>\> Start");
-    		//	//println("Merge 1: <readFile(v.ident)> && <readFile(t.ident)>");
-    		//	//println("Merge 1: <toStr(v)> && <toStr(t)>");
-    		//	//println(estimates[v]);
-    		//	//println(estimates[t]);
-    		//	//println(estimates[v]);
-    		//	iprintln("<estimates[l]> && <estimates[r]>");
-     	//		estimates[l] = Intersection({estimates[l], Subtypes(estimates[r])});
-    		//	
-    		//	iprintln("<toStr(v)> == <estimates[v]>");
-    		//	//println("\<\<\<\< End");
-     	//	}
-    		//for (typeOf(v) <- estimates, s:subtyp(tov:typeOf(v), tot:typeOf(t)) <- constraints) {
-    		//	//println("\>\>\>\> Start");
-    		//	//println("Merge 2: <readFile(v)> && <readFile(t)>");
-    		//	//println("Merge 2: <toStr(tov)> && <toStr(tot)>");
-    		//	//println("Merge 2: <readFile(v.ident)> && <readFile(t.ident)>");
-    		//	//println(estimates[v]);
-    		//	//println(estimates[t]);
-    		//	//println(toStr(s));
-    		//	//iprintln("<Subtypes(estimates[tov])> && <estimates[tot]>");
-     	//		estimates[tov] = Intersection({Subtypes(estimates[tov]), estimates[tot]});
-    		//	//iprintln("<toStr(tov)> == <estimates[tov]>");
-    		//	//println("\<\<\<\< End");
-     	//	}
-    	}
-    	
-    	// handle disjunctions 
-    	// TODO handle them properly, they can be inside conjunctions, conditionals etc...
-    	top-down-break visit (constraints) { // top-down-break because we do not want to go into conditionals here
-    	    case conditional(_,_): ; // ignore these
-    	    case disjunction(set[Constraint] cs): {
-     			println("2 DISJUNCTION!!");
-     		    iprintln(cs);
-    	    	// all LHS:
-    	    	for (lhs <- { l | eq(l,_) <- cs } + { l | subtype(l,_) <- cs } + { l | supertyp(l,_) <- cs }) {
-	    	   		estimates[lhs] = 
-	    	   			Union( 
-	    	   				{ estimates[r]				|       eq(lhs,r) <- cs } +
-	    	   				{ Subtypes(estimates[r])	|   sybtyp(lhs,r) <- cs } +
-	    	   				{ Supertypes(estimates[r])	| sypertyp(lhs,r) <- cs }
-	    	   			);
-    	    	}
-    	    	// all RHS:
-    	    	for (rhs <- { r | eq(_,r) <- cs } + { r | subtype(_,r) <- cs } + { r | supertyp(_,r) <- cs }) {
-	    	   		estimates[rhs] = 
-	    	   			Union( 
-	    	   				{ estimates[l]				|       eq(l,rhs) <- cs } +
-	    	   				{ Subtypes(estimates[l])	|   sybtyp(l,lhs) <- cs } +
-	    	   				{ Supertypes(estimates[l])	| sypeltyp(l,lhs) <- cs }
-	    	   			);
-    	    	}
-    	    }
-    	}
-    
-    //    println("-----------------VARMAP");
-    //    iprintln(varMap);
-    //
-    //    println("----------------_/` now try to determine the types of the variables");
-    //
-    	// try to determine the types of the variables:
-    	//for (mapId <- varMap) { // loop over the scopes
-    	//	m = varMap[mapId];
-    	//	
-    	//	for (varDecl <- toSet(domain(m))) { // loop over the variable declarations
-    	//		println("STARTING ANAYLYSIS FOR: <varDecl>");
-    	//		set[TypeSet] ts = { estimates[typeOf(varDeclId)] | varDeclId <- m[varDecl] };
-    	//		println("STARTING ANAYLYSIS FOR: <ts>");
-    	//		iprintln(ts);
-    	//		// we leave Universe() out, because this has not been resolved (yet)
-    	//		//println("#1 :: <ts>");
-    	//		
-    	//		// this step is not needed because we take the intersection
-    	//		//ts = { t | t <- ts, Universe() !:= t };
-    	//		//println("#2 :: <ts>");
-    	//	
-    	//		if (!isEmpty(ts)) {
-    	//			TypeSet newVarType = Intersection(ts);
-    	//			if (newVarType == EmptySet()) {
-    	//				newVarType = LCA(ts);
-    	//			}
-    	//			for (vId <- m[varDecl]) {
-    	//				// apply intersection.. if that fails, try widening by taking the LUB.
-    	//				println("NEW VAR TYPE");
-    	//				println(newVarType);
-    	//				println(estimates[typeOf(vId)]);
-    	//				estimates[typeOf(vId)] = newVarType; 
-    	//				println(estimates[typeOf(vId)]);
-    	//				//estimates[typeOf(varId)] = Union(ts); 
-    	//				// maybe change this to LCA
-			  //  		// LEAST UPPER BOUND CHECK (least common ancestor) 
-			  //  	}
-			  //  }
-    	//	}
-    	//}
-    	
-    	//// for each variable decl, check the types
-    	//for (decl <- varUses.decl) { // for all declarations
-    	//	// try to resolve variable types...
-    	//	possibleTypes = {};
-    	//	for (t <- varUses[decl]) {
-   		//	    // check if it is not universe
-    	//		if (estimates[typeOf(t)] != Universe()) {
-    	//			possibleTypes = estimates[typeOf(t)];
-    	//		}
-    	//	}
-    	//	
-    	//	if (possibleTypes != {}) {
-	    //		for (t <- varUses[decl]) {
-	    //			estimates[typeOf(t)] = possibleTypes;
-    	//		}
-    	//	} else {
-    	//		println("types, could not be resolved for <decl>");	
-    	//	}
-    	//}
- 	}
-	
-	iprintln("After solve:");	
-	for (to:typeOf(est) <- estimates) {
-		println("<toStr(to)> :: <estimates[to]>");
-	}
-
-	// replace all resolved TypeSymbol.	
-	iprintln(estimates); 
-	estimates = innermost visit(estimates) {
-		case Subtypes(Set({TypeSymbol s, *rest })) => Union({Single(s), Set(reach(invertedSubtypes, {s})), Subtypes(Set(rest))}) 
-	};
- 
- 	
- 		
- 	return estimates;
 }
 
 public set[Constraint] deriveMore (set[Constraint] constraints, map[TypeOf, TypeSet] estimates)
@@ -337,6 +81,43 @@ public set[Constraint] deriveMore (set[Constraint] constraints, map[TypeOf, Type
 
 public set[Constraint] propagateConstraints (set[Constraint] constraints, map[TypeOf, TypeSet] estimates)
 {
+//    		// Subtype relation
+//    		for (v <- estimates, c:subtyp(v, r:typeOf(t)) <- constraints) {
+//     			//estimates[v] = Intersection({ estimates[v], Subtypes(estimates[r]) });
+//         		println("-----------------\nFIRST HIT!\n-----------------\n");
+//         		println("constraint:\n<c>\n-----------------");
+//         		println("<v>\n<r>\n-----------------");
+//         		println("<estimates[v]>\n<estimates[r]>\n-----------------");
+//     			estimates[v] = Intersection({ estimates[v], estimates[r] });
+//	    		iprintln(estimates);
+//     		}
+//    	// handle disjunctions 
+//    	// TODO handle them properly, they can be inside conjunctions, conditionals etc...
+//    	top-down-break visit (constraints) { // top-down-break because we do not want to go into conditionals here
+//    	    case conditional(_,_): ; // ignore these
+//    	    case disjunction(set[Constraint] cs): {
+//     			println("2 DISJUNCTION!!");
+//     		    iprintln(cs);
+//    	    	// all LHS:
+//    	    	for (lhs <- { l | eq(l,_) <- cs } + { l | subtype(l,_) <- cs } + { l | supertyp(l,_) <- cs }) {
+//	    	   		estimates[lhs] = 
+//	    	   			Union( 
+//	    	   				{ estimates[r]				|       eq(lhs,r) <- cs } +
+//	    	   				{ Subtypes(estimates[r])	|   sybtyp(lhs,r) <- cs } +
+//	    	   				{ Supertypes(estimates[r])	| sypertyp(lhs,r) <- cs }
+//	    	   			);
+//    	    	}
+//    	    	// all RHS:
+//    	    	for (rhs <- { r | eq(_,r) <- cs } + { r | subtype(_,r) <- cs } + { r | supertyp(_,r) <- cs }) {
+//	    	   		estimates[rhs] = 
+//	    	   			Union( 
+//	    	   				{ estimates[l]				|       eq(l,rhs) <- cs } +
+//	    	   				{ Subtypes(estimates[l])	|   sybtyp(l,lhs) <- cs } +
+//	    	   				{ Supertypes(estimates[l])	| sypeltyp(l,lhs) <- cs }
+//	    	   			);
+//    	    	}
+//    	    }
+//    	}
 	return constraints;
 }
 
