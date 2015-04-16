@@ -42,12 +42,6 @@ public map[TypeOf var, TypeSet possibles] solveConstraints(set[Constraint] const
  	
  	// this line is not needed
 	//rel[loc decl, loc TypeOf] varUses = { <d,t> | <d,t> <- invert(m3@uses + invert(m3@declarations)), isVariable(d) };
-	// replace all var use location
-	for (fileLocation <- varMap, <decl,location> <- varMap[fileLocation]) {
-		constraints = visit(constraints) {
-			case typeOf(location) => var(decl)
-		}
-	}
   
   	subtypes = getSubTypes(m3, system);
   	//writeBinaryValueFile(|tmp:///subtypes.bin|, subtypes);
