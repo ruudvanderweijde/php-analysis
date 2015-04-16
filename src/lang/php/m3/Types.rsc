@@ -8,6 +8,7 @@ public M3 resolveTypes(M3 m3, System system)
 {
 	set[Constraint] constraints = getConstraints(m3, system);
 	
+	// actually resolve types and add them to m3
 	return m3;
 }
 

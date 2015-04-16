@@ -1,4 +1,4 @@
-module lang::php::experiments::mscse2014::Constraints
+module lang::php::experiments::mscse2014::ConstraintExtractor
 
 import lang::php::ast::AbstractSyntax;
 
@@ -12,14 +12,13 @@ import lang::php::types::TypeConstraints;
 import lang::php::types::core::Constants;
 import lang::php::types::core::Variables;
 
-
 import lang::php::util::Utils;
 
-import IO; // for debuggin
+import IO; // for debugging
 import String; // for toLowerCase
 import Set; // for isEmpty
 import Map; // for size
-import Relation; // for domainu
+import Relation; // for domain
 
 private set[Constraint] constraints = {};
 private map[loc file, lrel[loc decl, loc location] vars] variableMapping = ();
@@ -249,7 +248,7 @@ private void addConstraints(ClassItem ci, &T <: node parentNode, M3 m3)
 			
 				for (stmt <- body) addConstraints(stmt, m3);
 			}
-			// todo params
+			// TODO params !!!!!!!!!!!!!!!!
 		}
 	//| traitUse(list[Name] traits, list[Adaptation] adaptations)
 	}
@@ -282,7 +281,7 @@ private void addConstraints(Expr e, M3 m3)
 		case a:assign(Expr assignTo, Expr assignExpr): {
 			// add direct constraints
 			addConstraints(a, { subtyp(typeOf(assignExpr@at), typeOf(assignTo@at)) }); 
-			addConstraints(a, { subtyp(typeOf(assignTo@at), typeOf(a@at)) });
+			addConstraints(a, { eq(typeOf(assignTo@at), typeOf(a@at)) });
 			//addConstraints(a, { supertyp(typeOf(assignTo@at), typeOf(assignExpr@at)) }); 
 			//addConstraints(a, { supertyp(typeOf(a@at), typeOf(assignTo@at)) });
 			// add indirect constraints
@@ -1030,16 +1029,16 @@ public void addConstraintsOnAllVarsForScript(&T <: node t, m3)
 	//	println(decls);
 	//}
 
-	if (!isEmpty(variables)) {
+	//if (!isEmpty(variables)) {
 		variableMapping[m3.id] = variables;
-	}
+	//}
 	//iprintln(variableMapping);
 	//exit();
 	
 	// just use the uses relation of m3 here...
 
 	// old:
-	//addConstraints(t, { eq(typeOf(v@decl), typeOf(v@at)) | /v:var(_) <- t, v@decl? && v@scope == t@decl });
+	addConstraints(t, { eq(typeOf(v@decl), typeOf(v@at)) | /v:var(_) <- t, v@decl? && v@scope == t@decl });
 }
 
 public void addConstraintsOnAllReturnStatementsWithinScope(&T <: node t) 

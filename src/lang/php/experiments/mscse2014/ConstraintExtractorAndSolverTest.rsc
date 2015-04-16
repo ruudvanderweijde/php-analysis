@@ -1,6 +1,6 @@
-module lang::php::experiments::mscse2014::ConstraintsTest
+module lang::php::experiments::mscse2014::ConstraintExtractorAndSolverTest
 
-extend lang::php::experiments::mscse2014::Constraints;
+extend lang::php::experiments::mscse2014::ConstraintExtractor;
 extend lang::php::experiments::mscse2014::ConstraintSolver;
 extend lang::php::experiments::mscse2014::mscse2014;
 
@@ -14,38 +14,65 @@ import List; // sort
 loc getFileLocation(str name) = analysisLoc + "/src/tests/resources/experiments/mscse2014/<name>/";
 //loc getFileLocationFull(str name) = getFileLocation(name) + "/<name>.php";
 
+// Test constraint extraction and constraint solving
 public void main()
 {
 	// trigger all tests
-	assert true == testVariable();
-	assert true == testNormalAssign();
-	assert true == testScalars();
-	assert true == testPredefinedConstants();
-	assert true == testPredefinedVariables();
-	assert true == testOpAssign();
-	assert true == testUnaryOp();
-	assert true == testBinaryOp();
-	assert true == testTernary();
-	assert true == testComparisonOp();
-	assert true == testLogicalOp();
-	assert true == testCasts();
-	assert true == testarrayType();
-	assert true == testVarious();
-	assert true == testControlStructures();
-	assert true == testFunction();
-	assert true == testClassMethod();
-	assert true == testClassConstant();
-	assert true == testClassProperty();
-	assert true == testMethodCallStatic();
-	assert true == testClassKeywords();
-	assert true == testMethodCall();
+	assert true == testVariables();
+	//assert true == testNormalAssign();
+	//assert true == testScalars();
+	//assert true == testPredefinedConstants();
+	//assert true == testPredefinedVariables();
+	//assert true == testOpAssign();
+	//assert true == testUnaryOp();
+	//assert true == testBinaryOp();
+	//assert true == testTernary();
+	//assert true == testComparisonOp();
+	//assert true == testLogicalOp();
+	//assert true == testCasts();
+	//assert true == testarrayType();
+	//assert true == testVarious();
+	//assert true == testControlStructures();
+	//assert true == testFunction();
+	//assert true == testClassMethod();
+	//assert true == testClassConstant();
+	//assert true == testClassProperty();
+	//assert true == testMethodCallStatic();
+	//assert true == testClassKeywords();
+	//assert true == testMethodCall();
+}
+public test bool testVariables() {
+	return testVariable1() && testVariable2() && testVariable3();
 }
 
-public test bool testVariable() {
+public test bool testVariable1() {
+	// $a = "string";
+	list[str] expectedConstraints = ["[$a] = [$a = \"string\"]", "[\"string\"] = stringType()", "[\"string\"] \<: [$a]"];
+	list[str] expectedTypes = ["$a = { stringType() }", "[\"string\"] = { stringType() }", "[$a = \"string\"] = { stringType() }"];
+	return testConstraints("variable1", expectedConstraints, expectedTypes);
+}
+public test bool testVariable2() {
+	// $a = "string";
+	// $a = 100;
+	list[str] expectedConstraints = [
+		"[$a] \<: [$a = \"string\"]",
+		"[\"string\"] = stringType()",
+		"[\"string\"] \<: [$a]"
+	];
+	list[str] expectedTypes = [
+		"$a = { scalarType() }",
+		"[100] = { integerType() }",
+		"[\"string\"] = { stringType() }",
+		"[$a = 100] = { integerType() }",
+		"[$a = \"string\"] = { stringType() }"
+	];
+	return testConstraints("variable1", expectedConstraints, expectedTypes);
+}
+public test bool testVariable3() {
 	// $a = "string";
 	// $b = 100;
 	// $c = true ? $a : $b;
-	list[str] expectedC = [
+	list[str] expectedConstraints = [
 		"[$a] \<: [$a = \"string\"]",
 		"[\"string\"] = stringType()",
 		"[\"string\"] \<: [$a]",
@@ -57,25 +84,26 @@ public test bool testVariable() {
 		"[true] = booleanType()",
 		"or([true ? $a : $b] \<: [$a], [true ? $a : $b] \<: [$b])"
 	];
-	list[str] expectedT = [
-		// 2 variable $a
-		"[$a] = super({ stringType() })", "[$a] = super({ stringType() })", 
-		// 2 variable $b
-		"[$b] = super({ integerType() })", "[$b] = super({ integerType() })",
+	list[str] expectedTypes = [
+		//// 2 variable $a
+		//"$a = { stringType() }",
+		//// 2 variable $b
+		//"$b = { integerType() }",
 		//// 3 constants
-		"[100] = { integerType() }", "[\"string\"] = { stringType() }", "[true] = { booleanType() }", 
-		// result of the 2 assignments
-		"[$a = \"string\"] = super({ stringType() })",
-		"[$b = 100] = super({ integerType() })",
-		// ternary solutions 
-		"[true ? $a : $b] = { integerType(), stringType() }", 
-		"[$c] = { integerType(), stringType() }", 
-		"[$c = true ? $a : $b] = { integerType(), stringType() }"
+		//"[100] = { integerType() }", "[\"string\"] = { stringType() }", "[true] = { booleanType() }", 
+		//// result of the 2 assignments
+		//"[$a = \"string\"] = super({ stringType() })",
+		//"[$b = 100] = super({ integerType() })",
+		//// ternary solutions 
+		//"[true ? $a : $b] = { integerType(), stringType() }", 
+		//"$c = { integerType(), stringType() }", 
+		//"[$c = true ? $a : $b] = { integerType(), stringType() }"
 	];
-	return testConstraints("variable", expectedC, expectedT);
+	// if exptectedTypes are empty, they are not evaluated/tested
+	return testConstraints("variable3", expectedConstraints, expectedTypes);
 }
 public test bool testNormalAssign() {
-	list[str] expectedC = [
+	list[str] expectedConstraints = [
 		// $a = 2; 
 		// $b = $a; 
 		// $c = $d = $b; 
@@ -89,7 +117,7 @@ public test bool testNormalAssign() {
 		"[$d = $b] = [$d]",
 		"[$c = $d = $b] = [$c]"
 	];
-	list[str] expectedT = [
+	list[str] expectedTypes = [
 		"[2] = { integerType() }",
 		"[$a] = { integerType() }",
 		"[$a = 2] = { integerType() }",
@@ -102,11 +130,11 @@ public test bool testNormalAssign() {
 		"[$d = $b] = { integerType() }",
 		"[$d] = { integerType() }"
 	];
-	return testConstraints("normalAssign", expectedC, expectedT);
+	return testConstraints("normalAssign", expectedConstraints, expectedTypes);
 }
 
 public test bool testScalars() {
-	list[str] expectedC = [
+	list[str] expectedConstraints = [
 		// floats -> floatType()
 		"[0.0] = floatType()", "[0.5] = floatType()", "[1000.0382] = floatType()",
 		// int -> int()
@@ -119,7 +147,7 @@ public test bool testScalars() {
 		"[$encapsed] \<: any()", "[$encapsed] \<: any()"
 		
 	];
-	list[str] expectedT = [
+	list[str] expectedTypes = [
 		"[\"$encapsed string\"] = { stringType() }",
 		"[\"string\"] = { stringType() }",
 		"[\"{$encapsed} string\"] = { stringType() }",
@@ -135,11 +163,11 @@ public test bool testScalars() {
 		"[1] = { integerType() }",
 		"[2] = { integerType() }"
 	];
-	return testConstraints("scalar", expectedC, expectedT);
+	return testConstraints("scalar", expectedConstraints, expectedTypes);
 }
 
 public test bool testPredefinedConstants() {
-	list[str] expectedC = [
+	list[str] expectedConstraints = [
 		// magic constants -> stringType() (except for __LINE__ which is of type integerType()
 		"[__CLASS__] = stringType()", "[__DIR__] = stringType()", "[__FILE__] = stringType()", "[__FUNCTION__] = stringType()", 
 		"[__LINE__] = integerType()", "[__METHOD__] = stringType()", "[__NAMESPACE__] = stringType()", "[__TRAIT__] = stringType()",
@@ -219,12 +247,12 @@ public test bool testPredefinedConstants() {
 		"[STDERR] = resourceType()",
 		"[TRUE] = booleanType()"
 	];
-	list[str] expectedT = [];
-	return testConstraints("predefinedConstants", expectedC, expectedT);
+	list[str] expectedTypes = [];
+	return testConstraints("predefinedConstants", expectedConstraints, expectedTypes);
 }
 
 public test bool testPredefinedVariables() {
-	list[str] expectedC = [
+	list[str] expectedConstraints = [
 		"[$argc] = integerType()",
 		"[$argv] = arrayType(stringType())",
 		"[$_COOKIE] \<: arrayType(any())",
@@ -241,12 +269,12 @@ public test bool testPredefinedVariables() {
 		"[$HTTP_RAW_POST_DATA] = arrayType(stringType())",
 		"[$http_response_header] = arrayType(stringType())"
 	];
-	list[str] expectedT = [];
-	return testConstraints("predefinedVariables", expectedC, expectedT);
+	list[str] expectedTypes = [];
+	return testConstraints("predefinedVariables", expectedConstraints, expectedTypes);
 }
 
 public test bool testOpAssign() {
-	list[str] expectedC = [
+	list[str] expectedConstraints = [
 		// LHS = integerType()
 		"[$a] \<: any()", "[$b] \<: any()", "[$a] = integerType()", // $a  &= $b
 		"[$c] \<: any()", "[$d] \<: any()", "[$c] = integerType()", // $c  |= $d
@@ -267,7 +295,7 @@ public test bool testOpAssign() {
 		"[$s] \<: any()", "[$t] \<: any()", "[$s] \<: numberType()", // $s *= $t
 		"[$u] \<: any()", "[$v] \<: any()", "[$u] \<: numberType()"  // $u += $v
 	];
-	list[str] expectedT = [
+	list[str] expectedTypes = [
 		"[$a] = { integerType() }",
 		"[$b] = { any() }",
 		"[$c] = { integerType() }",
@@ -291,11 +319,11 @@ public test bool testOpAssign() {
 		"[$u] = { floatType(), integerType(), numberType() }",
 		"[$v] = { any() }"
 	];
-	return testConstraints("opAssign", expectedC, expectedT);
+	return testConstraints("opAssign", expectedConstraints, expectedTypes);
 }
 
 public test bool testUnaryOp() {
-	list[str] expectedC = [
+	list[str] expectedConstraints = [
 		// +$a;
 		"[$a] \<: any()",
 		"[+$a] \<: numberType()", // expression is number or int
@@ -359,12 +387,12 @@ public test bool testUnaryOp() {
 		"if ([$h] = resourceType()) then ([--$h] = resourceType())",
 		"if ([$h] = stringType()) then (or([--$h] = floatType(), [--$h] = integerType(), [--$h] = stringType()))"
 	];
-	list[str] expectedT = [];
-	return testConstraints("unaryOp", expectedC, expectedT);
+	list[str] expectedTypes = [];
+	return testConstraints("unaryOp", expectedConstraints, expectedTypes);
 }
 
 public test bool testBinaryOp() {
-	list[str] expectedC = [
+	list[str] expectedConstraints = [
 		// $a + $b;
 		"[$a] \<: any()", "[$b] \<: any()",
 		"or([$a + $b] \<: arrayType(any()), [$a + $b] \<: numberType())", // always array, or subtype of numberType()
@@ -420,12 +448,12 @@ public test bool testBinaryOp() {
 		"[$s \>\> $t] = integerType()"
 		
 	];
-	list[str] expectedT = [];
-	return testConstraints("binaryOp", expectedC, expectedT);
+	list[str] expectedTypes = [];
+	return testConstraints("binaryOp", expectedConstraints, expectedTypes);
 }
 
 public test bool testTernary() {
-	list[str] expectedC = [
+	list[str] expectedConstraints = [
 		// $a = true ? $b : "string";
 		"[$a] \<: any()", "[$b] \<: any()", // $a and $b
 		"[true] = booleanType()", "[\"string\"] = stringType()", // true and "string"
@@ -451,12 +479,12 @@ public test bool testTernary() {
 		
 //or([3 ? \"l\" : \"r\"] = [\"l\"], [3 ? \"l\" : \"r\"] = [\"r\"])
 	];
-	list[str] expectedT = [];
-	return testConstraints("ternary", expectedC, expectedT);
+	list[str] expectedTypes = [];
+	return testConstraints("ternary", expectedConstraints, expectedTypes);
 }
 
 public test bool testLogicalOp() {
-	list[str] expectedC = [
+	list[str] expectedConstraints = [
 		// $a and $b;
 		"[$a] \<: any()", "[$b] \<: any()",
 		"[$a and $b] = booleanType()",
@@ -477,12 +505,12 @@ public test bool testLogicalOp() {
 		"[$i] \<: any()", "[$j] \<: any()",
 		"[$i || $j] = booleanType()"
 	];
-	list[str] expectedT = [];
-	return testConstraints("logicalOp", expectedC, expectedT);
+	list[str] expectedTypes = [];
+	return testConstraints("logicalOp", expectedConstraints, expectedTypes);
 }
 
 public test bool testComparisonOp() {
-	list[str] expectedC = [
+	list[str] expectedConstraints = [
 		// $a < $b;
 		"[$a] \<: any()", "[$b] \<: any()",
 		"[$a \< $b] = booleanType()",
@@ -519,12 +547,12 @@ public test bool testComparisonOp() {
 		"[$q] \<: any()", "[$r] \<: any()",
 		"[$q !== $r] = booleanType()"
 	];
-	list[str] expectedT = [];
-	return testConstraints("comparisonOp", expectedC, expectedT);
+	list[str] expectedTypes = [];
+	return testConstraints("comparisonOp", expectedConstraints, expectedTypes);
 }
 
 public test bool testCasts() {
-	list[str] expectedC = [
+	list[str] expectedConstraints = [
 		"[$a] \<: any()", "[$b] \<: any()", "[$c] \<: any()", "[$d] \<: any()", 
 		"[$e] \<: any()", "[$f] \<: any()", "[$g] \<: any()", "[$h] \<: any()", 
 		"[$i] \<: any()", "[$j] \<: any()", "[$k] \<: any()", 
@@ -545,12 +573,12 @@ public test bool testCasts() {
 		"[(object)$j] \<: objectType()",
 		"[(unset)$k] = nullType()"
 	];
-	list[str] expectedT = [];
-	return testConstraints("casts", expectedC, expectedT);
+	list[str] expectedTypes = [];
+	return testConstraints("casts", expectedConstraints, expectedTypes);
 }
 
 public test bool testarrayType() {
-	list[str] expectedC = [
+	list[str] expectedConstraints = [
 		// arrayType(); [];
 		"[array()] = arrayType()",
 		"[[]] = arrayType()",
@@ -602,12 +630,12 @@ public test bool testarrayType() {
 		//"[$d[]] \<: [$d[] = 1]",
 		"[$d[] = 1] = [$d[]]"
 	];
-	list[str] expectedT = [];
-	return testConstraints("array", expectedC, expectedT);
+	list[str] expectedTypes = [];
+	return testConstraints("array", expectedConstraints, expectedTypes);
 }
 
 public test bool testVarious() {
-	list[str] expectedC = [
+	list[str] expectedConstraints = [
 		// $a = clone($b);
 		"[$a] \<: any()", 
 		"[$a] \<: objectType()", 
@@ -627,12 +655,12 @@ public test bool testVarious() {
 		"[new $b()] \<: objectType()",
 		"or([$b] \<: objectType(), [$b] = stringType())"
 	];
-	list[str] expectedT = [];
-	return testConstraints("various", expectedC, expectedT);
+	list[str] expectedTypes = [];
+	return testConstraints("various", expectedConstraints, expectedTypes);
 }
 
 public test bool testControlStructures() {
-	list[str] expectedC = [
+	list[str] expectedConstraints = [
 		// if ($a1) {"10";}
 		"[$a1] \<: any()", "[\"10\"] = stringType()", 
 		// if ($b1) {"20";} else {"30";}
@@ -702,12 +730,12 @@ public test bool testControlStructures() {
 		// try { $n3; } catch (\Exception $e) { $n4; } finally { $n5; };
 		"[$n3] \<: any()", "[$n4] \<: any()", "[$n5] \<: any()"
 	];
-	list[str] expectedT = [];
-	return testConstraints("controlStructures", expectedC, expectedT);
+	list[str] expectedTypes = [];
+	return testConstraints("controlStructures", expectedConstraints, expectedTypes);
 }
 
 public test bool testFunction() {
-	list[str] expectedC = [
+	list[str] expectedConstraints = [
 		// function a() {}
 		"[function a() {}] = nullType()",
 		// function &b() {}
@@ -769,12 +797,12 @@ public test bool testFunction() {
 		"or([$x] \<: objectType(), [$x] = stringType())",
 		"if ([$x] \<: objectType()) then (hasMethod([$x], __invoke))"
 	];
-	list[str] expectedT = [];
-	return testConstraints("function", expectedC, expectedT);
+	list[str] expectedTypes = [];
+	return testConstraints("function", expectedConstraints, expectedTypes);
 }
 
 public test bool testClassMethod() {
-	list[str] expectedC = [
+	list[str] expectedConstraints = [
 		// [public function m1() {}] = nullType()
 		"[public function m1() {}] = nullType()",
 		
@@ -793,12 +821,12 @@ public test bool testClassMethod() {
 		"[|php+methodVar:///ns/c3/m3/a|] = [$a]",
 		"[|php+functionVar:///ns/f1/a|] = [$a]"
 	];
-	list[str] expectedT = [];
-	return testConstraints("classMethod", expectedC, expectedT);
+	list[str] expectedTypes = [];
+	return testConstraints("classMethod", expectedConstraints, expectedTypes);
 }
 
 public test bool testClassConstant() {
-	list[str] expectedC = [
+	list[str] expectedConstraints = [
 		// class C1 { const c1 = 100; }
 		"[c1 = 100] = [100]",
 		"[100] = integerType()",
@@ -815,12 +843,12 @@ public test bool testClassConstant() {
 		"[\"interface constant\"] = stringType()",
 		"[|php+classConstant:///classconstant/c3/cInterface|] = [cInterface = \"interface constant\"]" 
 	];
-	list[str] expectedT = [];
-	return testConstraints("classConstant", expectedC, expectedT);
+	list[str] expectedTypes = [];
+	return testConstraints("classConstant", expectedConstraints, expectedTypes);
 }
 
 public test bool testClassProperty() {
-	list[str] expectedC = [
+	list[str] expectedConstraints = [
 		// class cl1 { public $pub1; public $pub2 = 2; }
 		"[2] = integerType()",
 		"[$pub2 = 2] = [2]",
@@ -837,13 +865,13 @@ public test bool testClassProperty() {
 		"[|php+field:///randomnamespace/cl3/pro1|] = [$pro1]",
 		"[|php+field:///randomnamespace/cl3/pro2|] = [$pro2 = 2]"
 	];
-	list[str] expectedT = [];
-	return testConstraints("classProperty", expectedC, expectedT);
+	list[str] expectedTypes = [];
+	return testConstraints("classProperty", expectedConstraints, expectedTypes);
 }
 
 public test bool testMethodCallStatic() {
 	// information is retreived from m3, declares in uses
-	list[str] expectedC = [
+	list[str] expectedConstraints = [
 		// if (true)
 		"[true] = booleanType()",
 		// class C { public static function d() {return true; } public function e() { $this::f(); } }
@@ -890,13 +918,13 @@ public test bool testMethodCallStatic() {
 		// if LHS is of one of the parent classes ->
 		""
     ];
-	list[str] expectedT = [];
-	return testConstraints("methodCallStatic", expectedC, expectedT);
+	list[str] expectedTypes = [];
+	return testConstraints("methodCallStatic", expectedConstraints, expectedTypes);
 }
 
 public test bool testClassKeywords() {
 	// information is retreived from m3, declares in uses
-	list[str] expectedC = [
+	list[str] expectedConstraints = [
 		// public function se() { self::foo(); }
 		"[public function se() { self::foo(); }] = nullType()",
 		"[self] = classType(|php+class:///ns/c|)",
@@ -914,13 +942,13 @@ public test bool testClassKeywords() {
 		"or([static] = classType(|php+class:///ns/c|), [static] = classType(|php+class:///ns/p|))"
 		//"or(hasMethod([static], foo, { static() }))"
     ];
-	list[str] expectedT = [];
-	return testConstraints("classKeywords", expectedC, expectedT);
+	list[str] expectedTypes = [];
+	return testConstraints("classKeywords", expectedConstraints, expectedTypes);
 }
 
 public test bool testMethodCall() {
 	// information is retreived from m3, declares in uses
-	list[str] expectedC = [
+	list[str] expectedConstraints = [
 		// $a->b();
 		//"[$a] \<: any()",
 		//"or(hasMethod([$a], b, { !static() })",
@@ -934,11 +962,11 @@ public test bool testMethodCall() {
 		// if LHS is of one of the parent classes ->
 		""
     ];
-	list[str] expectedT = [];
-	return testConstraints("methodCall", expectedC, expectedT);
+	list[str] expectedTypes = [];
+	return testConstraints("methodCall", expectedConstraints, expectedTypes);
 }
 
-public bool testConstraints(str fileName, list[str] expectedC, list[str] expectedT)
+public bool testConstraints(str fileName, list[str] expectedConstraints, list[str] expectedTypes)
 {
 	loc l = getFileLocation(fileName);
 	//projectLocation = l;
@@ -953,21 +981,21 @@ public bool testConstraints(str fileName, list[str] expectedC, list[str] expecte
 	map[loc file, lrel[loc decl, loc location] vars] variableMapping = getVariableMapping();
 
 	// for debugging purposes
-	//printResult(fileName, expectedC, actual);
+	//printResult(fileName, expectedConstraints, actual);
 	
-	// assert that expectedCConstraints is equal to ActualConstraints
-	bool test1 = comparePrettyPrintedConstraints(expectedC, actual);
+	// assert that expectedConstraintsConstraints is equal to ActualConstraints
+	bool test1 = comparePrettyPrintedConstraints(expectedConstraints, actual);
 	if (!test1) {
 		println("Constraints test failed..");
 		return return false;
 	}
 
 	bool test2;
-	if (isEmpty(expectedT)) {
+	if (isEmpty(expectedTypes)) {
 		test2 = true;
 	} else {
 		map[TypeOf var, TypeSet possibles] solveResult = solveConstraints(constraints, variableMapping, m3, system);
-		test2 = comparePrettyPrintedTypes(expectedT, solveResult);
+		test2 = comparePrettyPrintedTypes(expectedTypes, solveResult);
 	}
 
 	if (!test2) {
@@ -980,22 +1008,22 @@ public bool testConstraints(str fileName, list[str] expectedC, list[str] expecte
 //
 // Compare pretty printed constraints
 //
-private bool comparePrettyPrintedConstraints(list[str] expectedC, set[Constraint] actual) 
+private bool comparePrettyPrintedConstraints(list[str] expectedConstraints, set[Constraint] actual) 
 {
 	list[str] actualPP = [ toStr(a) | a <- actual ];
-	return comparePrettyPrinted(expectedC, actualPP);
+	return comparePrettyPrinted(expectedConstraints, actualPP);
 }
 
 //
 // Compare pretty printed constraints
 //
-private bool comparePrettyPrintedTypes(list[str] expectedT, map[TypeOf, TypeSet] actual) {
+private bool comparePrettyPrintedTypes(list[str] expectedTypes, map[TypeOf, TypeSet] actual) {
 	// FOR NOW: when actual is empty, do not perform this test
-	if (isEmpty(expectedT)) return true;
+	if (isEmpty(expectedTypes)) return true;
 	
 	list[str] actualPP = [ toStr(a) + " = " + toStr(actual[a]) | a <- actual ];
 	
-	return comparePrettyPrinted(expectedT, actualPP);
+	return comparePrettyPrinted(expectedTypes, actualPP);
 }
 
 private bool comparePrettyPrinted(list[str] e, list[str] a) {
@@ -1025,7 +1053,7 @@ private bool comparePrettyPrinted(list[str] e, list[str] a) {
 // Printer functions:
 //
 
-private void printResult(str fileName, list[str] expectedC, set[Constraint] actual)
+private void printResult(str fileName, list[str] expectedConstraints, set[Constraint] actual)
 {
 	loc l = getFileLocation(fileName);
 	
@@ -1040,7 +1068,7 @@ private void printResult(str fileName, list[str] expectedC, set[Constraint] actu
 	println("--------------------------------------------");
 	println();
 	println("--------------- Expected: ------------------");
-	for (e <- expectedC) println(e);
+	for (e <- expectedConstraints) println(e);
 	println("--------------------------------------------");
 	println();
 }
@@ -1073,7 +1101,7 @@ private str toStr(TypeOf::arrayType(set[TypeOf] expr))	= "arrayType(<intercalate
 private str toStr(TypeSymbol t) 						= "<t>";
 private str toStr(Modifier m) 							= "<m>";
 default str toStr(TypeOf::typeSymbol(TypeSymbol ts)) 	= "<toStr(ts)>";
-default str toStr(TypeOf::var(loc ts)) 					= "var(<ts>)";
+default str toStr(TypeOf::var(loc ts)) 					= "$<ts.file>";
 
 private str toStr(set[TypeSymbol] ts)					= "{ <intercalate(", ", sort([ toStr(t) | t <- sort(toList(ts))]))> }";
 // deprecated

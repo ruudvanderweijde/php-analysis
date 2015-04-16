@@ -64,11 +64,11 @@ private M3 createM3forScript(loc filename, Script script)
 		m3 = fillModifiers(m3, script); // fill modifiers for classes, class fields and class methods 
 		m3 = fillPhpDocAnnotations(m3, script); // fill documentation, defined as @phpdoc
 
-		m3 = calculateAliasesFlowInsensitive(m3, script); // fill aliases 
-		m3 = calculateUsesFlowInsensitive(m3, script); // fill uses which are resolvable without type information
-		
 		m3 = fillParameters(m3, script); // add the parameters of all the methods
 		m3 = fillAnnotations(m3, script); // read and parse the annotations and add them to @annotations
+		
+		m3 = calculateAliasesFlowInsensitive(m3, script); // fill aliases 
+		m3 = calculateUsesFlowInsensitive(m3, script); // fill uses which are resolvable without type information
 	}
 	catch Exception e:
 	{
@@ -87,12 +87,12 @@ public M3 calculateAfterM3Creation(M3 m3, System system)
 
 	int counter = 0;
 	int total = size(system);	
-	println("calculateUsesAfterTypes for <total> files");
+	println("calculateUsesBeforeResolvingTypes for <total> files");
 	for (l <- system) {
 		counter += 1;
 		//logMessage("running file: <l>", 1);
 		if (counter%10==0) logMessage("<counter> (<(100*counter)/total>)%.. ", 1);	
-		m3 = calculateUsesAfterTypes(m3, system[l]);
+		m3 = calculateUsesBeforeResolvingTypes(m3, system[l]);
 	}
 	
 	// todo enable this!

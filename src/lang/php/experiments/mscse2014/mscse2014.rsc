@@ -19,7 +19,7 @@ import lang::php::pp::PrettyPrinter;
 import lang::php::types::TypeSymbol;
 import lang::php::types::TypeConstraints;
 
-import lang::php::experiments::mscse2014::Constraints;
+import lang::php::experiments::mscse2014::ConstraintExtractor;
 import lang::php::experiments::mscse2014::ConstraintSolver;
 
 //loc projectLocation = |file:///PHPAnalysis/systems/WerkspotNoTests/WerkspotNoTests-oldWebsiteNoTests/plugins/wsCorePlugin/modules/craftsman/lib|;
@@ -27,7 +27,8 @@ import lang::php::experiments::mscse2014::ConstraintSolver;
 //loc projectLocation = |file:///PHPAnalysis/systems/WerkspotNoTests/WerkspotNoTests-oldWebsiteNoTests/|;
 //loc projectLocation = |file:///PHPAnalysis/systems/Kohana|;
 //loc projectLocation = |file:///Users/ruud/git/php-analysis/src/tests/resources/experiments/mscse2014/variable|;
-loc projectLocation = |file:///PHPAnalysis/systems/doctrine_lexer/doctrine_lexer-v1.0|;
+//loc projectLocation = |file:///PHPAnalysis/systems/doctrine_lexer/doctrine_lexer-v1.0|; -- latest
+loc projectLocation = |file:///tmp/Calculator|;
 //loc projectLocation = |file:///PHPAnalysis/systems/doctrine_common/doctrine_common-v2.4.2|;
 //loc projectLocation = |file:///Users/ruud/test/types|;
 //loc projectLocation = |file:///Users/ruud/tmp/solve/scalar|;
@@ -168,8 +169,8 @@ public void run3() {
 public void run4()
 {
 	// precondition: constraints and m3 cache file must exist
-	assert isFile(getLastConstraintsCacheFile()) : "Please run run1() first. Error: file(<getLastConstraintsCacheFile()>) was not found";
-	assert isFile(getLastM3CacheFile())          : "Please run run1() first. Error: file(<getLastM3CacheFile()>) was not found";
+	assert isFile(getLastConstraintsCacheFile()) : "Please run run3() first. Error: file(<getLastConstraintsCacheFile()>) was not found";
+	assert isFile(getLastM3CacheFile())          : "Please run run3() first. Error: file(<getLastM3CacheFile()>) was not found";
 	
 	logMessage("Reading constraints from cache...", 1);
 	set[Constraint] constraints = readBinaryValueFile(#set[Constraint], getLastConstraintsCacheFile());

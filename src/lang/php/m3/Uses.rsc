@@ -69,7 +69,6 @@ public M3 calculateUsesFlowInsensitive(M3 m3, node ast)
         }
     	
         // parameter type hints
-    	
         case p:param(_, _, someName(nameNode), _):
         {
             if (nameNode.name notin ["array", "callable"])
@@ -82,7 +81,6 @@ public M3 calculateUsesFlowInsensitive(M3 m3, node ast)
         }
 
         // type operators
-    	
         case x:instanceOf(_, name(n:name(phpName))): 
         {
             // name is interpreted as fully qualified
@@ -111,7 +109,6 @@ public M3 calculateUsesFlowInsensitive(M3 m3, node ast)
         }
 
         // function call and variable / const access
-    	
         case call(name(nameNode), _):
         {
             m3 = addUse(m3, nameNode, "function");
@@ -144,7 +141,7 @@ public M3 calculateUsesFlowInsensitive(M3 m3, node ast)
 		            {	
 		                /* if parent is $i++; or $i += 1; */
 		                if (unaryOperation(_,_) := parentNode || assignWOp(_,_,_) := parentNode) {
-	                    m3 = addVarUse(m3, varNode, v@at, varNode@scope);
+	    	                m3 = addVarUse(m3, varNode, v@at, varNode@scope);
 		            	}
 		            } else { // add all vars uses that have no declarations
 		                m3 = addVarUse(m3, varNode, v@at, varNode@scope);
@@ -197,9 +194,9 @@ public M3 calculateUsesFlowInsensitive(M3 m3, node ast)
     return m3;
 }
 
-public M3 calculateUsesAfterTypes(M3 m3, Script script)
+public M3 calculateUsesBeforeResolvingTypes(M3 m3, Script script)
 {
-    // note: first, the types of variables must be known.
+    // note: first, the types of object variables must be known.
     visit (script)
     {		
         case c:methodCall(e, methodName, _):

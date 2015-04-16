@@ -62,6 +62,7 @@ data TypeSet
 	| LCA(set[TypeSet] args) // actually least common ancestor
 	;
 	
+// rewrite rules	
 TypeSet Set({\any()})        = Root();
 TypeSet Set({})              = EmptySet();
 TypeSet Single(TypeSymbol T) = Set({T});
@@ -75,7 +76,7 @@ TypeSet Supertypes(Root())	            = Single(\any());
 TypeSet Supertypes(EmptySet())          = EmptySet();
 TypeSet Supertypes(Universe())          = Universe();
 TypeSet Supertypes(Supertypes(TypeSet x)) = Supertypes(x);
-TypeSet Supertypes(TypeSet x) 			= Supertypes(x);
+//TypeSet Supertypes(TypeSet x) 			= Supertypes(x);
 
 TypeSet Intersection({})               = EmptySet();
 TypeSet Intersection({x})              = x;

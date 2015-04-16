@@ -52,7 +52,7 @@ private set[TypeSet] singles = { Single(s) | s <- types};
 private set[TypeSet] subtypes = { Subtypes(s) | s <- singles};
 
 private set[TypeSet] getMixed() 
-	= { getOneFrom(singles)  | x <- [getOneFrom([0..2])..getOneFrom([1..5])] }
+	= { getOneFrom(singles) | x <- [getOneFrom([0..2])..getOneFrom([1..5])] }
 	+ { Universe() | x <- [1..getOneFrom([0..2])] }
 	+ { Root() | x <- [1..getOneFrom([0..2])] }
 	+ { EmptySet() | x <- [1..getOneFrom([0..2])] }
@@ -83,7 +83,6 @@ private void assertSubtypesRules(int n) {
 		TypeSet result   = solveSubtypes(Subtypes(Single(t)));
 		assert expected == result : "<expected> :: <result>";
 	}
-	
 }	
 
 private void assertUnionRules(int n)
