@@ -1038,7 +1038,14 @@ public void addConstraintsOnAllVarsForScript(&T <: node t, m3)
 	// just use the uses relation of m3 here...
 
 	// old:
-	addConstraints(t, { eq(typeOf(v@decl), typeOf(v@at)) | /v:var(_) <- t, v@decl? && v@scope == t@decl });
+	//addConstraints(t, { eq(typeOf(v@decl), typeOf(v@at)) | /v:var(_) <- t, v@decl? && v@scope == t@decl });
+	
+	// add a disjunction constraint for all variables within a scope
+    addConstraints(t, { 
+    	disjunction(
+			{ eq(typeOf(v@decl), typeOf(v@at)) | /v:var(_) <- t, v@decl? && v@scope == t@decl }
+        )
+    });
 }
 
 public void addConstraintsOnAllReturnStatementsWithinScope(&T <: node t) 

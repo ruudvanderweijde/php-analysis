@@ -64,8 +64,8 @@ public map[TypeOf var, TypeSet possibles] solveConstraints(set[Constraint] const
 // TODO: subtype is ignored, they are handled like 'normal' types
 	solve (constraintSet, estimates) { // solve constraints and variable mapping
 		constraintSet = constraintSet + deriveMore(constraintSet, estimates);
-  		constraintSet = propagateConstraints(constraintSet, estimates);
   		estimates = propagateEstimates(constraintSet, estimates);
+  		constraintSet = propagateConstraints(constraintSet, estimates);
   	}
   	
   	return estimates;
@@ -79,18 +79,44 @@ public set[Constraint] deriveMore (set[Constraint] constraints, map[TypeOf, Type
 	return derivedConstraints;
 } 
 
+// for all resolved estimates, add new constraints
 public set[Constraint] propagateConstraints (set[Constraint] constraints, map[TypeOf, TypeSet] estimates)
 {
-//    		// Subtype relation
-//    		for (v <- estimates, c:subtyp(v, r:typeOf(t)) <- constraints) {
-//     			//estimates[v] = Intersection({ estimates[v], Subtypes(estimates[r]) });
-//         		println("-----------------\nFIRST HIT!\n-----------------\n");
-//         		println("constraint:\n<c>\n-----------------");
-//         		println("<v>\n<r>\n-----------------");
-//         		println("<estimates[v]>\n<estimates[r]>\n-----------------");
-//     			estimates[v] = Intersection({ estimates[v], estimates[r] });
-//	    		iprintln(estimates);
-//     		}
+	set[Constraint] extraConstraints = {};
+	
+	for (identifier <- estimates) {
+		typeSet = estimates[identifier];
+		
+		if (Universe() := typeSet) {
+			continue; // skip universe, we only want to propagate solved estimates
+		}
+	
+		if (Set({TypeSymbol ts}) := typeSet) { // for now only single resolve types are supported
+			
+			resolvedType = typeSymbol(ts);
+    		
+    		visit (constraints) {
+       			case e:eq(l, identifier): extraConstraints += { eq(l, resolvedType) };
+       			case e:eq(identifier, r): extraConstraints += { eq(resolvedType, r) };
+       			case e:subtype(l, identifier): extraConstraints += { subtype(l, resolvedType) };
+       			case e:subtype(identifier, r): extraConstraints += { subtype(resolvedType, r) };
+    		} 
+		}
+	}
+   	
+	logMessage("Propagated <size(extraConstraints)> Constraints", 2);
+	return extraConstraints + constraints;
+}
+
+public map[TypeOf, TypeSet] propagateEstimates (set[Constraint] constraints, map[TypeOf, TypeSet] estimates)
+{
+    for (v <- estimates, c:subtyp(v, r:typeOf(t)) <- constraints) {
+    	estimates[v] = Intersection({ estimates[v], estimates[r] });
+    }
+    for (v <- estimates, c:subtyp(l:typeOf(t), r) <- constraints) {
+    	estimates[v] = Intersection({ estimates[v], estimates[l] });
+    }
+    
 //    	// handle disjunctions 
 //    	// TODO handle them properly, they can be inside conjunctions, conditionals etc...
 //    	top-down-break visit (constraints) { // top-down-break because we do not want to go into conditionals here
@@ -118,11 +144,6 @@ public set[Constraint] propagateConstraints (set[Constraint] constraints, map[Ty
 //    	    	}
 //    	    }
 //    	}
-	return constraints;
-}
-
-public map[TypeOf, TypeSet] propagateEstimates (set[Constraint] constraints, map[TypeOf, TypeSet] estimates)
-{
 	return estimates;
 }
 
