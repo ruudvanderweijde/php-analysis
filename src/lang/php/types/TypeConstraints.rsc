@@ -82,7 +82,6 @@ TypeSet Intersection({})               = EmptySet();
 TypeSet Intersection({x})              = x;
 TypeSet Intersection({Universe(), *x}) = Intersection(x);
 TypeSet Intersection({EmptySet(), _*}) = EmptySet();
-//TypeSet Intersection({(), _*}) = EmptySet();
 TypeSet Intersection({Set(set[TypeSymbol] t1), Root()}) = Intersection({Set(t1 & { \any() } )});
 TypeSet Intersection({Set(set[TypeSymbol] t1), Set(set[TypeSymbol] t2), rest*}) =
 	Intersection({Set(t1 & t2), *rest});	
@@ -97,19 +96,22 @@ TypeSet Union({Set(set[TypeSymbol] t1), Set(set[TypeSymbol] t2), rest*}) =
 
 // LCA DOES NOT WORK PROPERLY YET!
 TypeSet LCA(rel[TypeSymbol, TypeSymbol] subtypes, {})                  = EmptySet();
+TypeSet LCA(rel[TypeSymbol, TypeSymbol] subtypes, {x})                 = x;
 TypeSet LCA(rel[TypeSymbol, TypeSymbol] subtypes, {Universe(), *x})    = LCA(subtypes, x);
 TypeSet LCA(rel[TypeSymbol, TypeSymbol] subtypes, {EmptySet(), *x})    = LCA(subtypes, x);
 TypeSet LCA(rel[TypeSymbol, TypeSymbol] subtypes, {Set(set[TypeSymbol] t1), Root()}) = LCA(subtypes, {Set(t1 + { \any() })});
-//TypeSet LCA(rel[TypeSymbol, TypeSymbol] subtypes, {Set(set[TypeSymbol] t1)}) = LCA(subtypes, {Set({shortestPathPair(subtypes, t1, \any())[0]})});	
-//list[TypeSymbol] LCA({ rel[TypeSymbol, TypeSymbol] subtypes, TypeSet t1, *rest }) 
-//{
-//println("b");
+TypeSet LCA(rel[TypeSymbol, TypeSymbol] subtypes, {Set(set[TypeSymbol] t1)}) = LCA(subtypes, {Set({shortestPathPair(subtypes, t1, \any())[0]})});	
+//TypeSet LCA(rel[TypeSymbol, TypeSymbol] subtypes, {Set(set[TypeSymbol] t1), Set(set[TypeSymbol] t2), rest*}) 
+//{	
+//	// return the least common ancestor for two nodes
+//	iprintln(t1);
 //	type1 = [];
 //	for (t <- t1) {
 //		type1 += shortestPathPair(subtypes, t, \any());	
+//		println(type1);
 //	}
 //	return type1;
-//	//return LCA(subtypes, {Set({type1[0]})});	
+//	return LCA(subtypes, {Set({type1[0]})});	
 //}
 //list[TypeSymbol] LCA(rel[TypeSymbol, TypeSymbol] subtypes, Set(set[TypeSymbol] t1)) 
 //{
@@ -121,34 +123,19 @@ TypeSet LCA(rel[TypeSymbol, TypeSymbol] subtypes, {Set(set[TypeSymbol] t1), Root
 //	return type1;
 //	//return LCA(subtypes, {Set({type1[0]})});	
 //}
-//TypeSet LCA(rel[TypeSymbol, TypeSymbol] subtypes, Set(set[TypeSymbol] t1), *rest) 
-//{
-//	type1 = [];
-//	for (t <- t1) {
-//		type1 += shortestPathPair(subtypes, t, \any());	
-//	}
-//	if (!isEmpty(rest)) 
-//		return LCA(subtypes, {Set({( type1 & LCA(subtypes, rest))[0]})});	
-//	else 
-//		return LCA(subtypes, {Set({type1[0]})});	
-//}
+TypeSet LCA(rel[TypeSymbol, TypeSymbol] subtypes, {Set(set[TypeSymbol] t1), *rest}) 
+{
+	type1 = [];
+	for (t <- t1) {
+		type1 += shortestPathPair(subtypes, t, \any());	
+	}
+	if (!isEmpty(rest)) 
+		return LCA(subtypes, {Set({( Intersection(type1, LCA(subtypes, rest)))})});	
+	else 
+		return LCA(subtypes, {Set({type1[0]})});	
+}
 ////TypeSet LCA(rel[TypeSymbol, TypeSymbol] subtypes, {Set(set[TypeSymbol] t1), rest*}) = LCA(subtypes, {Set({(shortestPathPair(subtypes, t1, \any()) & LCA(subtypes, rest))[0]})});	
 //
 //list[TypeSymbol] LCA(rel[TypeSymbol, TypeSymbol] subtypes, { TypeSymbol t1 }) = shortestPathPair(subtypes, t1, \any());
 //list[TypeSymbol] LCA(rel[TypeSymbol, TypeSymbol] subtypes, { TypeSymbol t1, *rest }) = shortestPathPair(subtypes, t1, \any()) + LCA(subtypes, rest);	
 ////TypeSet LCA(rel[TypeSymbol, TypeSymbol] subtypes, TypeSet x)                 = x;
-
-//TypeSet LCA({x}) = x;
-//TypeSet LCA({Universe(), Set(x)}) = LCA({x});
-//TypeSet LCA({EmptySet(), Set(x)}) = LCA({x});
-//TypeSet LCA({Set(t1), Set(t2)})   = LCA({Set(t1 + t2)});	
-//TypeSet LCA({t1, t2, rest})       = LCA({ LCA({t1,t2}), rest});	
-
-//public TypeHierarchy subtypes = {};
-//
-//@memo
-//public TypeHierarchy getSubTypes() {
-//	if (isEmpty(subtypes)) throw "please initalize subtype relation first";
-//
-//	return subtypes;
-//}

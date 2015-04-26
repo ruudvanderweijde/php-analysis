@@ -88,7 +88,7 @@ public set[Constraint] propagateConstraints (set[Constraint] constraints, map[Ty
 		typeSet = estimates[identifier];
 		
 		if (Universe() := typeSet) {
-			continue; // skip universe, we only want to propagate solved estimates
+			continue; // skip universe, we only want to propagate 'solved' estimates
 		}
 	
 		if (Set({TypeSymbol ts}) := typeSet) { // for now only single resolve types are supported
@@ -110,12 +110,31 @@ public set[Constraint] propagateConstraints (set[Constraint] constraints, map[Ty
 
 public map[TypeOf, TypeSet] propagateEstimates (set[Constraint] constraints, map[TypeOf, TypeSet] estimates)
 {
+	// solve the estimes...
     for (v <- estimates, c:subtyp(v, r:typeOf(t)) <- constraints) {
-    	estimates[v] = Intersection({ estimates[v], estimates[r] });
+    	println("PE1 - intersection( <estimates[v]>, <estimates[r]> ). Constraint: <c>");
+    	result = Intersection({ estimates[v], estimates[r] });
+    	println("Result: <result>");
+    	//if (result == EmptySet()) {
+	    //	println("INTERSECTION APPLICATION ERROR: no results");
+    	//	result = Union({ estimates[v], estimates[r] });
+	    //	println("Result: <result>");
+    	//}
+    	estimates[v] = result;
     }
     for (v <- estimates, c:subtyp(l:typeOf(t), r) <- constraints) {
-    	estimates[v] = Intersection({ estimates[v], estimates[l] });
+    	println("PE2 - intersection( <estimates[v]>, <estimates[l]> ). Constraint: <c>");
+    	result = Intersection({ estimates[v], estimates[l] });
+    	println("Result: <result>");
+    	//if (result == EmptySet()) {
+	    //	println("INTERSECTION APPLICATION ERROR: no results");
+    	//	result = Union({ estimates[v], estimates[r] });
+	    //	println("Result: <result>");
+    	//}
+    	estimates[v] = result;
     }
+   
+   // As far as I can tell now, this stuff below is no longer needed
     
 //    	// handle disjunctions 
 //    	// TODO handle them properly, they can be inside conjunctions, conditionals etc...

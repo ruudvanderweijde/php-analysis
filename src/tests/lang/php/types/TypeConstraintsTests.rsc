@@ -19,7 +19,7 @@ private void testRewriteRules(int n)
 {
 	assertUnionRules(n);
 	assertIntersectionRules(n);
-	//assertLCARules(n); // these do not work properly yet.
+	assertLCARules(n); // these do not work properly yet.
 	assertSubtypesRules(n);
 	assertMixes(n);
 	assertMixesWithSubtypes(n);
@@ -136,6 +136,8 @@ private void assertIntersectionRules(int n)
 
 private void assertLCARules(int n)
 {
+	assert EmptySet() == LCA(getSubTypesMock(), {});
+	
 	for (s <- singles) 
 		assert s == LCA(getSubTypesMock(), { Universe(), s });
 		
@@ -145,6 +147,7 @@ private void assertLCARules(int n)
 	assert numberType()   == LCA(getSubTypesMock(), { Single(floatType()),  Single(integerType()) });
 	assert scalarType()   == LCA(getSubTypesMock(), { Single(floatType()),  Single(booleanType()) });
 	assert scalarType()   == LCA(getSubTypesMock(), { Single(stringType()), Single(booleanType()) });
+	assert scalarType()   == LCA(getSubTypesMock(), { Single(stringType()), Single(integerType()), Single(booleanType()) });
 }
 
 private void assertMixes(int n)

@@ -1005,7 +1005,7 @@ public void addConstraintsOnAllVarsForScript(&T <: node t, m3)
 	lrel[loc decl, loc location] variables = [];
 	
 	// get all vars that have @decl annotations (which means that they are writable vars)
-	for (/v:var(name(name(_))) <- t, var(name(name("this"))) !:= v) {
+	for (/v:var(name(name(_))) <- t, v@decl? && var(name(name("this"))) !:= v) {
 		set[loc] decls = { d | d <- m3@uses[v@at], isVariable(d) };
 		if (isEmpty(decls) && v@decl?) {
 			decls += v@decl;
@@ -1019,33 +1019,19 @@ public void addConstraintsOnAllVarsForScript(&T <: node t, m3)
 		}
 		assert size(decls) == 1 : "There should only be one declarations for a variable, var: <v> :: decls: <decls>";
 		variables += [ <getOneFrom(decls), v@at> ];
-		//addConstraints(v, eq(var(), typeOf(v@at)));
 	}
 	
-	// variable variables will be ignored...
-	//for (/v:var(expr(_)) <- t, t@scope == v@scope) {
-	//	println("variable var: <v>");
-	//	set[loc] decls = { d | d <- m3@uses[v@at], isVariable(d) };
-	//	println(decls);
-	//}
+	// add the list of variables to the variableMapping object
+	variableMapping[m3.id] = variables;
 
-	//if (!isEmpty(variables)) {
-		variableMapping[m3.id] = variables;
-	//}
-	//iprintln(variableMapping);
-	//exit();
-	
-	// just use the uses relation of m3 here...
-
-	// old:
-	//addConstraints(t, { eq(typeOf(v@decl), typeOf(v@at)) | /v:var(_) <- t, v@decl? && v@scope == t@decl });
-	
 	// add a disjunction constraint for all variables within a scope
-    addConstraints(t, { 
-    	disjunction(
-			{ eq(typeOf(v@decl), typeOf(v@at)) | /v:var(_) <- t, v@decl? && v@scope == t@decl }
-        )
-    });
+	for (variable <- domain(variables)) {
+        addConstraints(t, { 
+        	disjunction(
+    			{ eq(typeOf(v@decl), typeOf(v@at)) | /v:var(_) <- t, v@decl? && v@scope == t@decl && variable == v@decl }
+            )
+        });
+	}
 }
 
 public void addConstraintsOnAllReturnStatementsWithinScope(&T <: node t) 
