@@ -112,49 +112,39 @@ public map[TypeOf, TypeSet] propagateEstimates (set[Constraint] constraints, map
 {
 	// solve subtyp(_,_)
     for (v <- estimates, c:subtyp(v, r:typeOf(t)) <- constraints) {
-    	println("PE1 - intersection( <estimates[v]>, <estimates[r]> ). Constraint: <c>");
-    	result = Intersection({ estimates[v], estimates[r] });
-    	println("Result: <result>");
-    	if (result == EmptySet()) {
-	    //	println("INTERSECTION APPLICATION ERROR: no results");
-    		result = Union({ estimates[v], estimates[r] });
-	    //	println("Result: <result>");
-    	}
-    	//if (result != EmptySet()) { // don't propagate if we have no result; this is a test and should not stay here
-    	estimates[v] = result;
-    	//}
+   		println("PE1 - intersection( <estimates[v]>, <estimates[r]> ). Constraint: <c>"); // this print can be removed later
+    	estimates[v] = getIntersectionResult(estimates[v], estimates[r]);
     }
     for (v <- estimates, c:subtyp(l:typeOf(t), r) <- constraints) {
     	println("PE2 - intersection( <estimates[v]>, <estimates[l]> ). Constraint: <c>");
-    	result = Intersection({ estimates[v], estimates[l] });
-    	println("Result: <result>");
-    	if (result == EmptySet()) {
-	    //	println("INTERSECTION APPLICATION ERROR: no results");
-    		result = Union({ estimates[v], estimates[r] });
-	    //	println("Result: <result>");
-    	}
-    	estimates[v] = result;
+    	estimates[v] = getIntersectionResult(estimates[v], estimates[l]);
     }
     
     // solve eq(_,_) 
     for (v <- estimates, c:subtyp(l:typeOf(t), r) <- constraints) {
-    	result = Intersection({ estimates[v], estimates[l] });
-    	if (result == EmptySet()) {
-    		result = Union({ estimates[v], estimates[l] });
-    	}
-    	estimates[v] = result;
+    	println("PE3 - intersection( <estimates[v]>, <estimates[l]> ). Constraint: <c>");
+    	estimates[v] = getIntersectionResult(estimates[v], estimates[l]);
     }
     for (v <- estimates, c:subtyp(v, r:typeOf(t)) <- constraints) {
-    	result = Intersection({ estimates[v], estimates[r] });
-    	if (result == EmptySet()) {
-    		result = Union({ estimates[v], estimates[r] });
-    	}
-    	estimates[v] = result;
+    	println("PE4 - intersection( <estimates[v]>, <estimates[r]> ). Constraint: <c>");
+    	estimates[v] = getIntersectionResult(estimates[v], estimates[r]);
     }
    
 	return estimates;
 }
 
+@doc { do intersections, if no results, do Union (would be nice to have the LCA here) }
+private TypeSet getIntersectionResult(TypeSet ts1, TypeSet ts2)
+{
+   	result = Intersection({ ts1, ts2 });
+   	if (result == EmptySet()) {
+   		result = Union({ ts1, ts2 });
+   	}
+   	
+   	return result;
+}
+
+@doc { initial type estimates for all typeable objects; like (|php+foo:///bar|: integerType()) }
 public map[TypeOf, TypeSet] initialEstimates (set[Constraint] constraints, rel[TypeSymbol, TypeSymbol] subtypes) 
 {
  	map[TypeOf, TypeSet] result = ();
@@ -190,7 +180,7 @@ public rel[TypeSymbol, TypeSymbol] getSubTypes(M3 m3, System system)
 {
 	rel[TypeSymbol, TypeSymbol] subtypes
 		// subtypes of any() are array(), scalar() and object()
-		= { < subType, \any() > | subType <- { arrayType(), scalarType(), callableType() } }
+		= { < subType, \any() > | subType <- { arrayType(\any()), scalarType(), callableType() } }
 	
 		// subtypes of callable() are object() and string()
 		+ { < subType, callableType() > | subType <- { objectType(), stringType() } }

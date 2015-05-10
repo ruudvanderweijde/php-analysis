@@ -79,7 +79,7 @@ public void printTableRows(list[str] fileNames)
 	for (c <- resultCorpus) {
 		loc baseLocation = toLocation("file:///PHPAnalysis/systems/<c>/");
 		lrel[int total, int unresolved, map[int numberOfTypes, int amount] resolvedTypes] results = [];
-		//if (c != "Seldaek_monolog") continue;
+		//if (c != "Seldaek_monolog") continue; // for testing purposes
 			
 		for (fileName <- fileNames) {
 			map[loc, set[TypeSymbol]] analysisResult = readResultsFromFile(baseLocation + fileName);
@@ -144,7 +144,7 @@ public void printTableRows(list[str] fileNames)
 @doc { based on: http://en.wikipedia.org/wiki/Relative_change_and_difference }
 public int difference(int x1, int x2)
 {
-	if (x1 == 0 && x2 == 0) return 0;
+	if (x1 == 0 && x2 == 0) return 0; // prevent error
 	
 	real y1 = toReal(x1);
 	real y2 = toReal(x2);

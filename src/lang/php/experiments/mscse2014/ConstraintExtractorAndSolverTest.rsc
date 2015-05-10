@@ -19,25 +19,6 @@ loc getFileLocation(str name) = analysisLoc + "/src/tests/resources/experiments/
 // Test constraint extraction and constraint solving
 public void main()
 {
-	// temp test: try to read results
-	map[loc, set[TypeSymbol]] x = (
-		|file:///abc|: {\any()},
-		|php+class:///phpcs_sniffs_controlstructures_controlsignaturesniff|:{classType(|php+object:///phpcs_sniffs_controlstructures_controlsignaturesniff|)},
-		|php+method:///phpcs_sniffs_controlstructures_controlsignaturesniff/__construct|:{classType(|php+object:///phpcs_sniffs_controlstructures_controlsignaturesniff|)},
-		|php+method:///phpcs_sniffs_controlstructures_controlsignaturesniff/getPatterns|:{arrayType(\any())}
-	);
-	loc someFile = |file:///tmp/file.txt|;
-	writeBinaryValueFile(someFile, x);
-	map[loc,set[TypeSymbol]] output = readBinaryValueFile(#map[loc, set[TypeSymbol]], someFile);
-	println(output);
-	exit();
-	
-	// test 2
-	loc resultsFile = |file:///Users/ruud/PHPAnalysis/systems/sebastianbergmann_php-timer/results-without-docblock/resolvedTypes.txt|;
-	map[loc,set[TypeSymbol]] results = readTextValueFile(#map[loc, set[TypeSymbol]], resultsFile);
-	iprintln(results);
-	exit();	
-	
 	// trigger all tests
 	assert true == testVariables();
 	//assert true == testNormalAssign();
