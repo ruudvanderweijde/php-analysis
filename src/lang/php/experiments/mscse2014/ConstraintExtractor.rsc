@@ -790,10 +790,11 @@ private void addConstraints(Expr e, M3 m3)
 				}
 			} else {
 			;
-				//addConstraints(v, { subtyp(typeOf(v@at), \any()) });
+				addConstraints(v, { subtyp(typeOf(v@at), \any()) });
 			}
 		}
-		//case v:var(expr(e)): { addConstraints(v, { subtyp(typeOf(v@at), \any()) }); }
+		// variable variable
+		case v:var(expr(e)): { addConstraints(v, { subtyp(typeOf(v@at), \any()) }); }
 		
 		case c:call(NameOrExpr funName, list[ActualParameter] parameters): {
 			if (name(Name name) := funName) {

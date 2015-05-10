@@ -4,8 +4,8 @@ extend analysis::m3::TypeSymbol;
 // type `mixed()` is omitted, `\any()` will be used
 
 data TypeSymbol
-  = arrayType()
-  | arrayType(TypeSymbol arrayType)
+  = //arrayType()
+   arrayType(TypeSymbol arrayType)
   | booleanType()
   | callableType() // added to parse annotations
   | classType(loc decl)

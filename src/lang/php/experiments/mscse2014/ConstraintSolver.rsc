@@ -110,59 +110,48 @@ public set[Constraint] propagateConstraints (set[Constraint] constraints, map[Ty
 
 public map[TypeOf, TypeSet] propagateEstimates (set[Constraint] constraints, map[TypeOf, TypeSet] estimates)
 {
-	// solve the estimes...
+	// solve subtyp(_,_)
     for (v <- estimates, c:subtyp(v, r:typeOf(t)) <- constraints) {
     	println("PE1 - intersection( <estimates[v]>, <estimates[r]> ). Constraint: <c>");
     	result = Intersection({ estimates[v], estimates[r] });
     	println("Result: <result>");
-    	//if (result == EmptySet()) {
+    	if (result == EmptySet()) {
 	    //	println("INTERSECTION APPLICATION ERROR: no results");
-    	//	result = Union({ estimates[v], estimates[r] });
+    		result = Union({ estimates[v], estimates[r] });
 	    //	println("Result: <result>");
-    	//}
+    	}
+    	//if (result != EmptySet()) { // don't propagate if we have no result; this is a test and should not stay here
     	estimates[v] = result;
+    	//}
     }
     for (v <- estimates, c:subtyp(l:typeOf(t), r) <- constraints) {
     	println("PE2 - intersection( <estimates[v]>, <estimates[l]> ). Constraint: <c>");
     	result = Intersection({ estimates[v], estimates[l] });
     	println("Result: <result>");
-    	//if (result == EmptySet()) {
+    	if (result == EmptySet()) {
 	    //	println("INTERSECTION APPLICATION ERROR: no results");
-    	//	result = Union({ estimates[v], estimates[r] });
+    		result = Union({ estimates[v], estimates[r] });
 	    //	println("Result: <result>");
-    	//}
+    	}
+    	estimates[v] = result;
+    }
+    
+    // solve eq(_,_) 
+    for (v <- estimates, c:subtyp(l:typeOf(t), r) <- constraints) {
+    	result = Intersection({ estimates[v], estimates[l] });
+    	if (result == EmptySet()) {
+    		result = Union({ estimates[v], estimates[l] });
+    	}
+    	estimates[v] = result;
+    }
+    for (v <- estimates, c:subtyp(v, r:typeOf(t)) <- constraints) {
+    	result = Intersection({ estimates[v], estimates[r] });
+    	if (result == EmptySet()) {
+    		result = Union({ estimates[v], estimates[r] });
+    	}
     	estimates[v] = result;
     }
    
-   // As far as I can tell now, this stuff below is no longer needed
-    
-//    	// handle disjunctions 
-//    	// TODO handle them properly, they can be inside conjunctions, conditionals etc...
-//    	top-down-break visit (constraints) { // top-down-break because we do not want to go into conditionals here
-//    	    case conditional(_,_): ; // ignore these
-//    	    case disjunction(set[Constraint] cs): {
-//     			println("2 DISJUNCTION!!");
-//     		    iprintln(cs);
-//    	    	// all LHS:
-//    	    	for (lhs <- { l | eq(l,_) <- cs } + { l | subtype(l,_) <- cs } + { l | supertyp(l,_) <- cs }) {
-//	    	   		estimates[lhs] = 
-//	    	   			Union( 
-//	    	   				{ estimates[r]				|       eq(lhs,r) <- cs } +
-//	    	   				{ Subtypes(estimates[r])	|   sybtyp(lhs,r) <- cs } +
-//	    	   				{ Supertypes(estimates[r])	| sypertyp(lhs,r) <- cs }
-//	    	   			);
-//    	    	}
-//    	    	// all RHS:
-//    	    	for (rhs <- { r | eq(_,r) <- cs } + { r | subtype(_,r) <- cs } + { r | supertyp(_,r) <- cs }) {
-//	    	   		estimates[rhs] = 
-//	    	   			Union( 
-//	    	   				{ estimates[l]				|       eq(l,rhs) <- cs } +
-//	    	   				{ Subtypes(estimates[l])	|   sybtyp(l,lhs) <- cs } +
-//	    	   				{ Supertypes(estimates[l])	| sypeltyp(l,lhs) <- cs }
-//	    	   			);
-//    	    	}
-//    	    }
-//    	}
 	return estimates;
 }
 

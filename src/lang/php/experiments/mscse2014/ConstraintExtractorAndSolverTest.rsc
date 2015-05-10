@@ -10,6 +10,8 @@ import lang::php::pp::PrettyPrinter;
 
 import Set; // toList
 import List; // sort
+import ValueIO; // readTextValueFile
+import Message;
 
 loc getFileLocation(str name) = analysisLoc + "/src/tests/resources/experiments/mscse2014/<name>/";
 //loc getFileLocationFull(str name) = getFileLocation(name) + "/<name>.php";
@@ -17,13 +19,32 @@ loc getFileLocation(str name) = analysisLoc + "/src/tests/resources/experiments/
 // Test constraint extraction and constraint solving
 public void main()
 {
+	// temp test: try to read results
+	map[loc, set[TypeSymbol]] x = (
+		|file:///abc|: {\any()},
+		|php+class:///phpcs_sniffs_controlstructures_controlsignaturesniff|:{classType(|php+object:///phpcs_sniffs_controlstructures_controlsignaturesniff|)},
+		|php+method:///phpcs_sniffs_controlstructures_controlsignaturesniff/__construct|:{classType(|php+object:///phpcs_sniffs_controlstructures_controlsignaturesniff|)},
+		|php+method:///phpcs_sniffs_controlstructures_controlsignaturesniff/getPatterns|:{arrayType(\any())}
+	);
+	loc someFile = |file:///tmp/file.txt|;
+	writeBinaryValueFile(someFile, x);
+	map[loc,set[TypeSymbol]] output = readBinaryValueFile(#map[loc, set[TypeSymbol]], someFile);
+	println(output);
+	exit();
+	
+	// test 2
+	loc resultsFile = |file:///Users/ruud/PHPAnalysis/systems/sebastianbergmann_php-timer/results-without-docblock/resolvedTypes.txt|;
+	map[loc,set[TypeSymbol]] results = readTextValueFile(#map[loc, set[TypeSymbol]], resultsFile);
+	iprintln(results);
+	exit();	
+	
 	// trigger all tests
 	assert true == testVariables();
 	//assert true == testNormalAssign();
 	assert true == testScalars();
 	//assert true == testPredefinedConstants();
 	//assert true == testPredefinedVariables();
-	//assert true == testOpAssign();
+	assert true == testOpAssign();
 	//assert true == testUnaryOp();
 	//assert true == testBinaryOp();
 	//assert true == testTernary();
@@ -34,7 +55,7 @@ public void main()
 	//assert true == testVarious();
 	//assert true == testControlStructures();
 	//assert true == testFunction();
-	//assert true == testClassMethod();
+	assert true == testClassMethod();
 	//assert true == testClassConstant();
 	//assert true == testClassProperty();
 	//assert true == testMethodCallStatic();
@@ -43,7 +64,7 @@ public void main()
 }
 public test bool testVariables() {
 	return testVariable1() 
-		//&& testVariable2()  // these are turned of because they result in empty sets
+		&& testVariable2()  // these are turned of because they result in empty sets
 		//&& testVariable3()
 		;
 }
@@ -51,6 +72,7 @@ public test bool testVariables() {
 @doc { $a = "string"; }
 public test bool testVariable1() {
 	list[str] expectedConstraints = [
+		"[$a] \<: any()",
 	    "or([|php+globalVar:///a|] = [$a])",
 		"[$a] = [$a = \"string\"]", 
 		"[\"string\"] = stringType()", 
@@ -77,7 +99,10 @@ public test bool testVariable2() {
 		// $a = 100;
 		"[$a] = [$a = 100]",
 		"[100] = integerType()",
-		"[100] \<: [$a]"
+		"[100] \<: [$a]",
+		// variable (2x)
+		"[$a] \<: any()",
+		"[$a] \<: any()"
 	];
 	list[str] expectedTypes = [
 		"[$a] = { scalarType() }", 
@@ -313,7 +338,20 @@ public test bool testOpAssign() {
 	
 		// LHS = integer || number => LHS <: numberType()	
 		"[$s] \<: any()", "[$t] \<: any()", "[$s] \<: numberType()", // $s *= $t
-		"[$u] \<: any()", "[$v] \<: any()", "[$u] \<: numberType()"  // $u += $v
+		"[$u] \<: any()", "[$v] \<: any()", "[$u] \<: numberType()",  // $u += $v
+		
+		// Variables
+		"or([|php+globalVar:///a|] = [$a])",
+		"or([|php+globalVar:///c|] = [$c])",
+		"or([|php+globalVar:///e|] = [$e])",
+		"or([|php+globalVar:///g|] = [$g])",
+		"or([|php+globalVar:///i|] = [$i])",
+		"or([|php+globalVar:///k|] = [$k])",
+		"or([|php+globalVar:///m|] = [$m])",
+		"or([|php+globalVar:///o|] = [$o])",
+		"or([|php+globalVar:///q|] = [$q])",
+		"or([|php+globalVar:///s|] = [$s])",
+		"or([|php+globalVar:///u|] = [$u])"
 	];
 	list[str] expectedTypes = [
 		"[$a] = { integerType() }",
