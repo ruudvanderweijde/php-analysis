@@ -40,12 +40,9 @@ public map[TypeOf var, TypeSet possibles] solveConstraints(set[Constraint] const
 		case supertyp(TypeOf a, TypeSymbol ts) => supertyp(a, typeSymbol(ts))
  	};
  	
- 	// this line is not needed because we use varMap now
-	//rel[loc decl, loc TypeOf] varUses = { <d,t> | <d,t> <- invert(m3@uses + invert(m3@declarations)), isVariable(d) };
-  
   	subtypes = getSubTypes(m3, system);
-  	//writeBinaryValueFile(|tmp:///subtypes.bin|, subtypes);
   	invertedSubtypes = invert(subtypes);
+  	
   	// initialEstimates resolves everything to Universe, unless there is concrete information already
 	estimates = initialEstimates(constraints, subtypes);
 
@@ -53,14 +50,9 @@ public map[TypeOf var, TypeSet possibles] solveConstraints(set[Constraint] const
 	// subtype relations 
 	public TypeSet getSubTypes(TypeSet ts) = ts;
 	
-	println("-----------------\nAll constraints!\n-----------------");
-	iprintln(constraints);
-	
-	println("-----------------\nInitial estimates results!\n-----------------");
-	for (to:typeOf(est) <- estimates) {
-		println("<toStr(to)> :: <estimates[to]>");
-	}
-	
+	// display some debug info
+	debugPrintInitialResults(constraints, estimates);
+		
 // TODO: subtype is ignored, they are handled like 'normal' types
 	solve (constraintSet, estimates) { // solve constraints and variable mapping
 		constraintSet = constraintSet + deriveMore(constraintSet, estimates);
@@ -74,6 +66,23 @@ public map[TypeOf var, TypeSet possibles] solveConstraints(set[Constraint] const
 public set[Constraint] deriveMore (set[Constraint] constraints, map[TypeOf, TypeSet] estimates)
 {
 	set[Constraint] derivedConstraints = {};
+	
+    for (v <- estimates) {
+    	top-down-break visit (constraints) {
+    		// todo: implement me
+    		case isAFunction() :; 
+    		case isAMethod(TypeOf a) :;
+    		case hasName(TypeOf a, str name) :;
+    		case isItemOfClass(TypeOf a, TypeOf t) :;
+    		case hasMethod(TypeOf a, str name) :;
+    		case hasMethod(TypeOf a, str name, set[ModifierConstraint] modifiers) :;
+    		case conditional(Constraint preCondition, Constraint result) :;
+    		case disjunction(set[Constraint] constraints) :;
+    		case exclusiveDisjunction(set[Constraint] constraints) :;
+    		case conjunction(set[Constraint] constraints) :;
+    		case negation(Constraint constraint) :;
+    	}
+    }
 	
 	logMessage("Derived <size(derivedConstraints)> Constraints", 2);
 	return derivedConstraints;
@@ -95,6 +104,7 @@ public set[Constraint] propagateConstraints (set[Constraint] constraints, map[Ty
 			
 			resolvedType = typeSymbol(ts);
     		
+    		// add constraints for resolved types
     		visit (constraints) {
        			case e:eq(l, identifier): extraConstraints += { eq(l, resolvedType) };
        			case e:eq(identifier, r): extraConstraints += { eq(resolvedType, r) };
@@ -110,24 +120,33 @@ public set[Constraint] propagateConstraints (set[Constraint] constraints, map[Ty
 
 public map[TypeOf, TypeSet] propagateEstimates (set[Constraint] constraints, map[TypeOf, TypeSet] estimates)
 {
-	// solve subtyp(_,_)
-    for (v <- estimates, c:subtyp(v, r:typeOf(t)) <- constraints) {
-   		println("PE1 - intersection( <estimates[v]>, <estimates[r]> ). Constraint: <c>"); // this print can be removed later
-    	estimates[v] = getIntersectionResult(estimates[v], estimates[r]);
-    }
-    for (v <- estimates, c:subtyp(l:typeOf(t), r) <- constraints) {
-    	println("PE2 - intersection( <estimates[v]>, <estimates[l]> ). Constraint: <c>");
-    	estimates[v] = getIntersectionResult(estimates[v], estimates[l]);
-    }
-    
-    // solve eq(_,_) 
-    for (v <- estimates, c:subtyp(l:typeOf(t), r) <- constraints) {
-    	println("PE3 - intersection( <estimates[v]>, <estimates[l]> ). Constraint: <c>");
-    	estimates[v] = getIntersectionResult(estimates[v], estimates[l]);
-    }
-    for (v <- estimates, c:subtyp(v, r:typeOf(t)) <- constraints) {
-    	println("PE4 - intersection( <estimates[v]>, <estimates[r]> ). Constraint: <c>");
-    	estimates[v] = getIntersectionResult(estimates[v], estimates[r]);
+    for (v <- estimates) {
+    	top-down-break visit (constraints) {
+    		// do nothing, just stop visiting; should still be implemented
+    		case isAFunction() :; 
+    		case isAMethod(TypeOf a) :;
+    		case hasName(TypeOf a, str name) :;
+    		case isItemOfClass(TypeOf a, TypeOf t) :;
+    		case hasMethod(TypeOf a, str name) :;
+    		case hasMethod(TypeOf a, str name, set[ModifierConstraint] modifiers) :;
+    		case conditional(Constraint preCondition, Constraint result) :;
+    		case disjunction(set[Constraint] constraints) :;
+    		case exclusiveDisjunction(set[Constraint] constraints) :;
+    		case conjunction(set[Constraint] constraints) :;
+    		case negation(Constraint constraint) :;
+    		
+			// solve subtyp(_,_)
+    		case c:subtyp(v, r:typeOf(t)): 
+		    	estimates[v] = getIntersectionResult(estimates[v], estimates[r]);
+		   	case c:subtyp(l:typeOf(t), r):
+    			estimates[v] = getIntersectionResult(estimates[v], estimates[l]);
+
+		    // solve eq(_,_) 
+    		case c:eq(l:typeOf(t), r):
+    			estimates[v] = getIntersectionResult(estimates[v], estimates[l]);
+    		case c:eq(v, r:typeOf(t)):
+    			estimates[v] = getIntersectionResult(estimates[v], estimates[r]);
+		}
     }
    
 	return estimates;
@@ -136,11 +155,14 @@ public map[TypeOf, TypeSet] propagateEstimates (set[Constraint] constraints, map
 @doc { do intersections, if no results, do Union (would be nice to have the LCA here) }
 private TypeSet getIntersectionResult(TypeSet ts1, TypeSet ts2)
 {
+	println("getIntersectionResult - intersection( <ts1>, <ts2> )."); // debug
    	result = Intersection({ ts1, ts2 });
    	if (result == EmptySet()) {
-   		result = Union({ ts1, ts2 });
+   		;
+   		//result = Union({ ts1, ts2 });
    	}
    	
+	println("Results: <result>"); // debug
    	return result;
 }
 
@@ -214,4 +236,19 @@ public void displaySubTypes(rel[TypeSymbol, TypeSymbol] s) {
 
 	// display the subtype relations	
 	render(graph(nodes, edges, hint("layered"), gap(50)));
+}
+
+
+//
+// DEBUG STUFF
+//
+public void debugPrintInitialResults(set[Constraint] constraints, map[TypeOf, TypeSet] estimates)
+{
+	println("-----------------\nAll constraints!\n-----------------");
+	iprintln(constraints);
+	
+	println("-----------------\nInitial estimates results!\n-----------------");
+	for (to:typeOf(est) <- estimates) {
+		println("<toStr(to)> :: <estimates[to]>");
+	}
 }
