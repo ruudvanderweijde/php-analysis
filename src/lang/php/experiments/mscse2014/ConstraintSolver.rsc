@@ -136,13 +136,15 @@ public map[TypeOf, TypeSet] propagateEstimates (set[Constraint] constraints, map
     		case negation(Constraint constraint) :;
     		
 			// solve subtyp(_,_)
-    		case c:subtyp(v, r:typeOf(t)): 
+    		case c:subtyp(v, r:typeOf(t)): {
 		    	estimates[v] = getIntersectionResult(estimates[v], estimates[r]);
-		   	case c:subtyp(l:typeOf(t), r):
+		    	
+		    }
+		   	case c:subtyp(l:typeOf(t), v):
     			estimates[v] = getIntersectionResult(estimates[v], estimates[l]);
 
 		    // solve eq(_,_) 
-    		case c:eq(l:typeOf(t), r):
+    		case c:eq(l:typeOf(t), v):
     			estimates[v] = getIntersectionResult(estimates[v], estimates[l]);
     		case c:eq(v, r:typeOf(t)):
     			estimates[v] = getIntersectionResult(estimates[v], estimates[r]);
@@ -158,7 +160,7 @@ private TypeSet getIntersectionResult(TypeSet ts1, TypeSet ts2)
 	println("getIntersectionResult - intersection( <ts1>, <ts2> )."); // debug
    	result = Intersection({ ts1, ts2 });
    	if (result == EmptySet()) {
-   		;
+		    	  println(v);
    		//result = Union({ ts1, ts2 });
    	}
    	
