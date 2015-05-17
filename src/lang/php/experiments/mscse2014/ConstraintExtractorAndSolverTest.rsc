@@ -20,18 +20,18 @@ loc getFileLocation(str name) = analysisLoc + "/src/tests/resources/experiments/
 public void main()
 {
 	// trigger all tests
-	//assert true == testVariables();
-	//assert true == testNormalAssign();
+	assert true == testVariables();
+	assert true == testNormalAssign();
 	assert true == testScalars();
-	//assert true == testPredefinedConstants();
-	//assert true == testPredefinedVariables();
-	//assert true == testOpAssign();
-	//assert true == testUnaryOp();
-	//assert true == testBinaryOp();
-	//assert true == testTernary();
-	//assert true == testComparisonOp();
-	//assert true == testLogicalOp();
-	//assert true == testCasts();
+	assert true == testPredefinedConstants(); // no constraint solving here
+	assert true == testPredefinedVariables(); // no constraint solving here
+	assert true == testOpAssign();
+	assert true == testUnaryOp();
+	assert true == testBinaryOp();
+	assert true == testTernary();
+	assert true == testComparisonOp();
+	assert true == testLogicalOp();
+	assert true == testCasts();
 	//assert true == testarrayType();
 	//assert true == testVarious();
 	//assert true == testControlStructures();
@@ -46,7 +46,7 @@ public void main()
 public test bool testVariables() {
 	return testVariable1() 
 		&& testVariable2()  // these are turned of because they result in empty sets
-		//&& testVariable3()
+		&& testVariable3()
 		;
 }
 
@@ -54,7 +54,7 @@ public test bool testVariables() {
 public test bool testVariable1() {
 	list[str] expectedConstraints = [
 		"[$a] \<: any()",
-	    "or([|php+globalVar:///a|] = [$a])",
+	    "[|php+globalVar:///a|] = [$a]",
 		"[$a] = [$a = \"string\"]", 
 		"[\"string\"] = stringType()", 
 		"[\"string\"] \<: [$a]"
@@ -72,7 +72,8 @@ public test bool testVariable1() {
 public test bool testVariable2() {
 	list[str] expectedConstraints = [
 		// all $a variables
-	    "or([|php+globalVar:///a|] = [$a], [|php+globalVar:///a|] = [$a])",
+	    "[|php+globalVar:///a|] = [$a]",
+	    "[|php+globalVar:///a|] = [$a]",
 		// $a = "string";
 		"[$a] = [$a = \"string\"]",
 		"[\"string\"] = stringType()",
@@ -86,11 +87,13 @@ public test bool testVariable2() {
 		"[$a] \<: any()"
 	];
 	list[str] expectedTypes = [
-		//"[$a] = { scalarType() }", 
-		//"[100] = { integerType() }",
-		//"[\"string\"] = { stringType() }",
-		//"[$a = 100] = { integerType() }",
-		//"[$a = \"string\"] = { stringType() }"
+		"[$a] = { stringType() }", 
+		"[$a] = { integerType() }", 
+		"[|php+globalVar:///a|] = { any() }", 
+		"[100] = { integerType() }",
+		"[\"string\"] = { stringType() }",
+		"[$a = 100] = { integerType() }",
+		"[$a = \"string\"] = { stringType() }"
 	];
 	return testConstraints("variable2", expectedConstraints, expectedTypes);
 }
@@ -99,49 +102,78 @@ public test bool testVariable3() {
 	// $b = 100;
 	// $c = true ? $a : $b;
 	list[str] expectedConstraints = [
-		"[$a] \<: [$a = \"string\"]",
+		"[$a] = [$a = \"string\"]",
 		"[\"string\"] = stringType()",
 		"[\"string\"] \<: [$a]",
-		"[$b] \<: [$b = 100]",
+		"[$b] = [$b = 100]",
 		"[100] \<: [$b]",
-		"[$c] \<: [$c = true ? $a : $b]",
+		"[$c] = [$c = true ? $a : $b]",
 		"[true ? $a : $b] \<: [$c]",
 		"[100] = integerType()" ,
 		"[true] = booleanType()",
-		"or([true ? $a : $b] \<: [$a], [true ? $a : $b] \<: [$b])"
+		"or([true ? $a : $b] \<: [$a], [true ? $a : $b] \<: [$b])",
+		"[$a] \<: any()",
+		"[$a] \<: any()",
+		"[$b] \<: any()",
+		"[$b] \<: any()",
+		"[$c] \<: any()",
+		"[|php+globalVar:///a|] = [$a]",
+		"[|php+globalVar:///a|] = [$a]",
+		"[|php+globalVar:///b|] = [$b]",
+		"[|php+globalVar:///b|] = [$b]",
+		"[|php+globalVar:///c|] = [$c]"
 	];
 	list[str] expectedTypes = [
-		//// 2 variable $a
-		//"$a = { stringType() }",
-		//// 2 variable $b
-		//"$b = { integerType() }",
-		//// 3 constants
-		//"[100] = { integerType() }", "[\"string\"] = { stringType() }", "[true] = { booleanType() }", 
-		//// result of the 2 assignments
-		//"[$a = \"string\"] = super({ stringType() })",
-		//"[$b = 100] = super({ integerType() })",
-		//// ternary solutions 
-		//"[true ? $a : $b] = { integerType(), stringType() }", 
-		//"$c = { integerType(), stringType() }", 
-		//"[$c = true ? $a : $b] = { integerType(), stringType() }"
+		// 2 variable $a
+		"[$a = \"string\"] = { stringType() }",
+		"[|php+globalVar:///a|] = { stringType() }",
+		"[$a] = { stringType() }",
+		"[$a] = { stringType() }",
+		// 2 variable $b
+		"[$b = 100] = { integerType() }",
+		"[|php+globalVar:///b|] = { integerType() }",
+		"[$b] = { integerType() }",
+		"[$b] = { integerType() }",
+		// 3 constants
+		"[100] = { integerType() }", "[\"string\"] = { stringType() }", "[true] = { booleanType() }", 
+		// ternary solutions 
+		"[true ? $a : $b] = { any() }", 
+		"[$c = true ? $a : $b] = { any() }",
+		"[|php+globalVar:///c|] = { any() }",
+		"[$c] = { any() }"
 	];
 	// if exptectedTypes are empty, they are not evaluated/tested
 	return testConstraints("variable3", expectedConstraints, expectedTypes);
 }
+@doc { $a = 2; $b = $a; $c = $d = $b }
 public test bool testNormalAssign() {
 	list[str] expectedConstraints = [
 		// $a = 2; 
-		// $b = $a; 
-		// $c = $d = $b; 
-		"[$a] \<: any()", "[$a] \<: any()", "[$b] \<: any()",
-		"[$a] = [2]", "[2] = integerType()", // assign of int
-		"[$b] = [$a]", // assign assign of vars
-		"[$a = 2] = [$a]", "[$b = $a] = [$b]", // type of full expr is the type of the assignment
+		"[2] \<: [$a]", 
+		"[$a] = [$a = 2]", 
+		"[2] = integerType()", // assign of int
+		"[$a] \<: any()",
+		"[|php+globalVar:///a|] = [$a]",
 		
-		"[$c] \<: any()", "[$d] \<: any()", "[$b] \<: any()",
-		"[$d] = [$b]", "[$c] = [$d = $b]",
-		"[$d = $b] = [$d]",
-		"[$c = $d = $b] = [$c]"
+		// $b = $a; 
+		"[$a] \<: [$b]", // assign assign of vars
+		"[$b] = [$b = $a]", // type of full expr is the type of the assignment
+		"[$a] \<: any()",
+		"[|php+globalVar:///a|] = [$a]",
+		"[$b] \<: any()",
+		"[|php+globalVar:///b|] = [$b]",
+		
+		// $c = $d = $b; 
+		"[$b] \<: [$d]", 
+		"[$d = $b] \<: [$c]", 
+		"[$d] = [$d = $b]",
+		"[$c] = [$c = $d = $b]",
+		"[$b] \<: any()",
+		"[|php+globalVar:///b|] = [$b]",
+		"[$c] \<: any()",
+		"[|php+globalVar:///c|] = [$c]",
+		"[$d] \<: any()",
+		"[|php+globalVar:///d|] = [$d]"
 	];
 	list[str] expectedTypes = [
 		"[2] = { integerType() }",
@@ -154,7 +186,11 @@ public test bool testNormalAssign() {
 		"[$c = $d = $b] = { integerType() }",
 		"[$c] = { integerType() }",
 		"[$d = $b] = { integerType() }",
-		"[$d] = { integerType() }"
+		"[$d] = { integerType() }",
+		"[|php+globalVar:///a|] = { integerType() }",
+		"[|php+globalVar:///b|] = { integerType() }",
+		"[|php+globalVar:///c|] = { integerType() }",
+		"[|php+globalVar:///d|] = { integerType() }"
 	];
 	return testConstraints("normalAssign", expectedConstraints, expectedTypes);
 }
@@ -170,8 +206,9 @@ public test bool testScalars() {
 		// encapsed -> stringType()
 		// also evaluate the items of the encapsed string
 		"[\"$encapsed string\"] = stringType()", "[\"{$encapsed} string\"] = stringType()",
-		"[$encapsed] \<: any()", "[$encapsed] \<: any()"
-		
+		"[$encapsed] \<: any()", "[$encapsed] \<: any()",
+		"[|php+globalVar:///encapsed|] = [$encapsed]",
+		"[|php+globalVar:///encapsed|] = [$encapsed]"
 	];
 	list[str] expectedTypes = [
 		"[\"$encapsed string\"] = { stringType() }",
@@ -187,7 +224,8 @@ public test bool testScalars() {
 		"[100] = { integerType() }",
 		"[10] = { integerType() }",
 		"[1] = { integerType() }",
-		"[2] = { integerType() }"
+		"[2] = { integerType() }",
+		"[|php+globalVar:///encapsed|] = { any() }"
 	];
 	return testConstraints("scalar", expectedConstraints, expectedTypes);
 }
@@ -293,7 +331,22 @@ public test bool testPredefinedVariables() {
     
 		"[$php_errormsg] = stringType()",
 		"[$HTTP_RAW_POST_DATA] = arrayType(stringType())",
-		"[$http_response_header] = arrayType(stringType())"
+		"[$http_response_header] = arrayType(stringType())",
+		
+		"[|php+globalVar:///GLOBALS|] = [$GLOBALS]",
+		"[|php+globalVar:///HTTP_RAW_POST_DATA|] = [$HTTP_RAW_POST_DATA]",
+		"[|php+globalVar:///_COOKIE|] = [$_COOKIE]",
+		"[|php+globalVar:///_ENV|] = [$_ENV]",
+		"[|php+globalVar:///_FILES|] = [$_FILES]",
+		"[|php+globalVar:///_GET|] = [$_GET]",
+		"[|php+globalVar:///_POST|] = [$_POST]",
+		"[|php+globalVar:///_REQUEST|] = [$_REQUEST]",
+		"[|php+globalVar:///_SERVER|] = [$_SERVER]",
+		"[|php+globalVar:///_SESSION|] = [$_SESSION]",
+		"[|php+globalVar:///argc|] = [$argc]",
+		"[|php+globalVar:///argv|] = [$argv]",
+		"[|php+globalVar:///http_response_header|] = [$http_response_header]",
+		"[|php+globalVar:///php_errormsg|] = [$php_errormsg]"
 	];
 	list[str] expectedTypes = [];
 	return testConstraints("predefinedVariables", expectedConstraints, expectedTypes);
@@ -322,17 +375,28 @@ public test bool testOpAssign() {
 		"[$u] \<: any()", "[$v] \<: any()", "[$u] \<: numberType()",  // $u += $v
 		
 		// Variables
-		"or([|php+globalVar:///a|] = [$a])",
-		"or([|php+globalVar:///c|] = [$c])",
-		"or([|php+globalVar:///e|] = [$e])",
-		"or([|php+globalVar:///g|] = [$g])",
-		"or([|php+globalVar:///i|] = [$i])",
-		"or([|php+globalVar:///k|] = [$k])",
-		"or([|php+globalVar:///m|] = [$m])",
-		"or([|php+globalVar:///o|] = [$o])",
-		"or([|php+globalVar:///q|] = [$q])",
-		"or([|php+globalVar:///s|] = [$s])",
-		"or([|php+globalVar:///u|] = [$u])"
+		"[|php+globalVar:///a|] = [$a]",
+		"[|php+globalVar:///b|] = [$b]",
+		"[|php+globalVar:///c|] = [$c]",
+		"[|php+globalVar:///d|] = [$d]",
+		"[|php+globalVar:///e|] = [$e]",
+		"[|php+globalVar:///f|] = [$f]",
+		"[|php+globalVar:///g|] = [$g]",
+		"[|php+globalVar:///h|] = [$h]",
+		"[|php+globalVar:///i|] = [$i]",
+		"[|php+globalVar:///j|] = [$j]",
+		"[|php+globalVar:///k|] = [$k]",
+		"[|php+globalVar:///l|] = [$l]",
+		"[|php+globalVar:///m|] = [$m]",
+		"[|php+globalVar:///n|] = [$n]",
+		"[|php+globalVar:///o|] = [$o]",
+		"[|php+globalVar:///p|] = [$p]",
+		"[|php+globalVar:///q|] = [$q]",
+		"[|php+globalVar:///r|] = [$r]",
+		"[|php+globalVar:///s|] = [$s]",
+		"[|php+globalVar:///t|] = [$t]",
+		"[|php+globalVar:///u|] = [$u]",
+		"[|php+globalVar:///v|] = [$v]"
 	];
 	list[str] expectedTypes = [
 		"[$a] = { integerType() }",
@@ -353,10 +417,35 @@ public test bool testOpAssign() {
 		"[$p] = { any() }",
 		"[$q] = { integerType() }",
 		"[$r] = { any() }",
-		"[$s] = { floatType(), integerType(), numberType() }",
+		//"[$s] = { floatType(), integerType(), numberType() }",
+		"[$s] = { any() }",
 		"[$t] = { any() }",
-		"[$u] = { floatType(), integerType(), numberType() }",
-		"[$v] = { any() }"
+		//"[$u] = { floatType(), integerType(), numberType() }",
+		"[$u] = { any() }",
+		"[$v] = { any() }",
+		
+		"[|php+globalVar:///a|] = { integerType() }",
+		"[|php+globalVar:///b|] = { any() }",
+		"[|php+globalVar:///c|] = { integerType() }",
+		"[|php+globalVar:///d|] = { any() }",
+		"[|php+globalVar:///e|] = { integerType() }",
+		"[|php+globalVar:///f|] = { any() }",
+		"[|php+globalVar:///g|] = { integerType() }",
+		"[|php+globalVar:///h|] = { any() }",
+		"[|php+globalVar:///i|] = { integerType() }",
+		"[|php+globalVar:///j|] = { any() }",
+		"[|php+globalVar:///k|] = { integerType() }",
+		"[|php+globalVar:///l|] = { any() }",
+		"[|php+globalVar:///m|] = { stringType() }",
+		"[|php+globalVar:///n|] = { any() }",
+		"[|php+globalVar:///o|] = { integerType() }",
+		"[|php+globalVar:///p|] = { any() }",
+		"[|php+globalVar:///q|] = { integerType() }",
+		"[|php+globalVar:///r|] = { any() }",
+		"[|php+globalVar:///s|] = { any() }",
+		"[|php+globalVar:///t|] = { any() }",
+		"[|php+globalVar:///u|] = { any() }",
+		"[|php+globalVar:///v|] = { any() }"
 	];
 	return testConstraints("opAssign", expectedConstraints, expectedTypes);
 }
@@ -365,25 +454,30 @@ public test bool testUnaryOp() {
 	list[str] expectedConstraints = [
 		// +$a;
 		"[$a] \<: any()",
+		"[|php+globalVar:///a|] = [$a]",
 		"[+$a] \<: numberType()", // expression is number or int
 		"neg([$a] \<: arrayType(any()))", // $a is not an array
-		
+
 		// -$b;
 		"[$b] \<: any()",
+		"[|php+globalVar:///b|] = [$b]",
 		"[-$b] \<: numberType()", // expression is number or int
 		"neg([$b] \<: arrayType(any()))", // $b is not an array
 		
 		// !$c;
 		"[$c] \<: any()", 
+		"[|php+globalVar:///c|] = [$c]",
 		"[!$c] = booleanType()", 
 	
 		// ~$d;	
 		"[$d] \<: any()", 
+		"[|php+globalVar:///d|] = [$d]",
 		"or([$d] = floatType(), [$d] = integerType(), [$d] = stringType())", 
 		"or([~$d] = integerType(), [~$d] = stringType())", 
 		
 		// $e++;	
 		"[$e] \<: any()",
+		"[|php+globalVar:///e|] = [$e]",
 		"if ([$e] \<: arrayType(any())) then ([$e++] \<: arrayType(any()))",
 		"if ([$e] = booleanType()) then ([$e++] = booleanType())",
 		"if ([$e] = floatType()) then ([$e++] = floatType())",
@@ -395,6 +489,7 @@ public test bool testUnaryOp() {
 	
 		// $f--;	
 		"[$f] \<: any()",
+		"[|php+globalVar:///f|] = [$f]",
 		"if ([$f] \<: arrayType(any())) then ([$f--] \<: arrayType(any()))",
 		"if ([$f] = booleanType()) then ([$f--] = booleanType())",
 		"if ([$f] = floatType()) then ([$f--] = floatType())",
@@ -406,6 +501,7 @@ public test bool testUnaryOp() {
 	
 		// ++$g;	
 		"[$g] \<: any()",
+		"[|php+globalVar:///g|] = [$g]",
 		"if ([$g] \<: arrayType(any())) then ([++$g] \<: arrayType(any()))",
 		"if ([$g] = booleanType()) then ([++$g] = booleanType())",
 		"if ([$g] = floatType()) then ([++$g] = floatType())",
@@ -417,6 +513,7 @@ public test bool testUnaryOp() {
 		
 		// --$h;
 		"[$h] \<: any()",
+		"[|php+globalVar:///h|] = [$h]",
 		"if ([$h] \<: arrayType(any())) then ([--$h] \<: arrayType(any()))",
 		"if ([$h] = booleanType()) then ([--$h] = booleanType())",
 		"if ([$h] = floatType()) then ([--$h] = floatType())",
@@ -426,7 +523,9 @@ public test bool testUnaryOp() {
 		"if ([$h] = resourceType()) then ([--$h] = resourceType())",
 		"if ([$h] = stringType()) then (or([--$h] = floatType(), [--$h] = integerType(), [--$h] = stringType()))"
 	];
-	list[str] expectedTypes = [];
+	list[str] expectedTypes = [
+		// todo: fix solving of these constraints
+	];
 	return testConstraints("unaryOp", expectedConstraints, expectedTypes);
 }
 
@@ -437,57 +536,79 @@ public test bool testBinaryOp() {
 		"or([$a + $b] \<: arrayType(any()), [$a + $b] \<: numberType())", // always array, or subtype of numberType()
 		"if (and([$a] \<: arrayType(any()), [$b] \<: arrayType(any()))) then ([$a + $b] \<: arrayType(any()))", // ($a = array && $b = array) => [E] = array
 		"if (or(neg([$a] \<: arrayType(any())), neg([$b] \<: arrayType(any())))) then ([$a + $b] \<: numberType())", // ($a != array || $b = array) => [E] <: number 
+		"[|php+globalVar:///a|] = [$a]",
+		"[|php+globalVar:///b|] = [$b]",
 		
 		// $c - $d;	
 		"[$c] \<: any()", "[$d] \<: any()",
 		"neg([$c] \<: arrayType(any()))",
 		"neg([$d] \<: arrayType(any()))",
 		"[$c - $d] \<: numberType()",
+		"[|php+globalVar:///c|] = [$c]",
+		"[|php+globalVar:///d|] = [$d]",
 	
 		// $e * $f;	
 		"[$e] \<: any()", "[$f] \<: any()",
 		"neg([$e] \<: arrayType(any()))",
 		"neg([$f] \<: arrayType(any()))",
 		"[$e * $f] \<: numberType()",
+		"[|php+globalVar:///e|] = [$e]",
+		"[|php+globalVar:///f|] = [$f]",
 	
 		// $g / $h;	
 		"[$g] \<: any()", "[$h] \<: any()",
 		"neg([$g] \<: arrayType(any()))",
 		"neg([$h] \<: arrayType(any()))",
 		"[$g / $h] \<: numberType()",
+		"[|php+globalVar:///g|] = [$g]",
+		"[|php+globalVar:///h|] = [$h]",
 	
 		// $i % $j;	
 		"[$i] \<: any()", "[$j] \<: any()",
 		"[$i % $j] = integerType()",
+		"[|php+globalVar:///i|] = [$i]",
+		"[|php+globalVar:///j|] = [$j]",
 
 		// $k & $l;	
 		"[$k] \<: any()", "[$l] \<: any()",
 		"if (and([$k] = stringType(), [$l] = stringType())) then ([$k & $l] = stringType())",
 		"if (or(neg([$k] = stringType()), neg([$l] = stringType()))) then ([$k & $l] = integerType())",
 		"or([$k & $l] = integerType(), [$k & $l] = stringType())",
+		"[|php+globalVar:///k|] = [$k]",
+		"[|php+globalVar:///l|] = [$l]",
 		
 		// $m | $n;	
 		"[$m] \<: any()", "[$n] \<: any()",
 		"if (and([$m] = stringType(), [$n] = stringType())) then ([$m | $n] = stringType())",
 		"if (or(neg([$m] = stringType()), neg([$n] = stringType()))) then ([$m | $n] = integerType())",
 		"or([$m | $n] = integerType(), [$m | $n] = stringType())",
+		"[|php+globalVar:///m|] = [$m]",
+		"[|php+globalVar:///n|] = [$n]",
 		
 		// $o ^ $p;	
 		"[$o] \<: any()", "[$p] \<: any()",
 		"if (and([$o] = stringType(), [$p] = stringType())) then ([$o ^ $p] = stringType())",
 		"if (or(neg([$o] = stringType()), neg([$p] = stringType()))) then ([$o ^ $p] = integerType())",
 		"or([$o ^ $p] = integerType(), [$o ^ $p] = stringType())",
+		"[|php+globalVar:///o|] = [$o]",
+		"[|php+globalVar:///p|] = [$p]",
 		
 		// $q << $r;	
 		"[$q] \<: any()", "[$r] \<: any()",
 		"[$q \<\< $r] = integerType()",
+		"[|php+globalVar:///q|] = [$q]",
+		"[|php+globalVar:///r|] = [$r]",
 		
 		// $s >> $t;	
 		"[$s] \<: any()", "[$t] \<: any()",
-		"[$s \>\> $t] = integerType()"
+		"[$s \>\> $t] = integerType()",
+		"[|php+globalVar:///s|] = [$s]",
+		"[|php+globalVar:///t|] = [$t]"
 		
 	];
-	list[str] expectedTypes = [];
+	list[str] expectedTypes = [
+		// todo solve constraints
+	];
 	return testConstraints("binaryOp", expectedConstraints, expectedTypes);
 }
 
@@ -496,27 +617,31 @@ public test bool testTernary() {
 		// $a = true ? $b : "string";
 		"[$a] \<: any()", "[$b] \<: any()", // $a and $b
 		"[true] = booleanType()", "[\"string\"] = stringType()", // true and "string"
-		"or([true ? $b : \"string\"] = [\"string\"], [true ? $b : \"string\"] = [$b])", // [E] = [E2] OR [E3]
-		"[$a] = [true ? $b : \"string\"]", // $a = [E]
-		"[$a = true ? $b : \"string\"] = [$a]", // result of the whole expression is a subtype of $a
+		"or([true ? $b : \"string\"] \<: [\"string\"], [true ? $b : \"string\"] \<: [$b])", // [E] = [E2] OR [E3]
+		"[true ? $b : \"string\"] \<: [$a]", // $a = [E]
+		"[$a] = [$a = true ? $b : \"string\"]", // result of the whole expression is a subtype of $a
+		"[|php+globalVar:///a|] = [$a]",
+		"[|php+globalVar:///b|] = [$b]",
 		
 		// $c = TRUE ? : "str";
 		"[$c] \<: any()", 
 		"[TRUE] = booleanType()", "[\"str\"] = stringType()", // TRUE and "string"
 		"or([TRUE ? : \"str\"] \<: [\"str\"], [TRUE ? : \"str\"] \<: [TRUE])", // [E] = [E1] OR [E3]
-		"[$c] = [TRUE ? : \"str\"]", // [E] = $c
-		"[$c = TRUE ? : \"str\"] = [$c]", // result of the whole expression is a subtype of $c
+		"[TRUE ? : \"str\"] \<: [$c]", // [E] = $c
+		"[$c] = [$c = TRUE ? : \"str\"]", // result of the whole expression is a subtype of $c
+		"[|php+globalVar:///c|] = [$c]",
 	
 		// $d = $e = 3 ? "l" : "r";
 		"[$d] \<: any()", "[$e] \<: any()", 
 		"[3] = integerType()", "[\"l\"] = stringType()", "[\"r\"] = stringType()", // 3, "l" and "r"
-		"or([3 ? \"l\" : \"r\"] = [\"l\"], [3 ? \"l\" : \"r\"] = [\"r\"])",// [E] = [E1] OR [E3]
-		"[$e] = [3 ? \"l\" : \"r\"]", // [E] <: $e
-		"[$d] = [$e = 3 ? \"l\" : \"r\"]", // $d = $e
-		"[$d = $e = 3 ? \"l\" : \"r\"] = [$d]",// result of the whole expression is a subtype of $c
-		"[$e = 3 ? \"l\" : \"r\"] = [$e]" // result of the whole expression is a subtype of $c
+		"or([3 ? \"l\" : \"r\"] \<: [\"l\"], [3 ? \"l\" : \"r\"] \<: [\"r\"])",// [E] = [E1] OR [E3]
+		"[3 ? \"l\" : \"r\"] \<: [$e]", // [E] <: $e
+		"[$e = 3 ? \"l\" : \"r\"] \<: [$d]", // $d = $e
+		"[$d] = [$d = $e = 3 ? \"l\" : \"r\"]",// result of the whole expression is a subtype of $c
+		"[$e] = [$e = 3 ? \"l\" : \"r\"]", // result of the whole expression is a subtype of $c
+		"[|php+globalVar:///d|] = [$d]",
+		"[|php+globalVar:///e|] = [$e]"
 		
-//or([3 ? \"l\" : \"r\"] = [\"l\"], [3 ? \"l\" : \"r\"] = [\"r\"])
 	];
 	list[str] expectedTypes = [];
 	return testConstraints("ternary", expectedConstraints, expectedTypes);
@@ -527,22 +652,32 @@ public test bool testLogicalOp() {
 		// $a and $b;
 		"[$a] \<: any()", "[$b] \<: any()",
 		"[$a and $b] = booleanType()",
+		"[|php+globalVar:///a|] = [$a]",
+		"[|php+globalVar:///b|] = [$b]",
 		
 		// $c or $d;
 		"[$c] \<: any()", "[$d] \<: any()",
 		"[$c or $d] = booleanType()",
+		"[|php+globalVar:///c|] = [$c]",
+		"[|php+globalVar:///d|] = [$d]",
 		
 		// $e xor $f;
 		"[$e] \<: any()", "[$f] \<: any()",
 		"[$e xor $f] = booleanType()",
+		"[|php+globalVar:///e|] = [$e]",
+		"[|php+globalVar:///f|] = [$f]",
 		
 		// $g && $h;
 		"[$g] \<: any()", "[$h] \<: any()",
 		"[$g && $h] = booleanType()",
+		"[|php+globalVar:///g|] = [$g]",
+		"[|php+globalVar:///h|] = [$h]",
 		
 		// $i || $j;
 		"[$i] \<: any()", "[$j] \<: any()",
-		"[$i || $j] = booleanType()"
+		"[$i || $j] = booleanType()",
+		"[|php+globalVar:///i|] = [$i]",
+		"[|php+globalVar:///j|] = [$j]"
 	];
 	list[str] expectedTypes = [];
 	return testConstraints("logicalOp", expectedConstraints, expectedTypes);
@@ -553,38 +688,56 @@ public test bool testComparisonOp() {
 		// $a < $b;
 		"[$a] \<: any()", "[$b] \<: any()",
 		"[$a \< $b] = booleanType()",
+		"[|php+globalVar:///a|] = [$a]",
+		"[|php+globalVar:///b|] = [$b]",
 		
 		// $c <= $d;
 		"[$c] \<: any()", "[$d] \<: any()",
 		"[$c \<= $d] = booleanType()",
+		"[|php+globalVar:///c|] = [$c]",
+		"[|php+globalVar:///d|] = [$d]",
 		
 		// $e > $f;
 		"[$e] \<: any()", "[$f] \<: any()",
 		"[$e \> $f] = booleanType()",
+		"[|php+globalVar:///e|] = [$e]",
+		"[|php+globalVar:///f|] = [$f]",
 		
 		// $g >= $h;
 		"[$g] \<: any()", "[$h] \<: any()",
 		"[$g \>= $h] = booleanType()",
+		"[|php+globalVar:///g|] = [$g]",
+		"[|php+globalVar:///h|] = [$h]",
 		
 		// $i == $j;
 		"[$i] \<: any()", "[$j] \<: any()",
 		"[$i == $j] = booleanType()",
+		"[|php+globalVar:///i|] = [$i]",
+		"[|php+globalVar:///j|] = [$j]",
 		
 		// $k === $l;
 		"[$k] \<: any()", "[$l] \<: any()",
 		"[$k === $l] = booleanType()",
+		"[|php+globalVar:///k|] = [$k]",
+		"[|php+globalVar:///l|] = [$l]",
 	
 		// $m != $n;
 		"[$m] \<: any()", "[$n] \<: any()",
 		"[$m != $n] = booleanType()",
+		"[|php+globalVar:///m|] = [$m]",
+		"[|php+globalVar:///n|] = [$n]",
 		
 		// $o <> $p;
 		"[$o] \<: any()", "[$p] \<: any()",
 		"[$o \<\> $p] = booleanType()",
+		"[|php+globalVar:///o|] = [$o]",
+		"[|php+globalVar:///p|] = [$p]",
 		
 		// $q !== $r;
 		"[$q] \<: any()", "[$r] \<: any()",
-		"[$q !== $r] = booleanType()"
+		"[$q !== $r] = booleanType()",
+		"[|php+globalVar:///q|] = [$q]",
+		"[|php+globalVar:///r|] = [$r]"
 	];
 	list[str] expectedTypes = [];
 	return testConstraints("comparisonOp", expectedConstraints, expectedTypes);
@@ -595,6 +748,17 @@ public test bool testCasts() {
 		"[$a] \<: any()", "[$b] \<: any()", "[$c] \<: any()", "[$d] \<: any()", 
 		"[$e] \<: any()", "[$f] \<: any()", "[$g] \<: any()", "[$h] \<: any()", 
 		"[$i] \<: any()", "[$j] \<: any()", "[$k] \<: any()", 
+		"[|php+globalVar:///a|] = [$a]",
+		"[|php+globalVar:///b|] = [$b]",
+		"[|php+globalVar:///c|] = [$c]",
+		"[|php+globalVar:///d|] = [$d]",
+		"[|php+globalVar:///e|] = [$e]",
+		"[|php+globalVar:///f|] = [$f]",
+		"[|php+globalVar:///g|] = [$g]",
+		"[|php+globalVar:///h|] = [$h]",
+		"[|php+globalVar:///i|] = [$i]",
+		"[|php+globalVar:///j|] = [$j]",
+		"[|php+globalVar:///k|] = [$k]",
 		
 		// (cast)$var;	
 		"[(array)$a] \<: arrayType(any())",
@@ -612,7 +776,41 @@ public test bool testCasts() {
 		"[(object)$j] \<: objectType()",
 		"[(unset)$k] = nullType()"
 	];
-	list[str] expectedTypes = [];
+	list[str] expectedTypes = [
+		"[$a] = { any() }",
+		"[$b] = { any() }",
+		"[$c] = { any() }",
+		"[$d] = { any() }",
+		"[$e] = { any() }",
+		"[$f] = { any() }",
+		"[$g] = { any() }",
+		"[$h] = { any() }",
+		"[$i] = { any() }",
+		"[$j] = { any() }",
+		"[$k] = { any() }",
+		//"[(array)$a] = { arrayType(any()) }", // is not correct
+		"[(bool)$b] = { booleanType() }",
+		"[(boolean)$c] = { booleanType() }",
+		"[(double)$g] = { floatType() }",
+		"[(float)$f] = { floatType() }",
+		"[(int)$d] = { integerType() }",
+		"[(integer)$e] = { integerType() }",
+		//"[(object)$j] = { objectType() }", // is not correct
+		"[(real)$h] = { floatType() }",
+		"[(string)$i] = { stringType() }",
+		"[(unset)$k] = { nullType() }",
+		"[|php+globalVar:///a|] = { any() }",
+		"[|php+globalVar:///b|] = { any() }",
+		"[|php+globalVar:///c|] = { any() }",
+		"[|php+globalVar:///d|] = { any() }",
+		"[|php+globalVar:///e|] = { any() }",
+		"[|php+globalVar:///f|] = { any() }",
+		"[|php+globalVar:///g|] = { any() }",
+		"[|php+globalVar:///h|] = { any() }",
+		"[|php+globalVar:///i|] = { any() }",
+		"[|php+globalVar:///j|] = { any() }",
+		"[|php+globalVar:///k|] = { any() }"
+	];
 	return testConstraints("casts", expectedConstraints, expectedTypes);
 }
 

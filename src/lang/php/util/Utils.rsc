@@ -305,3 +305,7 @@ public void logMessage(str message, int level) {
 		println("<date> :: <message>");
 	}
 }
+
+public void setLogLevelToNoLogging() { logLevel = 0; }
+public void setLogLevelToDefault()   { logLevel = 1; }
+public void setLogLevelToDebug()     { logLevel = 2; }

@@ -77,8 +77,14 @@ public set[Constraint] deriveMore (set[Constraint] constraints, map[TypeOf, Type
     		case hasMethod(TypeOf a, str name) :;
     		case hasMethod(TypeOf a, str name, set[ModifierConstraint] modifiers) :;
     		case conditional(Constraint preCondition, Constraint result) :;
+    		
+    		case disjunction({constraint}): derivedConstraints += constraint; // disjunction of 1 item
     		case disjunction(set[Constraint] constraints) :;
+    		
+    		case exclusiveDisjunction({constraint}): derivedConstraints += constraint; // excl disjunction of 1 item
     		case exclusiveDisjunction(set[Constraint] constraints) :;
+    		
+    		case conjunction(set[Constraint] constraints): derivedConstraints += constraint; // conjunction of 1 item
     		case conjunction(set[Constraint] constraints) :;
     		case negation(Constraint constraint) :;
     	}
@@ -160,7 +166,7 @@ private TypeSet getIntersectionResult(TypeSet ts1, TypeSet ts2)
 	println("getIntersectionResult - intersection( <ts1>, <ts2> )."); // debug
    	result = Intersection({ ts1, ts2 });
    	if (result == EmptySet()) {
-		    	  println(v);
+		result = Universe();
    		//result = Union({ ts1, ts2 });
    	}
    	
@@ -175,8 +181,11 @@ public map[TypeOf, TypeSet] initialEstimates (set[Constraint] constraints, rel[T
  	
  	visit (constraints) {
  		case        eq(TypeOf t, typeSymbol(TypeSymbol ts)): result = addToMap(result, t, Single(ts)); 
+ 		case        eq(typeSymbol(TypeSymbol ts), TypeOf t): result = addToMap(result, t, Single(ts)); 
  		case   subtype(TypeOf t, typeSymbol(TypeSymbol ts)): result = addToMap(result, t, Subtypes(Set({ts}))); 
+ 		case   subtype(typeSymbol(TypeSymbol ts), TypeOf t): result = addToMap(result, t, Subtypes(Set({ts}))); 
  		case supertype(TypeOf t, typeSymbol(TypeSymbol ts)): result = addToMap(result, t, Supertypes(Set({ts}))); 
+ 		case supertype(typeSymbol(TypeSymbol ts), TypeOf t): result = addToMap(result, t, Supertypes(Set({ts}))); 
  		case                     TypeOf t:typeOf(loc ident): result = addToMap(result, t, Universe());
  		case                     TypeOf t:   var(loc  decl): result = addToMap(result, t, Universe());
  	};

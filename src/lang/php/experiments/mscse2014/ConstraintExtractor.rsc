@@ -1006,7 +1006,7 @@ public void addConstraintsOnAllVarsForScript(&T <: node t, m3)
 	lrel[loc decl, loc location] variables = [];
 	
 	// get all vars that have @decl annotations (which means that they are writable vars)
-	for (/v:var(name(name(_))) <- t, v@decl? && var(name(name("this"))) !:= v) {
+	for (/v:var(name(name(_))) <- t, var(name(name("this"))) !:= v) {
 		set[loc] decls = { d | d <- m3@uses[v@at], isVariable(d) };
 		if (isEmpty(decls) && v@decl?) {
 			decls += v@decl;
@@ -1026,12 +1026,8 @@ public void addConstraintsOnAllVarsForScript(&T <: node t, m3)
 	variableMapping[m3.id] = variables;
 
 	// add a disjunction constraint for all variables within a scope
-	for (variable <- domain(variables)) {
-        addConstraints(t, { 
-        	disjunction(
-    			{ eq(typeOf(v@decl), typeOf(v@at)) | /v:var(_) <- t, v@decl? && v@scope == t@decl && variable == v@decl }
-            )
-        });
+	for (variable <- toSet(domain(variables))) {
+        addConstraints(t, { eq(typeOf(variable), typeOf(rhs)) | <lhs, rhs> <- domainR(variables, {variable}) });
 	}
 }
 
