@@ -1,0 +1,3 @@
+<?php
+
+(array)$a; // array

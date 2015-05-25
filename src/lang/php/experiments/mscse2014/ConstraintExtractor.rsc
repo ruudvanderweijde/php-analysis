@@ -1005,10 +1005,11 @@ public void addConstraintsOnAllVarsForScript(&T <: node t, m3)
 {
 	lrel[loc decl, loc location] variables = [];
 	
-	// get all vars that have @decl annotations (which means that they are writable vars)
+	// get all vars except for $this
 	for (/v:var(name(name(_))) <- t, var(name(name("this"))) !:= v) {
 		set[loc] decls = { d | d <- m3@uses[v@at], isVariable(d) };
 		if (isEmpty(decls) && v@decl?) {
+			// if variable is a declaration, add itself
 			decls += v@decl;
 		}
 		if (size(decls) != 1) {

@@ -76,8 +76,13 @@ public set[Constraint] deriveMore (set[Constraint] constraints, map[TypeOf, Type
     		case isItemOfClass(TypeOf a, TypeOf t) :;
     		case hasMethod(TypeOf a, str name) :;
     		case hasMethod(TypeOf a, str name, set[ModifierConstraint] modifiers) :;
-    		case conditional(Constraint preCondition, Constraint result) :;
-    		
+    		case conditional(Constraint preCondition, Constraint result) :
+    		{
+    			println("conditional");
+    			if (isValidPrecondition(preCondition, estimates)) {
+    				derivedConstraints += result;
+    			}
+    		}
     		case disjunction({constraint}): derivedConstraints += constraint; // disjunction of 1 item
     		case disjunction(set[Constraint] constraints) :;
     		
@@ -114,8 +119,8 @@ public set[Constraint] propagateConstraints (set[Constraint] constraints, map[Ty
     		visit (constraints) {
        			case e:eq(l, identifier): extraConstraints += { eq(l, resolvedType) };
        			case e:eq(identifier, r): extraConstraints += { eq(resolvedType, r) };
-       			case e:subtype(l, identifier): extraConstraints += { subtype(l, resolvedType) };
-       			case e:subtype(identifier, r): extraConstraints += { subtype(resolvedType, r) };
+       			case e:subtyp(l, identifier): extraConstraints += { subtyp(l, resolvedType) };
+       			case e:subtyp(identifier, r): extraConstraints += { subtyp(resolvedType, r) };
     		} 
 		}
 	}
@@ -174,20 +179,65 @@ private TypeSet getIntersectionResult(TypeSet ts1, TypeSet ts2)
    	return result;
 }
 
+public bool isValidPrecondition(Constraint precondition, map[TypeOf, TypeSet] estimates)
+{
+	//println("checking precondition <precondition>");
+	for (v <- estimates) {
+		//println("estimate: <v> :: <estimates[v]>");
+		if (subtyp(v, typeToMatch) := precondition) {
+			//println("MATCH!!!: <typeToMatch>");
+			if (Set(set[TypeSymbol] resolvedTypes) := estimates[v]) {
+				if (typeToMatch in resolvedTypes) {
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+	//for (v <- estimates)	{
+	//	e = estimates[v];
+	//	if (subtyp(l, r) := precondition) {
+	//		;
+	//	}
+	//}
+	//return false;
+}
+
 @doc { initial type estimates for all typeable objects; like (|php+foo:///bar|: integerType()) }
 public map[TypeOf, TypeSet] initialEstimates (set[Constraint] constraints, rel[TypeSymbol, TypeSymbol] subtypes) 
 {
  	map[TypeOf, TypeSet] result = ();
  	
+ 	// add Universe() for all typeOfs
  	visit (constraints) {
- 		case        eq(TypeOf t, typeSymbol(TypeSymbol ts)): result = addToMap(result, t, Single(ts)); 
- 		case        eq(typeSymbol(TypeSymbol ts), TypeOf t): result = addToMap(result, t, Single(ts)); 
- 		case   subtype(TypeOf t, typeSymbol(TypeSymbol ts)): result = addToMap(result, t, Subtypes(Set({ts}))); 
- 		case   subtype(typeSymbol(TypeSymbol ts), TypeOf t): result = addToMap(result, t, Subtypes(Set({ts}))); 
- 		case supertype(TypeOf t, typeSymbol(TypeSymbol ts)): result = addToMap(result, t, Supertypes(Set({ts}))); 
- 		case supertype(typeSymbol(TypeSymbol ts), TypeOf t): result = addToMap(result, t, Supertypes(Set({ts}))); 
  		case                     TypeOf t:typeOf(loc ident): result = addToMap(result, t, Universe());
  		case                     TypeOf t:   var(loc  decl): result = addToMap(result, t, Universe());
+ 	};
+ 	
+ 	// add resovled types for all non-conditional constraints
+ 	iprintln(constraints);
+ 	top-down-break visit (constraints) {
+        // do nothing, just stop visiting; should still be implemented
+        case isAFunction() :; 
+        case isAMethod(TypeOf a) :;
+        case hasName(TypeOf a, str name) :;
+        case isItemOfClass(TypeOf a, TypeOf t) :;
+        case hasMethod(TypeOf a, str name) :;
+        case hasMethod(TypeOf a, str name, set[ModifierConstraint] modifiers) :;
+        case conditional(Constraint preCondition, Constraint result) :;
+        case disjunction(set[Constraint] constraints) :;
+        case exclusiveDisjunction(set[Constraint] constraints) :;
+        case conjunction(set[Constraint] constraints) :;
+        case negation(Constraint constraint) :;
+            
+ 		case       eq(TypeOf t, typeSymbol(TypeSymbol ts)): result = addToMap(result, t, Single(ts)); 
+ 		case       eq(typeSymbol(TypeSymbol ts), TypeOf t): result = addToMap(result, t, Single(ts)); 
+ 		case   subtyp(TypeOf t, typeSymbol(TypeSymbol ts)): result = addToMap(result, t, Subtypes(Set({ts}))); 
+ 		case   subtyp(typeSymbol(TypeSymbol ts), TypeOf t): result = addToMap(result, t, Subtypes(Set({ts}))); 
+ 		case supertyp(TypeOf t, typeSymbol(TypeSymbol ts)): result = addToMap(result, t, Supertypes(Set({ts}))); 
+ 		case supertyp(typeSymbol(TypeSymbol ts), TypeOf t): result = addToMap(result, t, Supertypes(Set({ts}))); 
+ 		//case                     TypeOf t:typeOf(loc ident): result = addToMap(result, t, Universe());
+ 		//case                     TypeOf t:   var(loc  decl): result = addToMap(result, t, Universe());
  	};
  	
  	return result;

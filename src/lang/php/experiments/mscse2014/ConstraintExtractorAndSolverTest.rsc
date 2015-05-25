@@ -19,6 +19,8 @@ loc getFileLocation(str name) = analysisLoc + "/src/tests/resources/experiments/
 // Test constraint extraction and constraint solving
 public void main()
 {
+
+	assert true == testIssues();
 	// trigger all tests
 	assert true == testVariables();
 	assert true == testNormalAssign();
@@ -43,13 +45,29 @@ public void main()
 	//assert true == testClassKeywords();
 	//assert true == testMethodCall();
 }
+
+public test bool testIssues() {
+	list[str] expectedConstraints = [
+		"[$a] \<: any()",
+	    "[|php+globalVar:///a|] = [$a]",
+		"[(array)$a] \<: arrayType(any())"
+	];
+	list[str] expectedTypes = [
+		"[$a] = { any() }", 
+		"[|php+globalVar:///a|] = { any() }",
+		"[(array)$a] = sub({ arrayType(any()) })"
+	];
+	
+	return testConstraints("issue1", expectedConstraints, expectedTypes);
+
+}
+
 public test bool testVariables() {
 	return testVariable1() 
-		&& testVariable2()  // these are turned of because they result in empty sets
+		&& testVariable2() 
 		&& testVariable3()
 		;
 }
-
 @doc { $a = "string"; }
 public test bool testVariable1() {
 	list[str] expectedConstraints = [
@@ -311,7 +329,92 @@ public test bool testPredefinedConstants() {
 		"[STDERR] = resourceType()",
 		"[TRUE] = booleanType()"
 	];
-	list[str] expectedTypes = [];
+	list[str] expectedTypes = [
+		"[DEFAULT_INCLUDE_PATH] = { stringType() }",
+		"[E_ALL] = { integerType() }",
+		"[E_COMPILE_ERROR] = { integerType() }",
+		"[E_COMPILE_WARNING] = { integerType() }",
+		"[E_CORE_ERROR] = { integerType() }",
+		"[E_CORE_WARNING] = { integerType() }",
+		"[E_DEPRECATED] = { integerType() }",
+		"[E_ERROR] = { integerType() }",
+		"[E_NOTICE] = { integerType() }",
+		"[E_PARSE] = { integerType() }",
+		"[E_RECOVERABLE_ERROR] = { integerType() }",
+		"[E_STRICT] = { integerType() }",
+		"[E_USER_DEPRECATED] = { integerType() }",
+		"[E_USER_DEPRECATED] = { integerType() }",
+		"[E_USER_ERROR] = { integerType() }",
+		"[E_USER_NOTICE] = { integerType() }",
+		"[E_USER_WARNING] = { integerType() }",
+		"[E_WARNING] = { integerType() }",
+		"[FALSE] = { booleanType() }",
+		"[FALSE] = { booleanType() }",
+		"[FalSe] = { booleanType() }",
+		"[INF] = { floatType() }",
+		"[M_1_PI] = { floatType() }",
+		"[M_2_PI] = { floatType() }",
+		"[M_2_SQRTPI] = { floatType() }",
+		"[M_EULER] = { floatType() }",
+		"[M_E] = { floatType() }",
+		"[M_LN10] = { floatType() }",
+		"[M_LN2] = { floatType() }",
+		"[M_LNPI] = { floatType() }",
+		"[M_LOG10E] = { floatType() }",
+		"[M_LOG2E] = { floatType() }",
+		"[M_PI] = { floatType() }",
+		"[M_PI_2] = { floatType() }",
+		"[M_PI_4] = { floatType() }",
+		"[M_SQRT1_2] = { floatType() }",
+		"[M_SQRT2] = { floatType() }",
+		"[M_SQRT3] = { floatType() }",
+		"[M_SQRTPI] = { floatType() }",
+		"[NAN] = { floatType() }",
+		"[NULL] = { nullType() }",
+		"[PHP_BINARY] = { stringType() }",
+		"[PHP_BINDIR] = { stringType() }",
+		"[PHP_CONFIG_FILE_PATH] = { stringType() }",
+		"[PHP_CONFIG_FILE_SCAN_DIR] = { stringType() }",
+		"[PHP_DEBUG] = { integerType() }",
+		"[PHP_EOL] = { stringType() }",
+		"[PHP_EXTENSION_DIR] = { stringType() }",
+		"[PHP_EXTRA_VERSION] = { stringType() }",
+		"[PHP_INT_MAX] = { integerType() }",
+		"[PHP_INT_SIZE] = { integerType() }",
+		"[PHP_MAJOR_VERSION] = { integerType() }",
+		"[PHP_MANDIR] = { stringType() }",
+		"[PHP_MAXPATHLEN] = { integerType() }",
+		"[PHP_MINOR_VERSION] = { integerType() }",
+		"[PHP_OS] = { stringType() }",
+		"[PHP_PREFIX] = { stringType() }",
+		"[PHP_RELEASE_VERSION] = { integerType() }",
+		"[PHP_ROUND_HALF_DOWN] = { integerType() }",
+		"[PHP_ROUND_HALF_EVEN] = { integerType() }",
+		"[PHP_ROUND_HALF_ODD] = { integerType() }",
+		"[PHP_ROUND_HALF_UP] = { integerType() }",
+		"[PHP_SAPI] = { stringType() }",
+		"[PHP_SHLIB_SUFFIX] = { stringType() }",
+		"[PHP_SYSCONFDIR] = { stringType() }",
+		"[PHP_VERSION] = { stringType() }",
+		"[PHP_VERSION_ID] = { integerType() }",
+		"[PHP_ZTS] = { integerType() }",
+		"[STDERR] = { resourceType() }",
+		"[STDIN] = { resourceType() }",
+		"[STDOUT] = { resourceType() }",
+		"[TRUE] = { booleanType() }",
+		"[TRUE] = { booleanType() }",
+		"[TrUe] = { booleanType() }",
+		"[__CLASS__] = { stringType() }",
+		"[__DIR__] = { stringType() }",
+		"[__FILE__] = { stringType() }",
+		"[__FUNCTION__] = { stringType() }",
+		"[__LINE__] = { integerType() }",
+		"[__METHOD__] = { stringType() }",
+		"[__NAMESPACE__] = { stringType() }",
+		"[__TRAIT__] = { stringType() }",
+		"[false] = { booleanType() }",
+		"[true] = { booleanType() }"
+	];
 	return testConstraints("predefinedConstants", expectedConstraints, expectedTypes);
 }
 
@@ -417,10 +520,8 @@ public test bool testOpAssign() {
 		"[$p] = { any() }",
 		"[$q] = { integerType() }",
 		"[$r] = { any() }",
-		//"[$s] = { floatType(), integerType(), numberType() }",
 		"[$s] = { any() }",
 		"[$t] = { any() }",
-		//"[$u] = { floatType(), integerType(), numberType() }",
 		"[$u] = { any() }",
 		"[$v] = { any() }",
 		
@@ -788,14 +889,14 @@ public test bool testCasts() {
 		"[$i] = { any() }",
 		"[$j] = { any() }",
 		"[$k] = { any() }",
-		//"[(array)$a] = { arrayType(any()) }", // is not correct
+		"[(array)$a] = { arrayType(any()) }",
 		"[(bool)$b] = { booleanType() }",
 		"[(boolean)$c] = { booleanType() }",
 		"[(double)$g] = { floatType() }",
 		"[(float)$f] = { floatType() }",
 		"[(int)$d] = { integerType() }",
 		"[(integer)$e] = { integerType() }",
-		//"[(object)$j] = { objectType() }", // is not correct
+		"[(object)$j] = { objectType() }", 
 		"[(real)$h] = { floatType() }",
 		"[(string)$i] = { stringType() }",
 		"[(unset)$k] = { nullType() }",
