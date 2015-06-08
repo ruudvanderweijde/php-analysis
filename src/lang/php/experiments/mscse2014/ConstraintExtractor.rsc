@@ -822,7 +822,36 @@ private void addConstraints(Expr e, M3 m3)
 	//| propertyFetch(Expr target, NameOrExpr propertyName)
 	//| staticPropertyFetch(NameOrExpr className, NameOrExpr propertyName)
 	
-	//| methodCall(Expr target, NameOrExpr methodName, list[ActualParameter] parameters)
+	case mc:methodCall(Expr target, NameOrExpr methodName, list[ActualParameter] parameters): {
+		// NOTE: first version only supports literal calls.
+		//       And does not support variable variables or variable calls
+		
+		addConstraints(target, { subtyp(typeOf(target@at), objectType()) }); // LHS is an object
+		//addConstraintsForMethodCallLHS(target, mc, m3);
+		//addConstraintsForMethodCallRHS(methodName, sc, m3);
+		addConstraints(target, m3);
+		addConstraints(methodName, m3);
+		// TODO: add constraints for parameters
+		
+		switch (target)  // refactor this out of here, can be reused. (this is copies from below)
+		{
+			// refers to this, self, parent or static
+			case expr(var(name(name(/^this$/i)))): ; // todo handle me
+			case name(name(/^self$/i)): ; // todo handle me
+			case name(name(/^parent$/i)): ; // todo handle me
+			case name(name(/^static$/i)): ; // todo handle me
+			// staticTarget is a literal name
+			case name(lhsName): 
+				addConstraints(mc, { isMethodOfClass(typeOf(mc@at), typeOf(target@at), lhsName.name) });
+		}	
+		// RHS is a method of class LHS	
+		
+		bool inClass = inClassTraitOrInterface(m3@containment, mc@scope);
+		set[Constraint] inClassConstraints = {};
+		
+		println("method call");
+		;
+	}
 	case sc:staticCall(NameOrExpr staticTarget, NameOrExpr methodName, list[ActualParameter] parameters): {
 		// add some general constraints
 		addConstraintsForStaticMethodCallLHS(staticTarget, sc, m3);
@@ -831,7 +860,7 @@ private void addConstraints(Expr e, M3 m3)
 		addConstraints(methodName, m3);
 	
 		// RHS is a method of class LHS	
-		addConstraints(sc, { isItemOfClass(typeOf(methodName@at), typeOf(staticTarget@at)) });	
+		//addConstraints(sc, { isMethodOfClass(typeOf(sc@at), typeOf(methodName@at),  });	// note: only add when rhs is a name object
 		
 		bool inClass = inClassTraitOrInterface(m3@containment, sc@scope);
 		set[Constraint] inClassConstraints = {};
@@ -920,15 +949,13 @@ private void addConstraints(Expr e, M3 m3)
 			case name(name): 
 			{
 				// staticTarget is a literal name, which means that we can directly add the class
-				addConstraints(sc, { subtyp(typeOf(staticTarget@at), typeOf(classLoc)) | classLoc <- (m3@uses o m3@declarations)[staticTarget@at] });
+				set[loc] classDecls = (m3@uses o m3@declarations)[staticTarget@at];
+				addConstraints(sc, { subtyp(typeOf(staticTarget@at), typeOf(classLoc)) | classLoc <- classDecls });
 				
 				// PRECONDITION: RHS = literal name, add if statement
 				if (name(rhsName) := methodName) {
 					// methodName resolves to the method itself...
-					addConstraints(sc, { 
-						isAMethod(typeOf(methodName@at)),
-						hasName(typeOf(methodName@at), rhsName.name) 
-					});
+					addConstraints(sc, { isMethodOfClass(typeOf(sc@at), typeOf(staticTarget@at), rhsName.name) });
 					//addConstraints(sc, { isMethodName(typeOf(methodName@at), rhsName.name) });
 					// type of whole expression is the return type of the invoked method;
 					addConstraints(sc, { subtyp(typeOf(sc@at), typeOf(methodName@at)) });
@@ -1019,7 +1046,12 @@ public void addConstraintsOnAllVarsForScript(&T <: node t, m3)
 			iprintln(m3@uses);
 			iprintln(m3@declarations);
 		}
-		assert size(decls) == 1 : "There should only be one declarations for a variable, var: <v> :: decls: <decls>";
+		if (size(decls) != 1) {
+			println("debug!!!");
+		}
+		assert size(decls) == 1 : 
+			"There should only be one declarations for a variable, var: <v> :: decls: <decls>";
+			
 		variables += [ <getOneFrom(decls), v@at> ];
 	}
 	
@@ -1084,6 +1116,9 @@ public void addConstraintsForCallableExpression(Expr expr)
 	});
 }
 
+public void addConstraintsForMethodCallLHS(Expr target, &T <: node parentNode, M3 m3) {
+}
+
 public void addConstraintsForStaticMethodCallLHS(NameOrExpr staticTarget, &T <: node parentNode, M3 m3) {
 	addConstraints(staticTarget, { subtyp(typeOf(staticTarget@at), objectType()) }); // LHS is an object
 	if (name(name) := staticTarget) {
@@ -1093,7 +1128,8 @@ public void addConstraintsForStaticMethodCallLHS(NameOrExpr staticTarget, &T <: 
 	}
 }
 public void addConstraintsForStaticMethodCallRHS(NameOrExpr methodName, &T <: node parentNode, M3 m3) {
-	addConstraints(methodName, { isAMethod(typeOf(methodName@at)) }); // RHS is a method
+	// todo fix me! (disabled isAMethod)
+	//addConstraints(methodName, { isMethodOfClass(typeOf(methodName@at)) }); // RHS is a method
 	if (name(name(name)) := methodName) {
 		addConstraints(methodName, { hasName(typeOf(methodName@at), name) }); // RHS has name:
 	}

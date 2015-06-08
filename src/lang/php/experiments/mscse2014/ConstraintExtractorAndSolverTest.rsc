@@ -20,6 +20,9 @@ loc getFileLocation(str name) = analysisLoc + "/src/tests/resources/experiments/
 public void main()
 {
 
+	assert true == testSimpleMethod();
+	
+	
 	assert true == testIssues();
 	// trigger all tests
 	assert true == testVariables();
@@ -34,6 +37,8 @@ public void main()
 	assert true == testComparisonOp();
 	assert true == testLogicalOp();
 	assert true == testCasts();
+	assert true == testSimpleClass();
+	assert true == testSimpleMethod();
 	//assert true == testarrayType();
 	//assert true == testVarious();
 	//assert true == testControlStructures();
@@ -972,6 +977,63 @@ public test bool testarrayType() {
 	return testConstraints("array", expectedConstraints, expectedTypes);
 }
 
+public test bool testSimpleClass() {
+	list[str] expectedConstraints = [
+		// class simpleClass {};
+		"[$s1] \<: any()",
+		"[$s2] \<: any()",
+		"[$s1] = [$s1 = new simpleClass]",
+		"[$s2] = [$s2 = new simpleClass()]",
+		"[new simpleClass()] \<: [$s2]",
+		"[new simpleClass()] = classType(|php+class:///simpleclass|)",
+		"[new simpleClass] \<: [$s1]",
+		"[new simpleClass] = classType(|php+class:///simpleclass|)",
+		"[|php+globalVar:///s1|] = [$s1]",
+		"[|php+globalVar:///s2|] = [$s2]"
+	];
+	list[str] expectedTypes = [
+		"[$s1] = { classType(|php+class:///simpleclass|) }",
+		"[$s1 = new simpleClass] = { classType(|php+class:///simpleclass|) }",
+		"[$s2] = { classType(|php+class:///simpleclass|) }",
+		"[$s2 = new simpleClass()] = { classType(|php+class:///simpleclass|) }",
+		"[new simpleClass] = { classType(|php+class:///simpleclass|) }",
+		"[new simpleClass()] = { classType(|php+class:///simpleclass|) }",
+		"[|php+globalVar:///s1|] = { classType(|php+class:///simpleclass|) }",
+		"[|php+globalVar:///s2|] = { classType(|php+class:///simpleclass|) }"
+	];
+	return testConstraints("simpleClass", expectedConstraints, expectedTypes);
+}
+
+public test bool testSimpleMethod() {
+	list[str] expectedConstraints = [
+		"[$sm] \<: any()",
+		"[$sm] \<: any()",
+		"[$value] \<: any()",
+		"[$sm] = [$sm = new simpleMethod()]",
+		"[new simpleMethod()] \<: [$sm]",
+		"[new simpleMethod()] = classType(|php+class:///simplemethod|)",
+		"[public function doStuff() {}] = nullType()",
+		"[|php+globalVar:///sm|] = [$sm]",
+		"[|php+globalVar:///sm|] = [$sm]",
+		"[$sm-\>doStuff()] \<: [$value]",
+		"[$sm] \<: objectType()",
+		"[$value] = [$value = $sm-\>doStuff()]",
+		"[|php+globalVar:///value|] = [$value]"
+	];
+	list[str] expectedTypes = [
+		"[$sm = new simpleMethod()] = { classType(|php+class:///simplemethod|) }",
+		"[$sm-\>doStuff()] = { nullType() }",
+		"[$sm] = { classType(|php+class:///simplemethod|) }",
+		"[$sm] = { classType(|php+class:///simplemethod|) }",
+		"[$value = $sm-\>doStuff()] = { nullType() }",
+		"[$value] = { nullType() }",
+		"[new simpleMethod()] = { classType(|php+class:///simplemethod|) }",
+		"[public function doStuff() {}] = { nullType() }",
+		"[|php+globalVar:///sm|] = { classType(|php+class:///simplemethod|) }",
+		"[|php+globalVar:///value|] = { nullType() }"
+	];
+	return testConstraints("simpleMethod", expectedConstraints, expectedTypes);
+}
 public test bool testVarious() {
 	list[str] expectedConstraints = [
 		// $a = clone($b);
@@ -1222,7 +1284,7 @@ public test bool testMethodCallStatic() {
 		// f()
 		"[f] = someMethod", // resolve all method
 		"hasName([f], f)",
-		"isItemOfClass([f], [$this])",
+		//"isMethodOfClass([f], [$this])", // fix me
 		// $this::f()
 		
 		// class C { public static function d() {} }
@@ -1238,7 +1300,7 @@ public test bool testMethodCallStatic() {
 		"[c] \<: objectType()",
 		"[d] = someMethod",
 		"hasName([d], d)",
-		"isItemOfClass([d], [c])",
+		//"isMethodOfClass([d], [c])", // fix me
 	
 		// $d = "d";
 		"[$d] \<: any()",
@@ -1421,10 +1483,8 @@ private str toStr(exclusiveDisjunction(set[Constraint] cs))	= "xor(<intercalate(
 private str toStr(conjunction(set[Constraint] cs))		= "and(<intercalate(", ", sort([ toStr(c) | c <- sort(toList(cs))]))>)";
 private str toStr(negation(Constraint c)) 				= "neg(<toStr(c)>)";
 private str toStr(conditional(Constraint c, Constraint res)) = "if (<toStr(c)>) then (<toStr(res)>)";
-private str toStr(isAMethod(TypeOf t))					= "<toStr(t)> = someMethod";
 private str toStr(isAFunction(TypeOf t))				= "<toStr(t)> = someFunction";
-private str toStr(isItemOfClass(TypeOf t, TypeOf t2))	= "isItemOfClass(<toStr(t)>, <toStr(t2)>)";
-private str toStr(hasName(TypeOf t, str n))				= "hasName(<toStr(t)>, <n>)";
+private str toStr(isMethodOfClass(TypeOf t, TypeOf t2, str name))	= "isMethodOfClass(<toStr(t)>, <toStr(t2)>, <name>)";
 private str toStr(hasMethod(TypeOf t, str n))			= "hasMethod(<toStr(t)>, <n>)";
 private str toStr(hasMethod(TypeOf t, str n, set[ModifierConstraint] mcs))	= "hasMethod(<toStr(t)>, <n>, { <intercalate(", ", sort([ toStr(mc) | mc <- sort(toList(mcs))]))> })";
 private str toStr(required(set[Modifier] mfs))			= "<intercalate(", ", sort([ toStr(mf) | mf <- sort(toList(mfs))]))>";

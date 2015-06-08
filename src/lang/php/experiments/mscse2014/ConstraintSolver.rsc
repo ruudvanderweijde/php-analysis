@@ -71,9 +71,8 @@ public set[Constraint] deriveMore (set[Constraint] constraints, map[TypeOf, Type
     	top-down-break visit (constraints) {
     		// todo: implement me
     		case isAFunction() :; 
-    		case isAMethod(TypeOf a) :;
     		case hasName(TypeOf a, str name) :;
-    		case isItemOfClass(TypeOf a, TypeOf t) :;
+    		case isMethodOfClass(TypeOf a, TypeOf t, str name) :;
     		case hasMethod(TypeOf a, str name) :;
     		case hasMethod(TypeOf a, str name, set[ModifierConstraint] modifiers) :;
     		case conditional(Constraint preCondition, Constraint result) :
@@ -135,9 +134,8 @@ public map[TypeOf, TypeSet] propagateEstimates (set[Constraint] constraints, map
     	top-down-break visit (constraints) {
     		// do nothing, just stop visiting; should still be implemented
     		case isAFunction() :; 
-    		case isAMethod(TypeOf a) :;
     		case hasName(TypeOf a, str name) :;
-    		case isItemOfClass(TypeOf a, TypeOf t) :;
+    		case isMethodOfClass(TypeOf a, TypeOf t, str name) :;
     		case hasMethod(TypeOf a, str name) :;
     		case hasMethod(TypeOf a, str name, set[ModifierConstraint] modifiers) :;
     		case conditional(Constraint preCondition, Constraint result) :;
@@ -215,13 +213,11 @@ public map[TypeOf, TypeSet] initialEstimates (set[Constraint] constraints, rel[T
  	};
  	
  	// add resovled types for all non-conditional constraints
- 	iprintln(constraints);
  	top-down-break visit (constraints) {
         // do nothing, just stop visiting; should still be implemented
         case isAFunction() :; 
-        case isAMethod(TypeOf a) :;
         case hasName(TypeOf a, str name) :;
-        case isItemOfClass(TypeOf a, TypeOf t) :;
+        case isMethodOfClass(TypeOf a, TypeOf t, str name) :;
         case hasMethod(TypeOf a, str name) :;
         case hasMethod(TypeOf a, str name, set[ModifierConstraint] modifiers) :;
         case conditional(Constraint preCondition, Constraint result) :;
@@ -236,8 +232,6 @@ public map[TypeOf, TypeSet] initialEstimates (set[Constraint] constraints, rel[T
  		case   subtyp(typeSymbol(TypeSymbol ts), TypeOf t): result = addToMap(result, t, Subtypes(Set({ts}))); 
  		case supertyp(TypeOf t, typeSymbol(TypeSymbol ts)): result = addToMap(result, t, Supertypes(Set({ts}))); 
  		case supertyp(typeSymbol(TypeSymbol ts), TypeOf t): result = addToMap(result, t, Supertypes(Set({ts}))); 
- 		//case                     TypeOf t:typeOf(loc ident): result = addToMap(result, t, Universe());
- 		//case                     TypeOf t:   var(loc  decl): result = addToMap(result, t, Universe());
  	};
  	
  	return result;
@@ -284,6 +278,9 @@ public rel[TypeSymbol, TypeSymbol] getSubTypes(M3 m3, System system)
 	
 		// TODO, add subtypes for arrays
 		// TODO, null is a subtype of all types	
+	
+	// used in types/TypeConstraints.rsc
+	setSubTypeRelation(subtypes);
 	
 	return subtypes;
 }

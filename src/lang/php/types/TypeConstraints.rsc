@@ -3,6 +3,9 @@ module lang::php::types::TypeConstraints
 import lang::php::ast::AbstractSyntax;
 import lang::php::types::TypeSymbol;
 
+import analysis::graphs::Graph;
+import IO;
+
 data TypeOf
 	= typeOf(loc ident)
 	| typeSymbol(TypeSymbol ts)
@@ -25,10 +28,8 @@ data Constraint
   	
    	// query the m3 to solve these 
     | isAFunction(TypeOf a)
-    | isAMethod(TypeOf a)
-    | hasName(TypeOf a, str name)
     
-    | isItemOfClass(TypeOf a, TypeOf t)
+    | isMethodOfClass(TypeOf expr, TypeOf classVariable, str name)
     | hasMethod(TypeOf a, str name)
     | hasMethod(TypeOf a, str name, set[ModifierConstraint] modifiers)
     //| parentHasMethod(TypeOf a, str name)
@@ -61,6 +62,11 @@ data TypeSet
 	| Intersection(set[TypeSet] args)
 	| LCA(set[TypeSet] args) // actually least common ancestor
 	;
+
+public rel[TypeSymbol, TypeSymbol] subtypeRelation = {};	
+public void setSubTypeRelation(rel[TypeSymbol, TypeSymbol] subtypes) {
+	subtypeRelation = subtypes;
+}
 	
 // rewrite rules	
 TypeSet Set({\any()})        = Root();
@@ -71,6 +77,8 @@ TypeSet Subtypes(Root())	          = Universe();
 TypeSet Subtypes(EmptySet())          = EmptySet();
 TypeSet Subtypes(Universe())          = Universe();
 TypeSet Subtypes(Subtypes(TypeSet x)) = Subtypes(x);
+TypeSet Subtypes(Set({TypeSymbol x})) = Set(reach(invert(subtypeRelation), {x}));
+TypeSet Subtypes(Set({TypeSymbol x, rest*})) = Union({Set(reach(invert(subtypeRelation), {x})), Subtypes(Set(rest))}); 
 
 TypeSet Supertypes(Root())	            = Single(\any());
 TypeSet Supertypes(EmptySet())          = EmptySet();
@@ -82,6 +90,7 @@ TypeSet Intersection({})               = EmptySet();
 TypeSet Intersection({x})              = x;
 TypeSet Intersection({Universe(), *x}) = Intersection(x);
 TypeSet Intersection({EmptySet(), _*}) = EmptySet();
+TypeSet Intersection(Intersection(x))  = Intersection(x); // prevent endless loops
 TypeSet Intersection({Set(set[TypeSymbol] t1), Root()}) = Intersection({Set(t1 & { \any() } )});
 TypeSet Intersection({Set(set[TypeSymbol] t1), Set(set[TypeSymbol] t2), rest*}) =
 	Intersection({Set(t1 & t2), *rest});	
@@ -139,3 +148,9 @@ TypeSet LCA(rel[TypeSymbol, TypeSymbol] subtypes, {Set(set[TypeSymbol] t1), *res
 //list[TypeSymbol] LCA(rel[TypeSymbol, TypeSymbol] subtypes, { TypeSymbol t1 }) = shortestPathPair(subtypes, t1, \any());
 //list[TypeSymbol] LCA(rel[TypeSymbol, TypeSymbol] subtypes, { TypeSymbol t1, *rest }) = shortestPathPair(subtypes, t1, \any()) + LCA(subtypes, rest);	
 ////TypeSet LCA(rel[TypeSymbol, TypeSymbol] subtypes, TypeSet x)                 = x;
+
+public set[TypeSymbol] getSubtypesFor(TypeSet x)
+{
+	rel[TypeSymbol, TypeSymbol] subtypes = getSubtypeRelation;
+	return x + (shortestPathPair(subtypes, x, \any()));
+}
