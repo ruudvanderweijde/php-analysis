@@ -84,7 +84,8 @@ TypeSet Supertypes(Root())	            = Single(\any());
 TypeSet Supertypes(EmptySet())          = EmptySet();
 TypeSet Supertypes(Universe())          = Universe();
 TypeSet Supertypes(Supertypes(TypeSet x)) = Supertypes(x);
-//TypeSet Supertypes(TypeSet x) 			= Supertypes(x);
+TypeSet Supertypes(Set({TypeSymbol x}))   = Set(reach(subtypeRelation, {x}));
+TypeSet Supertypes(Set({TypeSymbol x, rest*})) = Union({Set(reach(subtypeRelation, {x})), Supertypes(Set(rest))}); 
 
 TypeSet Intersection({})               = EmptySet();
 TypeSet Intersection({x})              = x;

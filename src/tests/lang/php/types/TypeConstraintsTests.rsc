@@ -23,7 +23,8 @@ private void testRewriteRules(int n)
 	assertUnionRules(n);
 	assertIntersectionRules(n);
 	//assertLCARules(n); // these do not work properly yet.
-	assertSubtypesRules(n);
+	assertSubtypesRules();
+	assertSupertypesRules();
 	assertMixes(n);
 	assertMixesWithSubtypes(n);
 	assertIntersectionBug();
@@ -80,16 +81,11 @@ private TypeSet getIntersectionsWS() = Intersection({ Intersection({getIntersect
 private TypeSet getMix1WS() = Union({ getIntersection(), getIntersections(), getUnion(), getUnions() });
 private TypeSet getMix2WS() = Intersection({ Union({ getIntersectionWS() }), getUnionWS(), getUnionsWS() });
 
-private void assertSubtypesRules(int n) {
+private void assertSubtypesRules() {
 	// single values
 	for (t <- types) {
 		TypeSet expected = Set(reach(invert(getSubtypesMock()), {t}));
-		TypeSet result   = solveSubtypes(Subtypes(Single(t)));
-		//iprintln("");
-		//iprintln("----------");
-		//iprintln("Type: <t>");
-		//iprintln("Expected : <expected>");
-		//iprintln("Actual: <result>");
+		TypeSet result   = Subtypes(Single(t));
 		assert expected == result : "assertSubtypesRules failed for Subtypes(Set({<t>}); Expected: <expected>; Actual: <result>";
 	}
 	
@@ -97,10 +93,27 @@ private void assertSubtypesRules(int n) {
 	assert Set({integerType(), stringType()}) == Subtypes(Set({integerType(), stringType()})) 
 		: "<Set({integerType(), stringType()})> == <Subtypes(Set({integerType(), stringType()}))>";
 		
-	assert Set({integerType(), floatType(), numberType(), stringType()}) == Subtypes(Set({numberType(), stringType()}))
-		: "<Set({integerType(), floatType(), numberType(), stringType()}) == Subtypes(Set({numberType(), stringType()}))>";
+	assert Set({integerType(), floatType(), numberType(), stringType()}) == Subtypes(Set({numberType(), stringType(), floatType()}))
+		: "<Set({integerType(), floatType(), numberType(), stringType()})> == <Subtypes(Set({numberType(), stringType(), floatType()}))>";
 	
-}	
+}
+
+private void assertSupertypesRules() {
+	// single values
+	for (t <- types) {
+		TypeSet expected = Set(reach(getSubtypesMock(), {t}));
+		TypeSet result   = Supertypes(Single(t));
+		assert expected == result : "assertSupertypesRules failed for Supertypes(Set({<t>}); Expected: <expected>; Actual: <result>";
+	}
+	
+	// multiple values	
+	assert Set({\any(),stringType(),scalarType(),numberType(),integerType(),callableType()}) == Supertypes(Set({integerType(), stringType()})) 
+		: "<Set({\any(),stringType(),scalarType(),numberType(),integerType(),callableType()})> == <Supertypes(Set({integerType(), stringType()}))>";
+		
+	assert Set({\any(),stringType(),scalarType(),numberType(),floatType(),callableType()}) == Supertypes(Set({numberType(), stringType(), floatType()}))
+		: "<Set({\any(),stringType(),scalarType(),numberType(),floatType(),callableType()})> == <Supertypes(Set({numberType(), stringType(), floatType()}))>";
+	
+}
 
 private void assertUnionRules(int n)
 {
