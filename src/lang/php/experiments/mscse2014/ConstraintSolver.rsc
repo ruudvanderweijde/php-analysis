@@ -46,10 +46,6 @@ public map[TypeOf var, TypeSet possibles] solveConstraints(set[Constraint] const
   	// initialEstimates resolves everything to Universe, unless there is concrete information already
 	estimates = initialEstimates(constraints, subtypes);
 
-	
-	// subtype relations 
-	public TypeSet getSubTypes(TypeSet ts) = ts;
-	
 	// display some debug info
 	debugPrintInitialResults(constraints, estimates);
 		
@@ -106,6 +102,7 @@ public set[Constraint] propagateConstraints (set[Constraint] constraints, map[Ty
 	for (identifier <- estimates) {
 		typeSet = estimates[identifier];
 		
+		// change this to: Universe() !in typeSet
 		if (Universe() := typeSet) {
 			continue; // skip universe, we only want to propagate 'solved' estimates
 		}
@@ -119,7 +116,7 @@ public set[Constraint] propagateConstraints (set[Constraint] constraints, map[Ty
        			case e:eq(l, identifier): extraConstraints += { eq(l, resolvedType) };
        			case e:eq(identifier, r): extraConstraints += { eq(resolvedType, r) };
        			case e:subtyp(l, identifier): extraConstraints += { subtyp(l, resolvedType) };
-       			case e:subtyp(identifier, r): extraConstraints += { subtyp(resolvedType, r) };
+       			case e:subtyp(identifier, r): extraConstraints += { supertyp(resolvedType, r) };
     		} 
 		}
 	}
@@ -144,6 +141,8 @@ public map[TypeOf, TypeSet] propagateEstimates (set[Constraint] constraints, map
     		case conjunction(set[Constraint] constraints) :;
     		case negation(Constraint constraint) :;
     		
+    		
+    		// check this implementation. The intent should be: 
 			// solve subtyp(_,_)
     		case c:subtyp(v, r:typeOf(t)): {
 		    	estimates[v] = getIntersectionResult(estimates[v], estimates[r]);
@@ -168,10 +167,10 @@ private TypeSet getIntersectionResult(TypeSet ts1, TypeSet ts2)
 {
 	println("getIntersectionResult - intersection( <ts1>, <ts2> )."); // debug
    	result = Intersection({ ts1, ts2 });
-   	if (result == EmptySet()) {
-		result = Universe();
-   		//result = Union({ ts1, ts2 });
-   	}
+  // 	if (result == EmptySet()) {
+  //        result = Universe();
+  // 		//result = Union({ ts1, ts2 });
+  // 	}
    	
 	println("Results: <result>"); // debug
    	return result;
@@ -237,8 +236,8 @@ public map[TypeOf, TypeSet] initialEstimates (set[Constraint] constraints, rel[T
  	return result;
 }
 
-public set[TypeSymbol]   getSubTypes(rel[TypeSymbol, TypeSymbol] subtypes, set[TypeSymbol] ts) = domain(rangeR(subtypes*, ts));
-public set[TypeSymbol] getSuperTypes(rel[TypeSymbol, TypeSymbol] subtypes, set[TypeSymbol] ts) = domain(rangeR(invert(subtypes*), ts));
+//public set[TypeSymbol]   getSubTypes(rel[TypeSymbol, TypeSymbol] subtypes, set[TypeSymbol] ts) = domain(rangeR(subtypes*, ts));
+//public set[TypeSymbol] getSuperTypes(rel[TypeSymbol, TypeSymbol] subtypes, set[TypeSymbol] ts) = domain(rangeR(invert(subtypes*), ts));
 
 // Stupid wrapper to add or take the intersection of values. Only used for initialEstimates
 public map[TypeOf, TypeSet] addToMap(map[TypeOf, TypeSet] m, TypeOf k, TypeSet ts)

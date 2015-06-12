@@ -4,6 +4,7 @@ import lang::php::ast::AbstractSyntax;
 import lang::php::types::TypeSymbol;
 
 import analysis::graphs::Graph;
+import Relation; 
 import IO;
 
 data TypeOf

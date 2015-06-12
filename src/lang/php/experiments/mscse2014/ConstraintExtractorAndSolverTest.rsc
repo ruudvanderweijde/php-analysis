@@ -20,7 +20,7 @@ loc getFileLocation(str name) = analysisLoc + "/src/tests/resources/experiments/
 public void main()
 {
 
-	assert true == testSimpleMethod();
+	//assert true == testSimpleMethod();
 	
 	
 	assert true == testIssues();
@@ -60,7 +60,7 @@ public test bool testIssues() {
 	list[str] expectedTypes = [
 		"[$a] = { any() }", 
 		"[|php+globalVar:///a|] = { any() }",
-		"[(array)$a] = sub({ arrayType(any()) })"
+		"[(array)$a] = { arrayType(any()) }"
 	];
 	
 	return testConstraints("issue1", expectedConstraints, expectedTypes);
@@ -525,9 +525,9 @@ public test bool testOpAssign() {
 		"[$p] = { any() }",
 		"[$q] = { integerType() }",
 		"[$r] = { any() }",
-		"[$s] = sub({ numberType() })",
+		"[$s] = { floatType(), integerType(), numberType() }",
 		"[$t] = { any() }",
-		"[$u] = sub({ numberType() })",
+		"[$u] = { floatType(), integerType(), numberType() }",
 		"[$v] = { any() }",
 		
 		"[|php+globalVar:///a|] = { integerType() }",
@@ -548,9 +548,9 @@ public test bool testOpAssign() {
 		"[|php+globalVar:///p|] = { any() }",
 		"[|php+globalVar:///q|] = { integerType() }",
 		"[|php+globalVar:///r|] = { any() }",
-		"[|php+globalVar:///s|] = sub({ numberType() })",
+		"[|php+globalVar:///s|] = { floatType(), integerType(), numberType() }",
 		"[|php+globalVar:///t|] = { any() }",
-		"[|php+globalVar:///u|] = sub({ numberType() })",
+		"[|php+globalVar:///u|] = { floatType(), integerType(), numberType() }",
 		"[|php+globalVar:///v|] = { any() }"
 	];
 	return testConstraints("opAssign", expectedConstraints, expectedTypes);
