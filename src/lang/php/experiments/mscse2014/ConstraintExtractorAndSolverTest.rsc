@@ -894,14 +894,14 @@ public test bool testCasts() {
 		"[$i] = { any() }",
 		"[$j] = { any() }",
 		"[$k] = { any() }",
-		"[(array)$a] = sub({ arrayType(any()) })",
+		"[(array)$a] = <toStr(Subtypes(Single(arrayType(\any()))))>",
 		"[(bool)$b] = { booleanType() }",
 		"[(boolean)$c] = { booleanType() }",
 		"[(double)$g] = { floatType() }",
 		"[(float)$f] = { floatType() }",
 		"[(int)$d] = { integerType() }",
 		"[(integer)$e] = { integerType() }",
-		"[(object)$j] = sub({ objectType() })", 
+		"[(object)$j] = <toStr(Subtypes(Single(objectType())))>", 
 		"[(real)$h] = { floatType() }",
 		"[(string)$i] = { stringType() }",
 		"[(unset)$k] = { nullType() }",
@@ -991,15 +991,17 @@ public test bool testSimpleClass() {
 		"[|php+globalVar:///s1|] = [$s1]",
 		"[|php+globalVar:///s2|] = [$s2]"
 	];
+	// at this point the subtype relation is not set yet. Doing Supertypes(class(..)) will only return the class itself because the relation is empty.
+	str simpleclassSupertypes = "{ any(), callableType(), classType(|php+class:///simpleclass|), objectType() }";
 	list[str] expectedTypes = [
-		"[$s1] = { classType(|php+class:///simpleclass|) }",
-		"[$s1 = new simpleClass] = { classType(|php+class:///simpleclass|) }",
-		"[$s2] = { classType(|php+class:///simpleclass|) }",
-		"[$s2 = new simpleClass()] = { classType(|php+class:///simpleclass|) }",
+		"[$s1] = <simpleclassSupertypes>",
+		"[$s1 = new simpleClass] = <simpleclassSupertypes>",
+		"[$s2] = <simpleclassSupertypes>",
+		"[$s2 = new simpleClass()] = <simpleclassSupertypes>",
 		"[new simpleClass] = { classType(|php+class:///simpleclass|) }",
 		"[new simpleClass()] = { classType(|php+class:///simpleclass|) }",
-		"[|php+globalVar:///s1|] = { classType(|php+class:///simpleclass|) }",
-		"[|php+globalVar:///s2|] = { classType(|php+class:///simpleclass|) }"
+		"[|php+globalVar:///s1|] = <simpleclassSupertypes>",
+		"[|php+globalVar:///s2|] = <simpleclassSupertypes>"
 	];
 	return testConstraints("simpleClass", expectedConstraints, expectedTypes);
 }

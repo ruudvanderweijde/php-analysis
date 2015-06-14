@@ -49,7 +49,6 @@ public map[TypeOf var, TypeSet possibles] solveConstraints(set[Constraint] const
 	// display some debug info
 	debugPrintInitialResults(constraints, estimates);
 		
-// TODO: subtype is ignored, they are handled like 'normal' types
 	solve (constraintSet, estimates) { // solve constraints and variable mapping
 		constraintSet = constraintSet + deriveMore(constraintSet, estimates);
   		estimates = propagateEstimates(constraintSet, estimates);
