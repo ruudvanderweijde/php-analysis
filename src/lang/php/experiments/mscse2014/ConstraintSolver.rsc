@@ -97,6 +97,10 @@ public set[Constraint] deriveMore (set[Constraint] constraints, map[TypeOf, Type
 // for all resolved estimates, add new constraints
 public set[Constraint] propagateConstraints (set[Constraint] constraints, map[TypeOf, TypeSet] estimates)
 {
+	// do nothing for now...
+	return constraints;
+	
+	// THIS IS NOT BEING USED NOW!!!!
 	set[Constraint] extraConstraints = {};
 	
 	for (identifier <- estimates) {
@@ -127,9 +131,20 @@ public set[Constraint] propagateConstraints (set[Constraint] constraints, map[Ty
 
 public map[TypeOf, TypeSet] propagateEstimates (set[Constraint] constraints, map[TypeOf, TypeSet] estimates)
 {
-    for (v <- estimates) {
+	for (identifier <- estimates) {
+		typeSet = estimates[identifier];
+		
+		// change this to: Universe() !in typeSet
+		if (Universe() := typeSet) {
+			println("Skipped for being universe... <toStr(identifier)>");
+			continue; // skip universe, we only want to propagate 'solved' estimates
+		}
+		
+		// top-down-break stops at all matches, not just in depth??
+		// for now a switch will work with the stuff i want to achieve
+    	//top-down-break visit (constraints) {
     	top-down-break visit (constraints) {
-    		// do nothing, just stop visiting; should still be implemented
+    		// do nothing, just stop visiting; 
     		case isAFunction() :; 
     		case hasName(TypeOf a, str name) :;
     		case isMethodOfClass(TypeOf a, TypeOf t, str name) :;
@@ -142,31 +157,88 @@ public map[TypeOf, TypeSet] propagateEstimates (set[Constraint] constraints, map
     		case negation(Constraint constraint) :;
     		
     		
+			case e:subtyp(lhs:typeOf(_), identifier): {
+				println("---------[ LHS subtype ]------------");
+				println(" - identifier :: <toStr(identifier)> :: <identifier>");
+				println(" - lhs :: <toStr(lhs)> :: <lhs>");
+				println(" - constraint :: <toStr(e)> :: <e>");
+		    	estimates[lhs] = getIntersectionResult(Subtypes(estimates[identifier]), estimates[lhs]);
+		    }
+			case e:subtyp(identifier, rhs:typeOf(_)): { // type of rhs is union(supertyp(estimates[rhs], esitmates[identifier]))
+				println("---------[ RHS subtype ]------------");
+				println(" - identifier :: <toStr(identifier)> :: <identifier>");
+				println(" - rhs :: <toStr(rhs)> :: <rhs>");
+				println(" - constraint :: <toStr(e)> :: <e>");
+				// this might be an union????
+		    	estimates[rhs] = getIntersectionResult(Supertypes(estimates[identifier]), estimates[rhs]);
+		    }
+			//case e:eq(identifier, r:typeOf(_)): extraConstraints += { eq(resolvedType, r) };
+			//case e:subtyp(l, identifier): extraConstraints += { subtyp(l, resolvedType) };
+			//case e:subtyp(identifier, r): extraConstraints += { supertyp(resolvedType, r) };
+			
+    		case e:eq(lhs:typeOf(_), identifier): {
+				println("---------[ LHS eq]------------");
+				println(" - identifier :: <toStr(identifier)> :: <identifier>");
+				println(" - lhs :: <toStr(lhs)> :: <lhs>");
+				println(" - constraint :: <toStr(e)> :: <e>");
+    		
+    			estimates[lhs] = getIntersectionResult(estimates[lhs], estimates[identifier]);
+    			estimates[identifier] = getIntersectionResult(estimates[lhs], estimates[identifier]);
+    		}
+    		case e:eq(identifier, rhs:typeOf(_)): {
+				println("---------[ RHS eq]------------");
+				println(" - identifier :: <toStr(identifier)> :: <identifier>");
+				println(" - rhs :: <toStr(rhs)> :: <rhs>");
+				println(" - constraint :: <toStr(e)> :: <e>");
+    		
+    			estimates[rhs] = getIntersectionResult(estimates[rhs], estimates[identifier]);
+    			estimates[identifier] = getIntersectionResult(estimates[rhs], estimates[identifier]);
+    		}
+    			
+			
     		// check this implementation. The intent should be: 
 			// solve subtyp(_,_)
-    		case c:subtyp(v, r:typeOf(t)): {
-		    	estimates[v] = getIntersectionResult(estimates[v], estimates[r]);
-		    	
-		    }
-		   	case c:subtyp(l:typeOf(t), v):
-    			estimates[v] = getIntersectionResult(estimates[v], estimates[l]);
-
-		    // solve eq(_,_) 
-    		case c:eq(l:typeOf(t), v):
-    			estimates[v] = getIntersectionResult(estimates[v], estimates[l]);
-    		case c:eq(v, r:typeOf(t)):
-    			estimates[v] = getIntersectionResult(estimates[v], estimates[r]);
+//    		case c:subtyp(v, Set(r)): { // test
+//		    	estimates[v] = getIntersectionResult(estimates[v], estimates[r]);
+//		    	
+//		    }
+//    		case c:subtyp(v, r:typeOf(t)): {
+//		    	estimates[v] = getIntersectionResult(estimates[v], estimates[r]);
+//		    	
+//		    }
+//		   	case c:subtyp(l:typeOf(t), v):
+//    			estimates[v] = getIntersectionResult(estimates[v], estimates[l]);
+//
+//		    // solve eq(_,_) 
+//    		case c:eq(l:typeOf(t), v):
+//    			estimates[v] = getIntersectionResult(estimates[v], estimates[l]);
+//    		case c:eq(v, r:typeOf(t)):
+//    			estimates[v] = getIntersectionResult(estimates[v], estimates[r]);
 		}
     }
    
 	return estimates;
 }
 
-@doc { do intersections, if no results, do Union (would be nice to have the LCA here) }
+@doc { do intersections }
 private TypeSet getIntersectionResult(TypeSet ts1, TypeSet ts2)
 {
 	println("getIntersectionResult - intersection( <ts1>, <ts2> )."); // debug
    	result = Intersection({ ts1, ts2 });
+  // 	if (result == EmptySet()) {
+  //        result = Universe();
+  // 		//result = Union({ ts1, ts2 });
+  // 	}
+   	
+	println("Results: <result>"); // debug
+   	return result;
+}
+
+@doc { do union }
+private TypeSet getUnionResult(TypeSet ts1, TypeSet ts2)
+{
+	println("getUnionResult - union( <ts1>, <ts2> )."); // debug
+   	result = Union({ ts1, ts2 });
   // 	if (result == EmptySet()) {
   //        result = Universe();
   // 		//result = Union({ ts1, ts2 });

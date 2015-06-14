@@ -23,7 +23,7 @@ public void main()
 	//assert true == testSimpleMethod();
 	
 	
-	assert true == testIssues();
+	//assert true == testIssues();
 	// trigger all tests
 	assert true == testVariables();
 	assert true == testNormalAssign();
@@ -83,10 +83,10 @@ public test bool testVariable1() {
 		"[\"string\"] \<: [$a]"
 	];
 	list[str] expectedTypes = [
-		"[$a] = { stringType() }", 
+		"[$a] = <toStr(Supertypes(Single(stringType())))>", 
 		"[\"string\"] = { stringType() }", 
-		"[$a = \"string\"] = { stringType() }",
-		"[|php+globalVar:///a|] = { stringType() }"
+		"[$a = \"string\"] = <toStr(Supertypes(Single(stringType())))>",
+		"[|php+globalVar:///a|] = <toStr(Supertypes(Single(stringType())))>"
 	];
 	
 	return testConstraints("variable1", expectedConstraints, expectedTypes);
@@ -110,13 +110,13 @@ public test bool testVariable2() {
 		"[$a] \<: any()"
 	];
 	list[str] expectedTypes = [
-		"[$a] = { stringType() }", 
-		"[$a] = { integerType() }", 
-		"[|php+globalVar:///a|] = { any() }", 
+		"[$a] = { any(), scalarType() }", 
+		"[$a] = { any(), scalarType() }", 
 		"[100] = { integerType() }",
 		"[\"string\"] = { stringType() }",
-		"[$a = 100] = { integerType() }",
-		"[$a = \"string\"] = { stringType() }"
+		"[$a = 100] = { any(), scalarType() }",
+		"[$a = \"string\"] = { any(), scalarType() }",
+		"[|php+globalVar:///a|] = { any(), scalarType() }"
 	];
 	return testConstraints("variable2", expectedConstraints, expectedTypes);
 }
@@ -148,15 +148,15 @@ public test bool testVariable3() {
 	];
 	list[str] expectedTypes = [
 		// 2 variable $a
-		"[$a = \"string\"] = { stringType() }",
-		"[|php+globalVar:///a|] = { stringType() }",
-		"[$a] = { stringType() }",
-		"[$a] = { stringType() }",
+		"[$a = \"string\"] = <toStr(Supertypes(Single(stringType())))>",
+		"[|php+globalVar:///a|] = <toStr(Supertypes(Single(stringType())))>",
+		"[$a] = <toStr(Supertypes(Single(stringType())))>",
+		"[$a] = <toStr(Supertypes(Single(stringType())))>",
 		// 2 variable $b
-		"[$b = 100] = { integerType() }",
-		"[|php+globalVar:///b|] = { integerType() }",
-		"[$b] = { integerType() }",
-		"[$b] = { integerType() }",
+		"[$b = 100] = <toStr(Supertypes(Single(integerType())))>",
+		"[|php+globalVar:///b|] = <toStr(Supertypes(Single(integerType())))>",
+		"[$b] = <toStr(Supertypes(Single(integerType())))>",
+		"[$b] = <toStr(Supertypes(Single(integerType())))>",
 		// 3 constants
 		"[100] = { integerType() }", "[\"string\"] = { stringType() }", "[true] = { booleanType() }", 
 		// ternary solutions 
@@ -200,20 +200,20 @@ public test bool testNormalAssign() {
 	];
 	list[str] expectedTypes = [
 		"[2] = { integerType() }",
-		"[$a] = { integerType() }",
-		"[$a = 2] = { integerType() }",
-		"[$a] = { integerType() }",
-		"[$b = $a] = { integerType() }",
-		"[$b] = { integerType() }",
-		"[$b] = { integerType() }",
-		"[$c = $d = $b] = { integerType() }",
-		"[$c] = { integerType() }",
-		"[$d = $b] = { integerType() }",
-		"[$d] = { integerType() }",
-		"[|php+globalVar:///a|] = { integerType() }",
-		"[|php+globalVar:///b|] = { integerType() }",
-		"[|php+globalVar:///c|] = { integerType() }",
-		"[|php+globalVar:///d|] = { integerType() }"
+		"[$a] = <toStr(Supertypes(Single(integerType())))>",
+		"[$a = 2] = <toStr(Supertypes(Single(integerType())))>",
+		"[$a] = <toStr(Supertypes(Single(integerType())))>",
+		"[$b = $a] = <toStr(Supertypes(Single(integerType())))>",
+		"[$b] = <toStr(Supertypes(Single(integerType())))>",
+		"[$b] = <toStr(Supertypes(Single(integerType())))>",
+		"[$c = $d = $b] = <toStr(Supertypes(Single(integerType())))>",
+		"[$c] = <toStr(Supertypes(Single(integerType())))>",
+		"[$d = $b] = <toStr(Supertypes(Single(integerType())))>",
+		"[$d] = <toStr(Supertypes(Single(integerType())))>",
+		"[|php+globalVar:///a|] = <toStr(Supertypes(Single(integerType())))>",
+		"[|php+globalVar:///b|] = <toStr(Supertypes(Single(integerType())))>",
+		"[|php+globalVar:///c|] = <toStr(Supertypes(Single(integerType())))>",
+		"[|php+globalVar:///d|] = <toStr(Supertypes(Single(integerType())))>"
 	];
 	return testConstraints("normalAssign", expectedConstraints, expectedTypes);
 }
