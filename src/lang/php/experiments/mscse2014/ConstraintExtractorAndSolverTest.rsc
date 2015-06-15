@@ -23,7 +23,7 @@ public void main()
 	//assert true == testSimpleMethod();
 	
 	
-	//assert true == testIssues();
+	assert true == testIssues();
 	// trigger all tests
 	assert true == testVariables();
 	assert true == testNormalAssign();
@@ -1025,8 +1025,8 @@ public test bool testSimpleMethod() {
 	list[str] expectedTypes = [
 		"[$sm = new simpleMethod()] = { classType(|php+class:///simplemethod|) }",
 		"[$sm-\>doStuff()] = { nullType() }",
-		"[$sm] = { classType(|php+class:///simplemethod|) }",
-		"[$sm] = { classType(|php+class:///simplemethod|) }",
+		"[$sm] = { classType(|php+class:///simplemethod|), objectType() }",
+		"[$sm] = { classType(|php+class:///simplemethod|), objectType() }",
 		"[$value = $sm-\>doStuff()] = { nullType() }",
 		"[$value] = { nullType() }",
 		"[new simpleMethod()] = { classType(|php+class:///simplemethod|) }",
