@@ -826,31 +826,19 @@ private void addConstraints(Expr e, M3 m3)
 		// NOTE: first version only supports literal calls.
 		//       And does not support variable variables or variable calls
 		
+		addConstraintsForPreservedKeywords(target, mc, m3);	// handle $this, self, parent
 		addConstraints(target, { subtyp(typeOf(target@at), objectType()) }); // LHS is an object
-		//addConstraintsForMethodCallLHS(target, mc, m3);
-		//addConstraintsForMethodCallRHS(methodName, sc, m3);
+		
+    	if (name(name(name)) := methodName) { // method is a literal name
+			addConstraints(target, { hasMethod(typeOf(target@at), name) });
+    	} else if (expr(expr) := staticTarget) { 
+    		; // NOT SUPPORTED YET: magic method call like $a->$b;
+    	}
+		addConstraintsForMethodCallLHS(target, mc, m3);
+		addConstraintsForMethodCallRHS(methodName, mc, m3);
 		addConstraints(target, m3);
 		addConstraints(methodName, m3);
 		// TODO: add constraints for parameters
-		
-		switch (target)  // refactor this out of here, can be reused. (this is copies from below)
-		{
-			// refers to this, self, parent or static
-			case expr(var(name(name(/^this$/i)))): ; // todo handle me
-			case name(name(/^self$/i)): ; // todo handle me
-			case name(name(/^parent$/i)): ; // todo handle me
-			case name(name(/^static$/i)): ; // todo handle me
-			// staticTarget is a literal name
-			case name(lhsName): 
-				addConstraints(mc, { isMethodOfClass(typeOf(mc@at), typeOf(target@at), lhsName.name) });
-		}	
-		// RHS is a method of class LHS	
-		
-		bool inClass = inClassTraitOrInterface(m3@containment, mc@scope);
-		set[Constraint] inClassConstraints = {};
-		
-		println("method call");
-		;
 	}
 	case sc:staticCall(NameOrExpr staticTarget, NameOrExpr methodName, list[ActualParameter] parameters): {
 		// add some general constraints
@@ -1117,6 +1105,11 @@ public void addConstraintsForCallableExpression(Expr expr)
 }
 
 public void addConstraintsForMethodCallLHS(Expr target, &T <: node parentNode, M3 m3) {
+	
+}
+
+public void addConstraintsForMethodCallRHS(NameOrExpr methodName, &T <: node parentNode, M3 m3) {
+	
 }
 
 public void addConstraintsForStaticMethodCallLHS(NameOrExpr staticTarget, &T <: node parentNode, M3 m3) {

@@ -39,12 +39,9 @@ public map[TypeOf var, TypeSet possibles] solveConstraints(set[Constraint] const
 		case   subtyp(TypeOf a, TypeSymbol ts) =>   subtyp(a, typeSymbol(ts))
 		case supertyp(TypeOf a, TypeSymbol ts) => supertyp(a, typeSymbol(ts))
  	};
- 	
-  	subtypes = getSubTypes(m3, system);
-  	invertedSubtypes = invert(subtypes);
   	
   	// initialEstimates resolves everything to Universe, unless there is concrete information already
-	estimates = initialEstimates(constraints, subtypes);
+	estimates = initialEstimates(constraints);
 
 	// display some debug info
 	debugPrintInitialResults(constraints, estimates);
@@ -58,7 +55,7 @@ public map[TypeOf var, TypeSet possibles] solveConstraints(set[Constraint] const
   	return estimates;
 }
 
-public set[Constraint] deriveMore (set[Constraint] constraints, map[TypeOf, TypeSet] estimates)
+public set[Constraint] deriveMore(set[Constraint] constraints, map[TypeOf, TypeSet] estimates)
 {
 	set[Constraint] derivedConstraints = {};
 	
@@ -68,7 +65,11 @@ public set[Constraint] deriveMore (set[Constraint] constraints, map[TypeOf, Type
     		case isAFunction() :; 
     		case hasName(TypeOf a, str name) :;
     		case isMethodOfClass(TypeOf a, TypeOf t, str name) :;
-    		case hasMethod(TypeOf a, str name) :;
+    		case hasMethod(TypeOf a, str name) :
+    		{
+    			// query M3 and return possible types
+    			;
+    		}
     		case hasMethod(TypeOf a, str name, set[ModifierConstraint] modifiers) :;
     		case conditional(Constraint preCondition, Constraint result) :
     		{
@@ -272,7 +273,7 @@ public bool isValidPrecondition(Constraint precondition, map[TypeOf, TypeSet] es
 }
 
 @doc { initial type estimates for all typeable objects; like (|php+foo:///bar|: integerType()) }
-public map[TypeOf, TypeSet] initialEstimates (set[Constraint] constraints, rel[TypeSymbol, TypeSymbol] subtypes) 
+public map[TypeOf, TypeSet] initialEstimates (set[Constraint] constraints) 
 {
  	map[TypeOf, TypeSet] result = ();
  	
@@ -306,9 +307,6 @@ public map[TypeOf, TypeSet] initialEstimates (set[Constraint] constraints, rel[T
  	
  	return result;
 }
-
-//public set[TypeSymbol]   getSubTypes(rel[TypeSymbol, TypeSymbol] subtypes, set[TypeSymbol] ts) = domain(rangeR(subtypes*, ts));
-//public set[TypeSymbol] getSuperTypes(rel[TypeSymbol, TypeSymbol] subtypes, set[TypeSymbol] ts) = domain(rangeR(invert(subtypes*), ts));
 
 // Stupid wrapper to add or take the intersection of values. Only used for initialEstimates
 public map[TypeOf, TypeSet] addToMap(map[TypeOf, TypeSet] m, TypeOf k, TypeSet ts)
@@ -374,6 +372,10 @@ public void debugPrintInitialResults(set[Constraint] constraints, map[TypeOf, Ty
 {
 	println("-----------------\nAll constraints!\n-----------------");
 	iprintln(constraints);
+	println("-----------------\nAll constraints pretty printed!\n-----------------");
+	for (c <- constraints) {
+		println("<toStr(c)>");
+	}
 	
 	println("-----------------\nInitial estimates results!\n-----------------");
 	for (to:typeOf(est) <- estimates) {

@@ -20,7 +20,7 @@ loc getFileLocation(str name) = analysisLoc + "/src/tests/resources/experiments/
 public void main()
 {
 
-	//assert true == testSimpleMethod();
+	assert true == testSimpleMethod();
 	
 	
 	assert true == testIssues();
@@ -1012,6 +1012,7 @@ public test bool testSimpleMethod() {
 		"[$sm] \<: any()",
 		"[$value] \<: any()",
 		"[$sm] = [$sm = new simpleMethod()]",
+		"hasMethod([$sm], doStuff)",
 		"[new simpleMethod()] \<: [$sm]",
 		"[new simpleMethod()] = classType(|php+class:///simplemethod|)",
 		"[public function doStuff() {}] = nullType()",
