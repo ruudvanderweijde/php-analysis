@@ -1475,6 +1475,7 @@ private void printResult(str fileName, list[str] expectedConstraints, set[Constr
 }
 
 // Pretty Print the constraints
+private str toStr(set[Constraint] cs)					= "{ <intercalate(", ", sort([ toStr(c) | c <- sort(toList(cs))]))> }";
 private str toStr(eq(TypeOf t1, TypeOf t2)) 			= "<toStr(t1)> = <toStr(t2)>";
 private str toStr(eq(TypeOf t1, TypeSymbol ts)) 		= "<toStr(t1)> = <toStr(ts)>";
 private str toStr(subtyp(TypeOf t1, TypeOf t2)) 		= "<toStr(t1)> \<: <toStr(t2)>";

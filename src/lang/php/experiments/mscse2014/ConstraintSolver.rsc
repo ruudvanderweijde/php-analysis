@@ -39,6 +39,9 @@ public map[TypeOf var, TypeSet possibles] solveConstraints(set[Constraint] const
 		case   subtyp(TypeOf a, TypeSymbol ts) =>   subtyp(a, typeSymbol(ts))
 		case supertyp(TypeOf a, TypeSymbol ts) => supertyp(a, typeSymbol(ts))
  	};
+  
+  	// set the subtype relation
+  	setSubTypes(m3, system);
   	
   	// initialEstimates resolves everything to Universe, unless there is concrete information already
 	estimates = initialEstimates(constraints);
@@ -47,7 +50,7 @@ public map[TypeOf var, TypeSet possibles] solveConstraints(set[Constraint] const
 	debugPrintInitialResults(constraints, estimates);
 		
 	solve (constraintSet, estimates) { // solve constraints and variable mapping
-		constraintSet = constraintSet + deriveMore(constraintSet, estimates);
+		constraintSet = constraintSet + deriveMore(constraintSet, estimates, m3);
   		estimates = propagateEstimates(constraintSet, estimates);
   		constraintSet = propagateConstraints(constraintSet, estimates);
   	}
@@ -55,7 +58,7 @@ public map[TypeOf var, TypeSet possibles] solveConstraints(set[Constraint] const
   	return estimates;
 }
 
-public set[Constraint] deriveMore(set[Constraint] constraints, map[TypeOf, TypeSet] estimates)
+public set[Constraint] deriveMore(set[Constraint] constraints, map[TypeOf, TypeSet] estimates, M3 m3)
 {
 	set[Constraint] derivedConstraints = {};
 	
@@ -67,8 +70,8 @@ public set[Constraint] deriveMore(set[Constraint] constraints, map[TypeOf, TypeS
     		case isMethodOfClass(TypeOf a, TypeOf t, str name) :;
     		case hasMethod(TypeOf a, str name) :
     		{
-    			// query M3 and return possible types
-    			;
+    			// query M3 for all classes with the method with the given name //or "__call" (out of scope)
+    			derivedConstraints += disjunction({ supertyp(a, classType(c)) | <c,m> <- m3@containment, isMethod(m), m.file == toLowerCase(name) /*|| m.file == "__call"*/ });
     		}
     		case hasMethod(TypeOf a, str name, set[ModifierConstraint] modifiers) :;
     		case conditional(Constraint preCondition, Constraint result) :
@@ -300,15 +303,15 @@ public map[TypeOf, TypeSet] initialEstimates (set[Constraint] constraints)
  		case       eq(TypeOf t, typeSymbol(TypeSymbol ts)): result = addToMap(result, t, Single(ts)); 
  		case       eq(typeSymbol(TypeSymbol ts), TypeOf t): result = addToMap(result, t, Single(ts)); 
  		case   subtyp(TypeOf t, typeSymbol(TypeSymbol ts)): result = addToMap(result, t, Subtypes(Set({ts}))); 
- 		case   subtyp(typeSymbol(TypeSymbol ts), TypeOf t): result = addToMap(result, t, Subtypes(Set({ts}))); 
+ 		case   subtyp(typeSymbol(TypeSymbol ts), TypeOf t): result = addToMap(result, t, Supertypes(Set({ts}))); 
  		case supertyp(TypeOf t, typeSymbol(TypeSymbol ts)): result = addToMap(result, t, Supertypes(Set({ts}))); 
- 		case supertyp(typeSymbol(TypeSymbol ts), TypeOf t): result = addToMap(result, t, Supertypes(Set({ts}))); 
+ 		case supertyp(typeSymbol(TypeSymbol ts), TypeOf t): result = addToMap(result, t, Subtypes(Set({ts}))); 
  	};
  	
  	return result;
 }
 
-// Stupid wrapper to add or take the intersection of values. Only used for initialEstimates
+@doc{ Stupid wrapper to add or take the intersection of values. Only used for initialEstimates }
 public map[TypeOf, TypeSet] addToMap(map[TypeOf, TypeSet] m, TypeOf k, TypeSet ts)
 {
 	if (m[k]?) {
@@ -321,7 +324,7 @@ public map[TypeOf, TypeSet] addToMap(map[TypeOf, TypeSet] m, TypeOf k, TypeSet t
 }
 
 // this sub type relation should match the sub type relation defined in the thesis
-public rel[TypeSymbol, TypeSymbol] getSubTypes(M3 m3, System system) 
+public rel[TypeSymbol, TypeSymbol] setSubTypes(M3 m3, System system) 
 {
 	rel[TypeSymbol, TypeSymbol] subtypes
 		// subtypes of any() are array(), scalar() and object()
