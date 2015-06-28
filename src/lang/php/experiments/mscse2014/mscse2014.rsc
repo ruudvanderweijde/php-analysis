@@ -16,6 +16,7 @@ import lang::php::m3::FillM3;
 import lang::php::m3::Declarations;
 import lang::php::m3::Containment;
 import lang::php::pp::PrettyPrinter;
+import lang::php::pp::ConstraintPrettyPrinter;
 import lang::php::types::TypeSymbol;
 import lang::php::types::TypeConstraints;
 
@@ -27,8 +28,8 @@ import lang::php::experiments::mscse2014::ConstraintSolver;
 //loc projectLocation = |file:///PHPAnalysis/systems/WerkspotNoTests/WerkspotNoTests-oldWebsiteNoTests/|;
 //loc projectLocation = |file:///PHPAnalysis/systems/Kohana|;
 //loc projectLocation = |file:///Users/ruud/git/php-analysis/src/tests/resources/experiments/mscse2014/variable|;
-//loc projectLocation = |file:///PHPAnalysis/systems/doctrine_lexer/doctrine_lexer-v1.0|; -- latest
-loc projectLocation = |file:///tmp/Calculator|;
+loc projectLocation = |file:///PHPAnalysis/systems/doctrine_lexer/doctrine_lexer-v1.0|; // latest
+//loc projectLocation = |file:///tmp/Calculator|;
 //loc projectLocation = |file:///PHPAnalysis/systems/doctrine_common/doctrine_common-v2.4.2|;
 //loc projectLocation = |file:///Users/ruud/test/types|;
 //loc projectLocation = |file:///Users/ruud/tmp/solve/scalar|;
@@ -81,7 +82,7 @@ private map[str,str] corpus = (
 	//"WerkspotNoTests":"oldWebsiteNoTests"
 );
 
-public void run() {
+public void main() {
 	println("Run instructions: (current selected project: `<projectLocation>`)");
 	println("----------------");
 	println("1) Run run1() to parse the files (and save the parsed files to the cache)");
@@ -169,9 +170,12 @@ public void run3() {
 public void run4()
 {
 	// precondition: constraints and m3 cache file must exist
+	assert isFile(getModifiedSystemCacheFile())  : "Please run run2() first. Error: file(<getModifiedSystemCacheFile()>) was not found";
 	assert isFile(getLastConstraintsCacheFile()) : "Please run run3() first. Error: file(<getLastConstraintsCacheFile()>) was not found";
 	assert isFile(getLastM3CacheFile())          : "Please run run3() first. Error: file(<getLastM3CacheFile()>) was not found";
 	
+	logMessage("Reading system from cache...", 1);
+	System system = readBinaryValueFile(#System, getModifiedSystemCacheFile());
 	logMessage("Reading constraints from cache...", 1);
 	set[Constraint] constraints = readBinaryValueFile(#set[Constraint], getLastConstraintsCacheFile());
 	logMessage("Reading M3 from cache...", 1);
@@ -179,7 +183,7 @@ public void run4()
 	logMessage("Reading done.", 1);
 
 	logMessage("Now solving the constraints...", 1);	
-	map[TypeOf var, TypeSet possibles] solveResult = solveConstraints(constraints, m3);
+	map[TypeOf var, TypeSet possibles] solveResult = solveConstraints(constraints, getVariableMapping(), m3, system);
 	logMessage("Done. Printing results:", 1);
 	println(solveResult);
 }

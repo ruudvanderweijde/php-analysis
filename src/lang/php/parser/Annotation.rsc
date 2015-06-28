@@ -216,7 +216,7 @@ private set[TypeSymbol] parseTypeRaw(str typeString, &T <: node relatedNode, M3 
 			typeSymbol = { \any() };
 		
 		case /^array$/i: 
-			typeSymbol = { arrayType() };
+			typeSymbol = { arrayType(\any()) };
 			
 		case /^(bool|boolean)$/i: 
 			typeSymbol = { booleanType() };

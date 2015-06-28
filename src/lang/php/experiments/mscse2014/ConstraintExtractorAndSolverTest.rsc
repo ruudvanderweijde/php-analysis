@@ -19,10 +19,6 @@ loc getFileLocation(str name) = analysisLoc + "/src/tests/resources/experiments/
 // Test constraint extraction and constraint solving
 public void main()
 {
-
-	assert true == testSimpleMethod();
-	
-	
 	assert true == testIssues();
 	// trigger all tests
 	assert true == testVariables();
@@ -39,11 +35,11 @@ public void main()
 	assert true == testCasts();
 	assert true == testSimpleClass();
 	assert true == testSimpleMethod();
-	//assert true == testarrayType();
-	//assert true == testVarious();
-	//assert true == testControlStructures();
-	//assert true == testFunction();
-	//assert true == testClassMethod();
+	assert true == testArrayType();
+	assert true == testVarious();
+	assert true == testControlStructures();
+	assert true == testFunction();
+	assert true == testClassMethod();
 	//assert true == testClassConstant();
 	//assert true == testClassProperty();
 	//assert true == testMethodCallStatic();
@@ -920,7 +916,7 @@ public test bool testCasts() {
 	return testConstraints("casts", expectedConstraints, expectedTypes);
 }
 
-public test bool testarrayType() {
+public test bool testArrayType() {
 	list[str] expectedConstraints = [
 		// arrayType(); [];
 		"[array()] = arrayType()",
@@ -968,10 +964,12 @@ public test bool testarrayType() {
 		"[$d[]] \<: any()", 
 		"neg([$d] \<: objectType())",
 		"[1] = integerType()",
-		//"[1] \<: [$d[]]",
-		"[$d[]] = [1]",
-		//"[$d[]] \<: [$d[] = 1]",
-		"[$d[] = 1] = [$d[]]"
+		"[$d[]] = [$d[] = 1]",
+        "[1] \<: [$d[]]",
+        "[|php+globalVar:///a|] = [$a]",
+        "[|php+globalVar:///b|] = [$b]",
+        "[|php+globalVar:///c|] = [$c]",
+        "[|php+globalVar:///d|] = [$d]"
 	];
 	list[str] expectedTypes = [];
 	return testConstraints("array", expectedConstraints, expectedTypes);
@@ -1057,7 +1055,11 @@ public test bool testVarious() {
 		// new $b();
 		"[$b] \<: any()",
 		"[new $b()] \<: objectType()",
-		"or([$b] \<: objectType(), [$b] = stringType())"
+		"or([$b] \<: objectType(), [$b] = stringType())",
+		
+		// declarations 
+		"[|php+globalVar:///a|] = [$a]",
+		"[|php+globalVar:///b|] = [$b]"
 	];
 	list[str] expectedTypes = [];
 	return testConstraints("various", expectedConstraints, expectedTypes);
@@ -1132,7 +1134,61 @@ public test bool testControlStructures() {
 		// try { $n1; } catch (\Exception $e) { $n2; };
 		"[$n1] \<: any()", "[$n2] \<: any()",
 		// try { $n3; } catch (\Exception $e) { $n4; } finally { $n5; };
-		"[$n3] \<: any()", "[$n4] \<: any()", "[$n5] \<: any()"
+		"[$n3] \<: any()", "[$n4] \<: any()", "[$n5] \<: any()",
+		
+		// declarations
+        "[|php+globalVar:///a1|] = [$a1]",
+        "[|php+globalVar:///a1|] = [$a1]",
+        "[|php+globalVar:///a2|] = [$a2]",
+        "[|php+globalVar:///array|] = [$array]",
+        "[|php+globalVar:///arr|] = [$arr]",
+        "[|php+globalVar:///a|] = [$a]",
+        "[|php+globalVar:///b1|] = [$b1]",
+        "[|php+globalVar:///b2|] = [$b2]",
+        "[|php+globalVar:///c1|] = [$c1]",
+        "[|php+globalVar:///c1|] = [$c1]",
+        "[|php+globalVar:///c2|] = [$c2]",
+        "[|php+globalVar:///d1|] = [$d1]",
+        "[|php+globalVar:///d1|] = [$d1]",
+        "[|php+globalVar:///d2|] = [$d2]",
+        "[|php+globalVar:///e1|] = [$e1]",
+        "[|php+globalVar:///e1|] = [$e1]",
+        "[|php+globalVar:///e2|] = [$e2]",
+        "[|php+globalVar:///element|] = [$element]",
+        "[|php+globalVar:///e|] = [$e]",
+        "[|php+globalVar:///e|] = [$e]",
+        "[|php+globalVar:///f1|] = [$f1]",
+        "[|php+globalVar:///f2|] = [$f2]",
+        "[|php+globalVar:///f3|] = [$f3]",
+        "[|php+globalVar:///g1|] = [$g1]",
+        "[|php+globalVar:///g2|] = [$g2]",
+        "[|php+globalVar:///h1|] = [$h1]",
+        "[|php+globalVar:///h2|] = [$h2]",
+        "[|php+globalVar:///i11|] = [$i11]",
+        "[|php+globalVar:///i12|] = [$i12]",
+        "[|php+globalVar:///i1|] = [$i1]",
+        "[|php+globalVar:///i2|] = [$i2]",
+        "[|php+globalVar:///i3|] = [$i3]",
+        "[|php+globalVar:///i4|] = [$i4]",
+        "[|php+globalVar:///i5|] = [$i5]",
+        "[|php+globalVar:///i6|] = [$i6]",
+        "[|php+globalVar:///i8|] = [$i8]",
+        "[|php+globalVar:///j7|] = [$j7]",
+        "[|php+globalVar:///j9|] = [$j9]",
+        "[|php+globalVar:///key|] = [$key]",
+        "[|php+globalVar:///kk|] = [$kk]",
+        "[|php+globalVar:///k|] = [$k]",
+        "[|php+globalVar:///l2|] = [$l2]",
+        "[|php+globalVar:///l2|] = [$l2]",
+        "[|php+globalVar:///m|] = [$m]",
+        "[|php+globalVar:///n1|] = [$n1]",
+        "[|php+globalVar:///n2|] = [$n2]",
+        "[|php+globalVar:///n3|] = [$n3]",
+        "[|php+globalVar:///n4|] = [$n4]",
+        "[|php+globalVar:///n5|] = [$n5]",
+        "[|php+globalVar:///value|] = [$value]",
+        "[|php+globalVar:///vv|] = [$vv]",
+        "[|php+globalVar:///v|] = [$v]"
 	];
 	list[str] expectedTypes = [];
 	return testConstraints("controlStructures", expectedConstraints, expectedTypes);
@@ -1162,8 +1218,8 @@ public test bool testFunction() {
 		"[100] \<: [$a]",
 		"[100] = integerType()",
 		"[function h() { $a = \"str\"; $a = 100; }] = nullType()",
-		"[$a] \<: [$a = \"str\"]",
-		"[$a] \<: [$a = 100]",
+		"[$a] = [$a = \"str\"]",
+		"[$a] = [$a = 100]",
 		"[|php+functionVar:///h/a|] = [$a]",
 		"[|php+functionVar:///h/a|] = [$a]",
 		
@@ -1176,8 +1232,8 @@ public test bool testFunction() {
 		"[100] = integerType()",
 		"[function i() { $i = \"str\"; function j() { $i = 100; } }] = nullType()",
 		"[function j() { $i = 100; }] = nullType()",
-		"[$i] \<: [$i = \"str\"]",
-		"[$i] \<: [$i = 100]",
+		"[$i] = [$i = \"str\"]",
+		"[$i] = [$i = 100]",
 		"[|php+functionVar:///i/i|] = [$i]",
 		"[|php+functionVar:///j/i|] = [$i]",
 	
@@ -1189,9 +1245,9 @@ public test bool testFunction() {
 		"[true] = booleanType()",
 		
 		// a();	
-		"[a()] \<: [function a() {}]",
+		"[a()] = [function a() {}]",
 		// b();
-		"[b()] \<: [function &b() {}]",
+		"[b()] = [function &b() {}]",
 		// x(); // function does not exist
 		"[x()] \<: any()",
 		// no constraints.... function does not exists
@@ -1199,9 +1255,55 @@ public test bool testFunction() {
 		//$x(); // variable call
 		"[$x()] \<: any()",
 		"or([$x] \<: objectType(), [$x] = stringType())",
-		"if ([$x] \<: objectType()) then (hasMethod([$x], __invoke))"
+		"if ([$x] \<: objectType()) then (hasMethod([$x], __invoke))",
+		
+		// variable declarations
+        "[|php+functionVar:///k/k1|] = [$k1]",
+        "[|php+functionVar:///k/k2|] = [$k2]",
+        "[|php+globalVar:///x|] = [$x]"
 	];
-	list[str] expectedTypes = [];
+	list[str] expectedTypes = [
+	    "[\"str\"] = { stringType() }",
+        "[\"str\"] = { stringType() }",
+        "[\"string\"] = { stringType() }",
+        "[$a = \"str\"] = { any(), scalarType() }",
+        "[$a = 100] = { any(), scalarType() }",
+        "[$a] = { any(), scalarType() }",
+        "[$a] = { any(), scalarType() }",
+        "[$i = \"str\"] = { any(), callableType(), scalarType(), stringType() }",
+        "[$i = 100] = { any(), integerType(), numberType(), scalarType() }",
+        "[$i] = { any(), callableType(), scalarType(), stringType() }",
+        "[$i] = { any(), integerType(), numberType(), scalarType() }",
+        "[$k1] = { any() }",
+        "[$k2] = { any() }",
+        "[$x()] = { any() }",
+        "[$x] = { any() }",
+        "[100] = { integerType() }",
+        "[100] = { integerType() }",
+        "[a()] = { nullType() }",
+        "[b()] = { nullType() }",
+        "[false] = { booleanType() }",
+        "[function &b() {}] = { nullType() }",
+        "[function a() {}] = { nullType() }",
+        "[function c() { return; }] = { any() }",
+        "[function d() { return true; return false; }] = { any() }",
+        "[function f() { function g() { return \"string\"; } }] = { nullType() }",
+        "[function g() { return \"string\"; }] = { stringType() }",
+        "[function h() { $a = \"str\"; $a = 100; }] = { nullType() }",
+        "[function i() { $i = \"str\"; function j() { $i = 100; } }] = { nullType() }",
+        "[function j() { $i = 100; }] = { nullType() }",
+        "[function k() { $k1; }] = { nullType() }",
+        "[function k() { $k2; }] = { nullType() }",
+        "[true] = { booleanType() }",
+        "[true] = { booleanType() }",
+        "[x()] = { any() }",
+        "[|php+functionVar:///h/a|] = { any(), scalarType() }",
+        "[|php+functionVar:///i/i|] = { any(), callableType(), scalarType(), stringType() }",
+        "[|php+functionVar:///j/i|] = { any(), integerType(), numberType(), scalarType() }",
+        "[|php+functionVar:///k/k1|] = { any() }",
+        "[|php+functionVar:///k/k2|] = { any() }",
+        "[|php+globalVar:///x|] = { any() }"
+	];
 	return testConstraints("function", expectedConstraints, expectedTypes);
 }
 
@@ -1474,46 +1576,3 @@ private void printResult(str fileName, list[str] expectedConstraints, set[Constr
 	println("--------------------------------------------");
 	println();
 }
-
-// Pretty Print the constraints
-private str toStr(set[Constraint] cs)					= "{\n  <intercalate(",\n  ", sort([ toStr(c) | c <- sort(toList(cs))]))>\n}";
-private str toStr(eq(TypeOf t1, TypeOf t2)) 			= "<toStr(t1)> = <toStr(t2)>";
-private str toStr(eq(TypeOf t1, TypeSymbol ts)) 		= "<toStr(t1)> = <toStr(ts)>";
-private str toStr(subtyp(TypeOf t1, TypeOf t2)) 		= "<toStr(t1)> \<: <toStr(t2)>";
-private str toStr(subtyp(TypeOf t1, TypeSymbol ts)) 	= "<toStr(t1)> \<: <toStr(ts)>";
-private str toStr(supertyp(TypeOf t1, TypeOf t2)) 		= "<toStr(t1)> :\> <toStr(t2)>";
-private str toStr(supertyp(TypeOf t1, TypeSymbol ts)) 	= "<toStr(t1)> :\> <toStr(ts)>";
-private str toStr(disjunction(set[Constraint] cs))		= "or(<intercalate(", ", sort([ toStr(c) | c <- sort(toList(cs))]))>)";
-private str toStr(exclusiveDisjunction(set[Constraint] cs))	= "xor(<intercalate(", ", sort([ toStr(c) | c <- sort(toList(cs))]))>)";
-private str toStr(conjunction(set[Constraint] cs))		= "and(<intercalate(", ", sort([ toStr(c) | c <- sort(toList(cs))]))>)";
-private str toStr(negation(Constraint c)) 				= "neg(<toStr(c)>)";
-private str toStr(conditional(Constraint c, Constraint res)) = "if (<toStr(c)>) then (<toStr(res)>)";
-private str toStr(isAFunction(TypeOf t))				= "<toStr(t)> = someFunction";
-private str toStr(isMethodOfClass(TypeOf t, TypeOf t2, str name))	= "isMethodOfClass(<toStr(t)>, <toStr(t2)>, <name>)";
-private str toStr(hasMethod(TypeOf t, str n))			= "hasMethod(<toStr(t)>, <n>)";
-private str toStr(hasMethod(TypeOf t, str n, set[ModifierConstraint] mcs))	= "hasMethod(<toStr(t)>, <n>, { <intercalate(", ", sort([ toStr(mc) | mc <- sort(toList(mcs))]))> })";
-private str toStr(required(set[Modifier] mfs))			= "<intercalate(", ", sort([ toStr(mf) | mf <- sort(toList(mfs))]))>";
-private str toStr(notAllowed(set[Modifier] mfs))		= "<intercalate(", ", sort([ "!"+toStr(mf) | mf <- sort(toList(mfs))]))>";
-default str toStr(Constraint c) { throw "Please implement toStr for node :: <c>"; }
-
-private str toStr(typeOf(loc i)) 						= isFile(i) ? "["+readFile(i)+"]" : "[<i>]";
-private str toStr(typeOf(TypeSymbol ts))				= "<toStr(ts)>";
-private str toStr(TypeOf::arrayType(set[TypeOf] expr))	= "arrayType(<intercalate(", ", sort([ toStr(e) | e <- sort(toList(expr))]))>)";
-private str toStr(TypeSymbol t) 						= "<t>";
-private str toStr(Modifier m) 							= "<m>";
-default str toStr(TypeOf::typeSymbol(TypeSymbol ts)) 	= "<toStr(ts)>";
-default str toStr(TypeOf::var(loc ts)) 					= "$<ts.file>";
-
-private str toStr(set[TypeSymbol] ts)					= "{ <intercalate(", ", sort([ toStr(t) | t <- sort(toList(ts))]))> }";
-// deprecated
-private str toStr(TypeSet::Universe())							= "{ any() }";
-private str toStr(TypeSet::EmptySet())							= "{}";
-//private str toStr(TypeSet::Root())								= "{ any() }";
-private str toStr(TypeSet::Single(TypeSymbol t))				= "<toStr(t)>";
-private str toStr(TypeSet::Set(set[TypeSymbol] ts))				= "{ <intercalate(", ", sort([ toStr(t) | t <- sort(toList(ts))]))> }";
-private str toStr(TypeSet::Subtypes(TypeSet subs))				= "sub(<toStr(subs)>)";
-private str toStr(TypeSet::Supertypes(TypeSet supers))			= "super(<toStr(supers)>)";
-private str toStr(TypeSet::Union(set[TypeSet] args))			= "<intercalate(", ", sort([ toStr(s) | s <- sort(toList(args))]))>";
-private str toStr(TypeSet::Intersection(set[TypeSet] args))		= "<intercalate(", ", sort([ toStr(s) | s <- sort(toList(args))]))>";
-
-default str toStr(TypeOf to) { throw "Please implement toStr for node :: <to>"; }

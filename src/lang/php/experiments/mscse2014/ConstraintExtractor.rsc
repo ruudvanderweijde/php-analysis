@@ -19,6 +19,8 @@ import String; // for toLowerCase
 import Set; // for isEmpty
 import Map; // for size
 import Relation; // for domain
+import ListRelation;
+import List;
 
 private set[Constraint] constraints = {};
 private map[loc file, lrel[loc decl, loc location] vars] variableMapping = ();
@@ -26,6 +28,7 @@ private map[loc file, lrel[loc decl, loc location] vars] variableMapping = ();
 public map[loc file, lrel[loc decl, loc location] vars] getVariableMapping() = variableMapping;
 
 private void addConstraintsFunctionParams(&T <: node caller, set[loc] callees, list[ActualParameter] args) {
+	return; // todo fix param constraints
 	if (size(callees) != 1) println("<c@at> refers to multiple functions :: <callees>");
 	
 	for (callee <- callees) {
@@ -169,7 +172,6 @@ private void addConstraints(Stmt statement, M3 m3)
 		case exprstmt(Expr expr): 				addConstraints(expr, m3);
 		
 		case f:function(str name, bool byRef, list[Param] params, list[Stmt] body): {
-			createFunctionTemplate(f);
 			if (f@phpdoc? && /@jms-builtin/ := f@phpdoc) {
 				// builtin function	
 				addConstraintsForBuiltIn(f, params);
