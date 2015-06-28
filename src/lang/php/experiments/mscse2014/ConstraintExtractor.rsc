@@ -831,13 +831,16 @@ private void addConstraints(Expr e, M3 m3)
 		
     	if (name(name(name)) := methodName) { // method is a literal name
 			addConstraints(target, { hasMethod(typeOf(target@at), name) });
+			addConstraints(target, { isMethodOfClass(typeOf(mc@at), typeOf(target@at), name) });
     	} else if (expr(expr) := staticTarget) { 
+    		logMessage("Dynamic method call not supported :: <pp(mc)>", 2);
     		; // NOT SUPPORTED YET: magic method call like $a->$b;
     	}
 		addConstraintsForMethodCallLHS(target, mc, m3);
 		addConstraintsForMethodCallRHS(methodName, mc, m3);
 		addConstraints(target, m3);
 		addConstraints(methodName, m3);
+		
 		// TODO: add constraints for parameters
 	}
 	case sc:staticCall(NameOrExpr staticTarget, NameOrExpr methodName, list[ActualParameter] parameters): {

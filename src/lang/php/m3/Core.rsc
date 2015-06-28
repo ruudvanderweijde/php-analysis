@@ -190,3 +190,4 @@ public loc getNamespace(loc name)
 
 
 public set[TypeSymbol] getTypesForExpression(M3 m3, &T <: node e) = m3@types[e@at];
+public set[loc] getDeclarationLocs(M3 m3, loc name) = m3@declarations[name];

@@ -1021,10 +1021,11 @@ public test bool testSimpleMethod() {
 		"[$sm-\>doStuff()] \<: [$value]",
 		"[$sm] \<: objectType()",
 		"[$value] = [$value = $sm-\>doStuff()]",
-		"[|php+globalVar:///value|] = [$value]"
+		"[|php+globalVar:///value|] = [$value]",
+		"isMethodOfClass([$sm-\>doStuff()], [$sm], doStuff)"
 	];
 	list[str] expectedTypes = [
-		"[$sm = new simpleMethod()] = { classType(|php+class:///simplemethod|) }",
+		"[$sm = new simpleMethod()] = { classType(|php+class:///simplemethod|), objectType() }",
 		"[$sm-\>doStuff()] = { nullType() }",
 		"[$sm] = { classType(|php+class:///simplemethod|), objectType() }",
 		"[$sm] = { classType(|php+class:///simplemethod|), objectType() }",
@@ -1032,7 +1033,7 @@ public test bool testSimpleMethod() {
 		"[$value] = { nullType() }",
 		"[new simpleMethod()] = { classType(|php+class:///simplemethod|) }",
 		"[public function doStuff() {}] = { nullType() }",
-		"[|php+globalVar:///sm|] = { classType(|php+class:///simplemethod|) }",
+		"[|php+globalVar:///sm|] = { classType(|php+class:///simplemethod|), objectType() }",
 		"[|php+globalVar:///value|] = { nullType() }"
 	];
 	return testConstraints("simpleMethod", expectedConstraints, expectedTypes);
@@ -1475,7 +1476,7 @@ private void printResult(str fileName, list[str] expectedConstraints, set[Constr
 }
 
 // Pretty Print the constraints
-private str toStr(set[Constraint] cs)					= "{ <intercalate(", ", sort([ toStr(c) | c <- sort(toList(cs))]))> }";
+private str toStr(set[Constraint] cs)					= "{\n  <intercalate(",\n  ", sort([ toStr(c) | c <- sort(toList(cs))]))>\n}";
 private str toStr(eq(TypeOf t1, TypeOf t2)) 			= "<toStr(t1)> = <toStr(t2)>";
 private str toStr(eq(TypeOf t1, TypeSymbol ts)) 		= "<toStr(t1)> = <toStr(ts)>";
 private str toStr(subtyp(TypeOf t1, TypeOf t2)) 		= "<toStr(t1)> \<: <toStr(t2)>";
