@@ -12,9 +12,6 @@ import lang::php::types::TypeConstraints;
 import lang::php::types::core::Constants;
 import lang::php::types::core::Variables;
 
-// pretty print
-import lang::php::pp::ConstraintPrettyPrinter;
-
 // for visualizing
 import vis::Figure;
 import vis::Render;

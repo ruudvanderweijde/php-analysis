@@ -2,8 +2,9 @@ module lang::php::experiments::mscse2014::ConstraintExtractorAndSolverTest
 
 extend lang::php::experiments::mscse2014::ConstraintExtractor;
 extend lang::php::experiments::mscse2014::ConstraintSolver;
-extend lang::php::experiments::mscse2014::mscse2014;
+//extend lang::php::experiments::mscse2014::mscse2014;
 
+import lang::php::m3::FillM3;
 import lang::php::types::TypeConstraints;
 import lang::php::util::Config;
 import lang::php::pp::PrettyPrinter;
@@ -1321,13 +1322,14 @@ public test bool testClassMethod() {
 		"[$a] \<: any()", "[$a] \<: any()", "[$a] \<: any()", // variables
 		"[2] = integerType()", "[\"a\"] = stringType()",  // int/string
 		"[2] \<: [$a]", "[\"a\"] \<: [$a]", // assignment
-		"[$a] \<: [$a = 2]", "[$a] \<: [$a = \"a\"]", // result of assignment
+		"[$a] = [$a = 2]", "[$a] = [$a = \"a\"]", // result of assignment
 		"or([public function m3() { $a = 2; function f1() { $a = \"a\"; } return $a; }] = [$a])", // type of method
 		"[function f1() { $a = \"a\"; }] = nullType()", // type of function
 		"[|php+methodVar:///ns/c3/m3/a|] = [$a]",
+		"[|php+methodVar:///ns/c3/m3/a|] = [$a]",
 		"[|php+functionVar:///ns/f1/a|] = [$a]"
 	];
-	list[str] expectedTypes = [];
+	list[str] expectedTypes = [""];
 	return testConstraints("classMethod", expectedConstraints, expectedTypes);
 }
 

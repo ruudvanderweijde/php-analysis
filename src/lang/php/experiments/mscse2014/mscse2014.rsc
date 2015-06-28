@@ -16,7 +16,6 @@ import lang::php::m3::FillM3;
 import lang::php::m3::Declarations;
 import lang::php::m3::Containment;
 import lang::php::pp::PrettyPrinter;
-import lang::php::pp::ConstraintPrettyPrinter;
 import lang::php::types::TypeSymbol;
 import lang::php::types::TypeConstraints;
 
