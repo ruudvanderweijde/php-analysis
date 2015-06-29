@@ -51,6 +51,7 @@ public map[TypeOf var, TypeSet possibles] solveConstraints(set[Constraint] const
 	//debugPrintInitialResults(constraints, estimates);
 		
 	solve (constraintSet, estimates) { // solve constraints and variable mapping
+  		print(". "); 
 		constraintSet = constraintSet + deriveMore(constraintSet, estimates, m3);
   		estimates = propagateEstimates(constraintSet, estimates, m3);
   		constraintSet = propagateConstraints(constraintSet, estimates, m3);

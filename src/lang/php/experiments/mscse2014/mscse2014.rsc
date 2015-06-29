@@ -42,6 +42,7 @@ loc finalM3CacheFile = cacheFolder + "final_m3_<projectLocation.file>.bin";
 loc getLastM3CacheFile() = cacheFolder + "<getProjectLocation().file>_m3_last.bin";
 loc getModifiedSystemCacheFile() = cacheFolder + "<getProjectLocation().file>_system_last.bin";
 loc getLastConstraintsCacheFile() = cacheFolder + "<getProjectLocation().file>_constraints_last.bin";
+loc getLastResultsCacheFile() = cacheFolder + "<getProjectLocation().file>_results_last.bin";
 loc getParsedSystemCacheFile() = cacheFolder + "<getProjectLocation().file>_system_parsed.bin";
 
 
@@ -80,19 +81,25 @@ private map[str,str] corpus = (
 	//"Seldaek_monolog": "1.10.0" // 30
 	//"WerkspotNoTests":"oldWebsiteNoTests"
 );
+private str textStep1 = "1) Run run1() to parse the files (and save the parsed files to the cache)";
+private str textStep2 = "2) Run run2() to create the m3 (and save system and m3 to cache)";
+private str textStep3 = "3) Run run3() to collect constraints (and save the constraints to cache)";
+private str textStep4 = "4) Run run4() to solve the constraints (and write results to cache)";
+private str textStep5 = "5) Run run5() to print the results";
 
 public void main() {
 	println("Run instructions: (current selected project: `<projectLocation>`)");
 	println("----------------");
-	println("1) Run run1() to parse the files (and save the parsed files to the cache)");
-	println("2) Run run2() to create the m3 (and save system and m3 to cache)");
-	println("3) Run run3() to collect constraints (and save the constraints to cache)");
-	println("4) Run run4() to solve the constraints (and print the results)");
+	println(textStep1);
+	println(textStep2);
+	println(textStep3);
+	println(textStep4);
+	println(textStep5);
 	println("----------------");
 }
 
 public void run1() {
-	println("This first step will save the parsed files to the filesystem");
+	logMessage(textStep1, 1);
 	
 	resetModifiedSystem(); // this is only needed when running multiple tests
 	logMessage("Run 1 [1/2] :: parsing php files to ASTs...", 1);
@@ -107,7 +114,7 @@ public void run2() {
 	// precondition: plain parsed system file should exists for this project
 	assert isFile(getParsedSystemCacheFile()) : "Please run run1() first. Error: file(<getParsedSystemCacheFile()>) was not found";
 	
-	println("This second step will save a modified system and create a global M3 file");
+	logMessage(textStep2, 1);
 	logMessage("Run 2 [1/5] :: Reading parsed system from cache...", 1);
 	System system = readBinaryValueFile(#System, getParsedSystemCacheFile());
 	
@@ -135,6 +142,7 @@ public void run3() {
 	assert isFile(getModifiedSystemCacheFile()) : "Please run run2() first. Error: file(<getModifiedSystemCacheFile()>) was not found";
 	assert isFile(getLastM3CacheFile())     	: "Please run run2() first. Error: file(<getLastM3CacheFile()>) was not found";
 	
+	logMessage(textStep3, 1);
 	logMessage("Reading system from cache...", 1);
 	System system = readBinaryValueFile(#System, getModifiedSystemCacheFile());
 	logMessage("Reading M3 from cache...", 1);
@@ -173,6 +181,7 @@ public void run4()
 	assert isFile(getLastConstraintsCacheFile()) : "Please run run3() first. Error: file(<getLastConstraintsCacheFile()>) was not found";
 	assert isFile(getLastM3CacheFile())          : "Please run run3() first. Error: file(<getLastM3CacheFile()>) was not found";
 	
+	logMessage(textStep4, 1);
 	logMessage("Reading system from cache...", 1);
 	System system = readBinaryValueFile(#System, getModifiedSystemCacheFile());
 	logMessage("Reading constraints from cache...", 1);
@@ -183,8 +192,19 @@ public void run4()
 
 	logMessage("Now solving the constraints...", 1);	
 	map[TypeOf var, TypeSet possibles] solveResult = solveConstraints(constraints, getVariableMapping(), m3, system);
-	logMessage("Done. Printing results:", 1);
-	println(solveResult);
+	logMessage("Writing the resolts of the constraint solving", 1);
+	writeBinaryValueFile(getLastResultsCacheFile(), solveResult);
+	logMessage("Writing done. Now please run run5()", 1);
+}
+
+public void run5() {
+	assert isFile(getLastResultsCacheFile())  : "Please run run4() first. Error: file(<getLastResultsCacheFile()>) was not found";
+	
+	logMessage(textStep5, 1);
+	logMessage("Reading solve results from cache...", 1);
+	map[TypeOf var, TypeSet possibles] solveResult = readBinaryValueFile(#map[TypeOf var, TypeSet possibles], getLastResultsCacheFile());
+	logMessage("Printing the results of the analysis:", 1);
+	iprintln(solveResult);
 }
 
 private M3 getM3ForSystem(System system)
