@@ -393,24 +393,24 @@ private str toStr(required(set[Modifier] mfs))			= "<intercalate(", ", sort([ to
 private str toStr(notAllowed(set[Modifier] mfs))		= "<intercalate(", ", sort([ "!"+toStr(mf) | mf <- sort(toList(mfs))]))>";
 default str toStr(Constraint c) { throw "Please implement toStr for node :: <c>"; }
 
-private str toStr(typeOf(loc i)) 						= isFile(i) ? "["+readFile(i)+"]" : "[<i>]";
-private str toStr(typeOf(TypeSymbol ts))				= "<toStr(ts)>";
-private str toStr(TypeOf::arrayType(set[TypeOf] expr))	= "arrayType(<intercalate(", ", sort([ toStr(e) | e <- sort(toList(expr))]))>)";
-private str toStr(TypeSymbol t) 						= "<t>";
-private str toStr(Modifier m) 							= "<m>";
+public str toStr(typeOf(loc i)) 						= isFile(i) ? "["+readFile(i)+"]" : "[<i>]";
+public str toStr(typeOf(TypeSymbol ts))					= "<toStr(ts)>";
+public str toStr(TypeOf::arrayType(set[TypeOf] expr))	= "arrayType(<intercalate(", ", sort([ toStr(e) | e <- sort(toList(expr))]))>)";
+public str toStr(TypeSymbol t) 							= "<t>";
+public str toStr(Modifier m) 							= "<m>";
 default str toStr(TypeOf::typeSymbol(TypeSymbol ts)) 	= "<toStr(ts)>";
 default str toStr(TypeOf::var(loc ts)) 					= "$<ts.file>";
 
-private str toStr(set[TypeSymbol] ts)					= "{ <intercalate(", ", sort([ toStr(t) | t <- sort(toList(ts))]))> }";
-// deprecated
-private str toStr(TypeSet::Universe())							= "{ any() }";
-private str toStr(TypeSet::EmptySet())							= "{}";
-//private str toStr(TypeSet::Root())								= "{ any() }";
-private str toStr(TypeSet::Single(TypeSymbol t))				= "<toStr(t)>";
-private str toStr(TypeSet::Set(set[TypeSymbol] ts))				= "{ <intercalate(", ", sort([ toStr(t) | t <- sort(toList(ts))]))> }";
-private str toStr(TypeSet::Subtypes(TypeSet subs))				= "sub(<toStr(subs)>)";
-private str toStr(TypeSet::Supertypes(TypeSet supers))			= "super(<toStr(supers)>)";
-private str toStr(TypeSet::Union(set[TypeSet] args))			= "<intercalate(", ", sort([ toStr(s) | s <- sort(toList(args))]))>";
-private str toStr(TypeSet::Intersection(set[TypeSet] args))		= "<intercalate(", ", sort([ toStr(s) | s <- sort(toList(args))]))>";
-
 default str toStr(TypeOf to) { throw "Please implement toStr for node :: <to>"; }
+
+public str toStr(set[TypeSymbol] ts)						= "{ <intercalate(", ", sort([ toStr(t) | t <- sort(toList(ts))]))> }";
+public str toStr(TypeSet::Universe())						= "{ any() }";
+public str toStr(TypeSet::EmptySet())						= "{}";
+public str toStr(TypeSet::Single(TypeSymbol t))				= "<toStr(t)>";
+public str toStr(TypeSet::Set(set[TypeSymbol] ts))			= "{ <intercalate(", ", sort([ toStr(t) | t <- sort(toList(ts))]))> }";
+public str toStr(TypeSet::Subtypes(TypeSet subs))			= "sub(<toStr(subs)>)";
+public str toStr(TypeSet::Supertypes(TypeSet supers))		= "super(<toStr(supers)>)";
+public str toStr(TypeSet::Union(set[TypeSet] args))			= "<intercalate(", ", sort([ toStr(s) | s <- sort(toList(args))]))>";
+public str toStr(TypeSet::Intersection(set[TypeSet] args))	= "<intercalate(", ", sort([ toStr(s) | s <- sort(toList(args))]))>";
+
+default str toStr(TypeSet ts) { throw "Please implement toStr for node :: <to>"; }

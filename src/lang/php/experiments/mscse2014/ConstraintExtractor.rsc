@@ -1042,6 +1042,9 @@ public void addConstraintsOnAllVarsForScript(&T <: node t, m3)
 		if (size(decls) != 1) {
 			println("debug!!!");
 		}
+		if (size(decls) == 0) {
+			return;	// no declarations found...
+		}
 		assert size(decls) == 1 : 
 			"There should only be one declarations for a variable, var: <v> :: decls: <decls>";
 			

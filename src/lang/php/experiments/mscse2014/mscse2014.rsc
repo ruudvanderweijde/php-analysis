@@ -98,6 +98,19 @@ public void main() {
 	println("----------------");
 }
 
+public void testRun() {
+
+	projectLocation = |file:///PHPAnalysis/systems/doctrine_lexer/doctrine_lexer-v1.0|; // latest
+//loc projectLocation = |file:///tmp/Calculator|;
+	//projectLocation	= |file:///tmp/tst01|;
+	run1();
+	run2();
+	run3();
+	run4();
+	run5();
+
+}
+
 public void run1() {
 	logMessage(textStep1, 1);
 	
@@ -204,7 +217,11 @@ public void run5() {
 	logMessage("Reading solve results from cache...", 1);
 	map[TypeOf var, TypeSet possibles] solveResult = readBinaryValueFile(#map[TypeOf var, TypeSet possibles], getLastResultsCacheFile());
 	logMessage("Printing the results of the analysis:", 1);
-	iprintln(solveResult);
+	for (key <- solveResult) {
+		println(toStr(key));	
+		println("\t⤷ " + toStr(solveResult[key]));	
+	}
+	//iprintln(solveResult);
 }
 
 private M3 getM3ForSystem(System system)
