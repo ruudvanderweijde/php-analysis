@@ -1093,7 +1093,7 @@ public void addConstraintsForBuiltIn(&T <: node t, list[Param] params)
 	// Instead add general constraints. Later: reading annotations can restrict this.
 
 	// return type of the function/method
-	addConstraints(t, { eq(typeOf(t@at), nullType()) }); 
+	addConstraints(t, { eq(typeOf(t@at), \any()) }); 
 	
 	// todo: handle parameters
 }
