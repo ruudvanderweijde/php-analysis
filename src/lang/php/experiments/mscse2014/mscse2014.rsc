@@ -96,15 +96,23 @@ public void main() {
 	println(textStep4);
 	println(textStep5);
 	println("----------------");
+	println("Or runAll() with a project location, like:");
+	println(" ⤷ runAll(|file:///PHPAnalysis/systems/doctrine_lexer/doctrine_lexer-v1.0|);");
+	println(" ⤷ runAll(|file:///PHPAnalysis/systems/sebastianbergmann_php-timer/sebastianbergmann_php-timer-1.0.5|);");
+	println(" ⤷ runAll(|file:///PHPAnalysis/systems/sebastianbergmann_php-text-template/sebastianbergmann_php-text-template-1.2.0|);");
+	println(" ⤷ runAll(|file:///PHPAnalysis/systems/sebastianbergmann_php-file-iterator/sebastianbergmann_php-file-iterator-1.3.4|);");
+	println(" ⤷ runAll(|file:///PHPAnalysis/systems/php-fig_log/php-fig_log-1.0.0|);");
+	println(" ⤷ runAll(|file:///PHPAnalysis/systems/swiftmailer_swiftmailer/swiftmailer_swiftmailer-v5.2.1|); (=pretty big!!!)");
 }
 
-public void testRun() {
+public void runAll(loc project) {
 
-	projectLocation = |file:///PHPAnalysis/systems/doctrine_lexer/doctrine_lexer-v1.0|; // latest
+	projectLocation = project;
+	//projectLocation = |file:///PHPAnalysis/systems/sebastianbergmann_php-timer/sebastianbergmann_php-timer-1.0.5|; // latest
 //loc projectLocation = |file:///tmp/Calculator|;
 	//projectLocation	= |file:///tmp/tst01|;
-	run1();
-	run2();
+	//run1();
+	//run2();
 	run3();
 	run4();
 	run5();
@@ -218,7 +226,7 @@ public void run5() {
 	map[TypeOf var, TypeSet possibles] solveResult = readBinaryValueFile(#map[TypeOf var, TypeSet possibles], getLastResultsCacheFile());
 	logMessage("Printing the results of the analysis:", 1);
 	for (key <- solveResult) {
-		println(toStr(key));	
+		println("<toStr(key)> :: <key>");	
 		println("\t⤷ " + toStr(solveResult[key]));	
 	}
 	//iprintln(solveResult);

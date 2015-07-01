@@ -834,7 +834,7 @@ private void addConstraints(Expr e, M3 m3)
     	if (name(name(name)) := methodName) { // method is a literal name
 			addConstraints(target, { hasMethod(typeOf(target@at), name) });
 			addConstraints(target, { isMethodOfClass(typeOf(mc@at), typeOf(target@at), name) });
-    	} else if (expr(expr) := staticTarget) { 
+    	} else if (expr(expr) := target) { 
     		logMessage("Dynamic method call not supported :: <pp(mc)>", 2);
     		; // NOT SUPPORTED YET: magic method call like $a->$b;
     	}
@@ -1131,9 +1131,9 @@ public void addConstraintsForStaticMethodCallLHS(NameOrExpr staticTarget, &T <: 
 public void addConstraintsForStaticMethodCallRHS(NameOrExpr methodName, &T <: node parentNode, M3 m3) {
 	// todo fix me! (disabled isAMethod)
 	//addConstraints(methodName, { isMethodOfClass(typeOf(methodName@at)) }); // RHS is a method
-	if (name(name(name)) := methodName) {
-		addConstraints(methodName, { hasName(typeOf(methodName@at), name) }); // RHS has name:
-	}
+	//if (name(name(name)) := methodName) {
+	//	addConstraints(methodName, { hasName(typeOf(methodName@at), name) }); // RHS has name:
+	//}
 }
 
 // add constraints for self/parent/static
