@@ -109,13 +109,14 @@ public void runAll(loc project) {
 
 	projectLocation = project;
 	//projectLocation = |file:///PHPAnalysis/systems/sebastianbergmann_php-timer/sebastianbergmann_php-timer-1.0.5|; // latest
-//loc projectLocation = |file:///tmp/Calculator|;
+	//projectLocation = |file:///tmp/Calculator|;
 	//projectLocation	= |file:///tmp/tst01|;
-	//run1();
-	//run2();
+	run1();
+	run2();
 	run3();
 	run4();
 	run5();
+	printSubTypeGraph();
 
 }
 
@@ -228,6 +229,10 @@ public void run5() {
 	for (key <- solveResult) {
 		println("<toStr(key)> :: <key>");	
 		println("\t⤷ " + toStr(solveResult[key]));	
+	}
+	println("\n\nIn short format:");
+    for (key <- solveResult) {
+		println("<toStr(key)> :: <toStr(solveResult[key])>");	
 	}
 	//iprintln(solveResult);
 }
@@ -390,10 +395,7 @@ public void printSubTypeGraph()
 	M3 m3 = readBinaryValueFile(#M3, getLastM3CacheFile());
 	logMessage("Reading done.", 1);
 	
-	iprintln(m3@extends);
-	iprintln(m3@implements);
+	subtypes = setSubTypes(m3, system);
 	
-	//subtypes = getSubTypes(m3, system);
-	
-	//displaySubTypes(subtypes);
+	displaySubTypes(subtypes);
 }

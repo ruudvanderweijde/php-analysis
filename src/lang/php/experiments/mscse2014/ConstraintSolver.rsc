@@ -5,7 +5,6 @@ import lang::php::ast::AbstractSyntax;
 import lang::php::m3::Core;
 import lang::php::m3::Containment;
 import lang::php::ast::System;
-//import lang::php::ast::Scopes;
 
 import lang::php::types::TypeSymbol;
 import lang::php::types::TypeConstraints;
@@ -28,6 +27,7 @@ import List;
 
 import analysis::graphs::Graph;
 
+private bool printDebugInfo = false; // a lame constant, should be removed
 // start of solving constraints (move this stuff somewhere else)
 
 public map[TypeOf var, TypeSet possibles] solveConstraints(set[Constraint] constraintSet, map[loc file, lrel[loc decl, loc location] vars] varMap, M3 m3, System system)
@@ -52,9 +52,17 @@ public map[TypeOf var, TypeSet possibles] solveConstraints(set[Constraint] const
 		
 	solve (constraintSet, estimates) { // solve constraints and variable mapping
   		logMessage("... still solving constraints", 2); 
+  		// used to find the diff in the iteration
+  		previousConstraintSet = constraintSet;
+  		previousEstimates = estimates;
+  		
+  		// derivce more and propagate estimates
 		constraintSet = constraintSet + deriveMore(constraintSet, estimates, m3);
   		estimates = propagateEstimates(constraintSet, estimates, m3);
-  		constraintSet = propagateConstraints(constraintSet, estimates, m3);
+  		
+  		// print the diff
+  		printConstraintsDiff(constraintSet, previousConstraintSet);
+  		printEstimatesDiff(estimates, previousEstimates);
   	}
   	
   	return estimates;
@@ -101,43 +109,8 @@ public set[Constraint] deriveMore(set[Constraint] constraints, map[TypeOf, TypeS
 	return derivedConstraints;
 } 
 
-// for all resolved estimates, add new constraints
-public set[Constraint] propagateConstraints (set[Constraint] constraints, map[TypeOf, TypeSet] estimates, M3 m3)
-{
-	// do nothing for now...
-	return constraints;
-	
-	// THIS IS NOT BEING USED NOW!!!!
-	set[Constraint] extraConstraints = {};
-	
-	for (identifier <- estimates) {
-		typeSet = estimates[identifier];
-		
-		// change this to: Universe() !in typeSet
-		if (Universe() := typeSet) {
-			continue; // skip universe, we only want to propagate 'solved' estimates
-		}
-	
-		if (Set({TypeSymbol ts}) := typeSet) { // for now only single resolve types are supported
-			
-			resolvedType = typeSymbol(ts);
-    		
-    		// add constraints for resolved types
-    		visit (constraints) {
-       			case e:eq(l, identifier): extraConstraints += { eq(l, resolvedType) };
-       			case e:eq(identifier, r): extraConstraints += { eq(resolvedType, r) };
-       			case e:subtyp(l, identifier): extraConstraints += { subtyp(l, resolvedType) };
-       			case e:subtyp(identifier, r): extraConstraints += { supertyp(resolvedType, r) };
-    		} 
-		}
-	}
-   	
-	//logMessage("Propagated <size(extraConstraints)> Constraints", 2);
-	return extraConstraints + constraints;
-}
-
 public map[TypeOf, TypeSet] propagateEstimates (set[Constraint] constraints, map[TypeOf, TypeSet] estimates, M3 m3)
-{
+{	
 	for (identifier <- estimates) {
 		typeSet = estimates[identifier];
 		
@@ -147,9 +120,7 @@ public map[TypeOf, TypeSet] propagateEstimates (set[Constraint] constraints, map
 			continue; // skip universe, we only want to propagate 'solved' estimates
 		}
 		
-		// top-down-break stops at all matches, not just in depth??
-		// for now a switch will work with the stuff i want to achieve
-    	//top-down-break visit (constraints) {
+		// top-down-break stops at all matches
     	top-down-break visit (constraints) {
     		// do nothing, just stop visiting; 
     		case isAFunction() :; 
@@ -176,37 +147,45 @@ public map[TypeOf, TypeSet] propagateEstimates (set[Constraint] constraints, map
     		case exclusiveDisjunction(set[Constraint] constraints) :;
     		case conjunction(set[Constraint] constraints) :;
     		case negation(Constraint constraint) :;
-    		
+    	
     		
 			case e:subtyp(lhs:typeOf(_), identifier): {
-				//println("---------[ LHS subtype | propagateEstimates ]------------");
-				//println(" - identifier :: <toStr(identifier)> :: <identifier>");
-				//println(" - lhs :: <toStr(lhs)> :: <lhs>");
-				//println(" - constraint :: <toStr(e)> :: <e>");
+				if (printDebugInfo) {
+					println("---------[ LHS subtype | propagateEstimates ]------------");
+					println(" - identifier :: <toStr(identifier)> :: <identifier>");
+					println(" - lhs :: <toStr(lhs)> :: <lhs>");
+					println(" - constraint :: <toStr(e)> :: <e>");
+				}
 		    	estimates[lhs] = getIntersectionResult(Subtypes(estimates[identifier]), estimates[lhs]);
 		    }
 			case e:subtyp(identifier, rhs:typeOf(_)): { // type of rhs is union(supertyp(estimates[rhs], esitmates[identifier]))
-				//println("---------[ RHS subtype | propagateEstimates ]------------");
-				//println(" - identifier :: <toStr(identifier)> :: <identifier>");
-				//println(" - rhs :: <toStr(rhs)> :: <rhs>");
-				//println(" - constraint :: <toStr(e)> :: <e>");
+				if (printDebugInfo) {
+					println("---------[ RHS subtype | propagateEstimates ]------------");
+					println(" - identifier :: <toStr(identifier)> :: <identifier>");
+					println(" - rhs :: <toStr(rhs)> :: <rhs>");
+					println(" - constraint :: <toStr(e)> :: <e>");
+				}
 		    	estimates[rhs] = getIntersectionResult(Supertypes(estimates[identifier]), estimates[rhs]);
 		    }
 			
     		case e:eq(lhs:typeOf(_), identifier): {
-				//println("---------[ LHS eq | propagateEstimates ]------------");
-				//println(" - identifier :: <toStr(identifier)> :: <identifier>");
-				//println(" - lhs :: <toStr(lhs)> :: <lhs>");
-				//println(" - constraint :: <toStr(e)> :: <e>");
+				if (printDebugInfo) {
+					println("---------[ LHS eq | propagateEstimates ]------------");
+					println(" - identifier :: <toStr(identifier)> :: <identifier>");
+					println(" - lhs :: <toStr(lhs)> :: <lhs>");
+					println(" - constraint :: <toStr(e)> :: <e>");
+				}
     		
     			estimates[lhs] = getIntersectionResult(estimates[lhs], estimates[identifier]);
     			estimates[identifier] = getIntersectionResult(estimates[lhs], estimates[identifier]);
     		}
     		case e:eq(identifier, rhs:typeOf(_)): {
-				//println("---------[ RHS eq | propagateEstimates ]------------");
-				//println(" - identifier :: <toStr(identifier)> :: <identifier>");
-				//println(" - rhs :: <toStr(rhs)> :: <rhs>");
-				//println(" - constraint :: <toStr(e)> :: <e>");
+				if (printDebugInfo) {
+					println("---------[ RHS eq | propagateEstimates ]------------");
+					println(" - identifier :: <toStr(identifier)> :: <identifier>");
+					println(" - rhs :: <toStr(rhs)> :: <rhs>");
+					println(" - constraint :: <toStr(e)> :: <e>");
+				}
     		
     			estimates[rhs] = getIntersectionResult(estimates[rhs], estimates[identifier]);
     			estimates[identifier] = getIntersectionResult(estimates[rhs], estimates[identifier]);
@@ -220,10 +199,13 @@ public map[TypeOf, TypeSet] propagateEstimates (set[Constraint] constraints, map
 @doc { do intersections }
 private TypeSet getIntersectionResult(TypeSet ts1, TypeSet ts2)
 {
-	//println("getIntersectionResult - intersection( <ts1>, <ts2> )."); // debug
    	result = Intersection({ ts1, ts2 });
-   	
-	//println("Results: <result>"); // debug
+
+	if (printDebugInfo) {   	
+		println("getIntersectionResult - intersection( <ts1>, <ts2> )."); // debug
+		println("Results: <result>"); // debug
+	}
+	
    	return result;
 }
 
@@ -372,6 +354,30 @@ public void debugPrintInitialResults(set[Constraint] constraints, map[TypeOf, Ty
 	}
 }
 
+public void printConstraintsDiff(set[Constraint] old, set[Constraint] new) {
+	added = old - new;	
+	deleted = new - old;
+	
+	if (!isEmpty(added)) {
+		iprintln("Constraints Added:");
+		for (a <- added) { print("+ "); println(a); }
+	}
+	
+	if (!isEmpty(deleted)) {
+		iprintln("Constraints Deleted:");
+		for (d <- deleted) { print("- "); println(d); }
+	}
+}
+
+public void printEstimatesDiff(map[TypeOf, TypeSet] old, map[TypeOf, TypeSet] new) {
+	println("Estimate changes:");
+	for (key <- old) {
+		if (old[key] != new[key]) 
+			println(" <replaceAll(toStr(key), "\n", " ")> (<key>)\n  old: <old[key]>\n  new: <new[key]>");
+	}
+}
+
+
 // Pretty Print the constraints
 private str toStr(set[Constraint] cs)					= "{\n  <intercalate(",\n  ", sort([ toStr(c) | c <- sort(toList(cs))]))>\n}";
 private str toStr(eq(TypeOf t1, TypeOf t2)) 			= "<toStr(t1)> = <toStr(t2)>";
@@ -405,6 +411,7 @@ default str toStr(TypeOf to) { throw "Please implement toStr for node :: <to>"; 
 
 public str toStr(set[TypeSymbol] ts)						= "{ <intercalate(", ", sort([ toStr(t) | t <- sort(toList(ts))]))> }";
 public str toStr(TypeSet::Universe())						= "{ any() }";
+public str toStr(TypeSet::Root())							= "{ any() }";
 public str toStr(TypeSet::EmptySet())						= "{}";
 public str toStr(TypeSet::Single(TypeSymbol t))				= "<toStr(t)>";
 public str toStr(TypeSet::Set(set[TypeSymbol] ts))			= "{ <intercalate(", ", sort([ toStr(t) | t <- sort(toList(ts))]))> }";
@@ -413,4 +420,4 @@ public str toStr(TypeSet::Supertypes(TypeSet supers))		= "super(<toStr(supers)>)
 public str toStr(TypeSet::Union(set[TypeSet] args))			= "<intercalate(", ", sort([ toStr(s) | s <- sort(toList(args))]))>";
 public str toStr(TypeSet::Intersection(set[TypeSet] args))	= "<intercalate(", ", sort([ toStr(s) | s <- sort(toList(args))]))>";
 
-default str toStr(TypeSet ts) { throw "Please implement toStr for node :: <to>"; }
+default str toStr(TypeSet ts) { throw "Please implement toStr for node :: <ts>"; }
