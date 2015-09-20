@@ -97,6 +97,7 @@ public void main() {
 	println(textStep5);
 	println("----------------");
 	println("Or runAll() with a project location, like:");
+	println(" ⤷ runAll(|file:///Users/ruud/git/php-analysis/test|);");
 	println(" ⤷ runAll(|file:///PHPAnalysis/systems/doctrine_lexer/doctrine_lexer-v1.0|);");
 	println(" ⤷ runAll(|file:///PHPAnalysis/systems/sebastianbergmann_php-timer/sebastianbergmann_php-timer-1.0.5|);");
 	println(" ⤷ runAll(|file:///PHPAnalysis/systems/sebastianbergmann_php-text-template/sebastianbergmann_php-text-template-1.2.0|);");

@@ -125,7 +125,7 @@ public map[TypeOf, TypeSet] propagateEstimates (set[Constraint] constraints, map
     		// do nothing, just stop visiting; 
     		case isAFunction() :; 
     		case hasName(TypeOf a, str name) :;
-			case isMethodOfClass(TypeOf expr, TypeOf classVariable, str name):
+			case isMethodOfClass:isMethodOfClass(TypeOf expr, TypeOf classVariable, str name):
 			{
 				// get the possible class types
 				possibleClassTypes = estimates[classVariable];
@@ -136,8 +136,20 @@ public map[TypeOf, TypeSet] propagateEstimates (set[Constraint] constraints, map
 					set[loc] possibleClasses = { classLoc | classType(classLoc) <- ts }; // ts is the actual set in the Set({});
 					// methods of the possible classes
 					set[loc] possibleMethods = { *getDeclarationLocs(m3, m) | <c,m> <- m3@containment, c in possibleClasses, isMethod(m), m.file == toLowerCase(name) };
-					// union of all possible methods
-	    			estimates[expr] = Union({ estimates[typeOf(methodLoc)] | methodLoc <- possibleMethods });
+					set[loc] possibleClassTypes = { *c | <c,m> <- m3@containment, c in possibleClasses, isMethod(m), m.file == toLowerCase(name) };
+					
+					// limit possible classes
+	    			estimates[classVariable] = Intersection({
+		    				estimates[classVariable],
+		    				Subtypes(Set({ classType(possibleClass) | possibleClass <- possibleClassTypes }))
+	    				}
+	    			);
+					// limit possible method
+	    			estimates[expr] = Intersection({
+		    				estimates[expr],
+		    				Subtypes(Union({ estimates[typeOf(methodLoc)] | methodLoc <- possibleMethods }))
+	    				}
+	    			);
 				}
 			}
     		case hasMethod(TypeOf a, str name) :;
