@@ -1,0 +1,3 @@
+<?php
+
+$stringOnlyResult = $stringOnly->getString();
