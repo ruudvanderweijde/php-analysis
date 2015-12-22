@@ -1,4 +1,4 @@
-module lang::php::experiments::mscse2014::ResultsAnalysis
+module lang::php::experiments::mscse2014::PhpStormResultsAnalysis
 
 extend lang::php::experiments::mscse2014::ConstraintExtractor;
 extend lang::php::experiments::mscse2014::ConstraintSolver;

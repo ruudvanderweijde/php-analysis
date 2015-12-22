@@ -301,8 +301,9 @@ public int countFolders(loc d) = (1 | it + countFolders(d+f) | str f <- listEntr
 }
 public void logMessage(str message, int level) {
 	if (level <= logLevel) {
-		str date = printDate(now(), "Y-MM-dd HH:mm:ss");
-		println("<date> :: <message>");
+		//str date = printDate(now(), "Y-MM-dd HH:mm:ss");
+		println("<now()> :: <message>");
+		//println("<date> :: <message>");
 	}
 }
 

@@ -21,6 +21,8 @@ import lang::php::types::TypeConstraints;
 
 import lang::php::experiments::mscse2014::ConstraintExtractor;
 import lang::php::experiments::mscse2014::ConstraintSolver;
+import lang::php::experiments::mscse2014::ResultDataType;
+import lang::php::experiments::mscse2014::ResultAnalysis;
 
 //loc projectLocation = |file:///PHPAnalysis/systems/WerkspotNoTests/WerkspotNoTests-oldWebsiteNoTests/plugins/wsCorePlugin/modules/craftsman/lib|;
 //loc projectLocation = |file:///PHPAnalysis/systems/WerkspotNoTests/WerkspotNoTests-oldWebsiteNoTests/plugins/wsCorePlugin/modules/craftsman|;
@@ -81,6 +83,42 @@ private map[str,str] corpus = (
 	//"Seldaek_monolog": "1.10.0" // 30
 	//"WerkspotNoTests":"oldWebsiteNoTests"
 );
+
+private map[str,str] resultCorpus = (
+	
+	// sorted in LOC (all are enabled except for Werkspot and Symfony)
+	"doctrine_lexer": "v1.0", // 1
+	"sebastianbergmann_php-timer": "1.0.5", // 2 
+	"sebastianbergmann_php-text-template": "1.2.0", // 3
+	"doctrine_inflector": "v1.0", // 4
+	"php-fig_log": "1.0.0", // 5
+	"sebastianbergmann_php-file-iterator": "1.3.4", // 6
+	//"symfony_Filesystem": "v2.5.3", // 7
+	//"symfony_Yaml": "v2.5.3", // 8
+	"sebastianbergmann_php-token-stream": "1.2.2", // 9
+	"doctrine_collections": "v1.2", // 10
+	//"symfony_Process": "v2.5.3", // 11
+	//"symfony_Finder": "v2.5.3", // 12
+	//"symfony_DomCrawler": "v2.5.3", // 13
+	//"symfony_Translation": "v2.5.3", // 14
+	//"symfony_Console": "v2.5.3", // 15
+	//"symfony_HttpFoundation": "v2.5.3", // 16
+	"fabpot_Twig": "v1.16.0", // 17
+	//"symfony_EventDispatcher": "v2.5.3", // 18
+	"swiftmailer_swiftmailer": "v5.2.1", // 19
+	"sebastianbergmann_php-code-coverage": "2.0.10", // 20
+	"sebastianbergmann_phpunit": "4.2.2", // 21
+	"sebastianbergmann_phpunit-mock-objects": "2.2.0", // 22
+	"doctrine_annotations": "v1.2.0", // 23
+	"doctrine_common": "v2.4.2", // 24
+	//"symfony_HttpKernel": "v2.5.3", // 25
+	"doctrine_cache": "v.1.3.0", // 26
+	"doctrine_dbal": "v2.4.2", // 27
+	"guzzle_guzzle3": "v3.9.2", // 28 
+	"doctrine_doctrine2": "v2.4.4", // 29
+	"Seldaek_monolog": "1.10.0" // 30
+	//"WerkspotNoTests":"oldWebsiteNoTests"
+);
 private str textStep1 = "1) Run run1() to parse the files (and save the parsed files to the cache)";
 private str textStep2 = "2) Run run2() to create the m3 (and save system and m3 to cache)";
 private str textStep3 = "3) Run run3() to collect constraints (and save the constraints to cache)";
@@ -97,13 +135,21 @@ public void main() {
 	println(textStep5);
 	println("----------------");
 	println("Or runAll() with a project location, like:");
-	println(" ⤷ runAll(|file:///Users/ruud/git/php-analysis/test|);");
-	println(" ⤷ runAll(|file:///PHPAnalysis/systems/doctrine_lexer/doctrine_lexer-v1.0|);");
-	println(" ⤷ runAll(|file:///PHPAnalysis/systems/sebastianbergmann_php-timer/sebastianbergmann_php-timer-1.0.5|);");
-	println(" ⤷ runAll(|file:///PHPAnalysis/systems/sebastianbergmann_php-text-template/sebastianbergmann_php-text-template-1.2.0|);");
-	println(" ⤷ runAll(|file:///PHPAnalysis/systems/sebastianbergmann_php-file-iterator/sebastianbergmann_php-file-iterator-1.3.4|);");
-	println(" ⤷ runAll(|file:///PHPAnalysis/systems/php-fig_log/php-fig_log-1.0.0|);");
-	println(" ⤷ runAll(|file:///PHPAnalysis/systems/swiftmailer_swiftmailer/swiftmailer_swiftmailer-v5.2.1|); (=pretty big!!!)");
+	//println(" ⤷ runAll(|file:///Users/ruud/git/php-analysis/test|);");
+	//println(" ⤷ runAll(|file:///PHPAnalysis/systems/doctrine_lexer/doctrine_lexer-v1.0|);");
+	//println(" ⤷ runAll(|file:///PHPAnalysis/systems/sebastianbergmann_php-timer/sebastianbergmann_php-timer-1.0.5|);");
+	//println(" ⤷ runAll(|file:///PHPAnalysis/systems/sebastianbergmann_php-text-template/sebastianbergmann_php-text-template-1.2.0|);");
+	//println(" ⤷ runAll(|file:///PHPAnalysis/systems/sebastianbergmann_php-file-iterator/sebastianbergmann_php-file-iterator-1.3.4|);");
+	//println(" ⤷ runAll(|file:///PHPAnalysis/systems/php-fig_log/php-fig_log-1.0.0|);");
+	//println(" ⤷ runAll(|file:///PHPAnalysis/systems/swiftmailer_swiftmailer/swiftmailer_swiftmailer-v5.2.1|); (=pretty big!!!)");
+	
+	for (c <- resultCorpus) {
+		if (!isFile(toLocation("file:///PHPAnalysis/systems/<c>/anaysis_results_without_docblock.txt"))) {
+			println(" ⤷ runAll(|file:///PHPAnalysis/systems/<c>/<c>-<resultCorpus[c]>|);");
+			//break;
+		}
+	}
+	
 }
 
 public void runAll(loc project) {
@@ -117,7 +163,7 @@ public void runAll(loc project) {
 	run3();
 	run4();
 	run5();
-	printSubTypeGraph();
+	//printSubTypeGraph();
 
 }
 
@@ -215,7 +261,7 @@ public void run4()
 
 	logMessage("Now solving the constraints...", 1);	
 	map[TypeOf var, TypeSet possibles] solveResult = solveConstraints(constraints, getVariableMapping(), m3, system);
-	logMessage("Writing the resolts of the constraint solving", 1);
+	logMessage("Writing the results of the constraint solving", 1);
 	writeBinaryValueFile(getLastResultsCacheFile(), solveResult);
 	logMessage("Writing done. Now please run run5()", 1);
 }
@@ -224,9 +270,14 @@ public void run5() {
 	assert isFile(getLastResultsCacheFile())  : "Please run run4() first. Error: file(<getLastResultsCacheFile()>) was not found";
 	
 	logMessage(textStep5, 1);
+	
 	logMessage("Reading solve results from cache...", 1);
 	map[TypeOf var, TypeSet possibles] solveResult = readBinaryValueFile(#map[TypeOf var, TypeSet possibles], getLastResultsCacheFile());
-	logMessage("Printing the results of the analysis:", 1);
+	logMessage("Reading system from cache...", 1);
+	System system = readBinaryValueFile(#System, getModifiedSystemCacheFile());
+	logMessage("Reading M3 from cache...", 1);
+	M3 m3 = readBinaryValueFile(#M3, getLastM3CacheFile());
+	
 	for (key <- solveResult) {
 		println("<toStr(key)> :: <key>");	
 		println("\t⤷ " + toStr(solveResult[key]));	
@@ -235,7 +286,14 @@ public void run5() {
     for (key <- solveResult) {
 		println("<toStr(key)> :: <toStr(solveResult[key])>");	
 	}
-	//iprintln(solveResult);
+	
+	println("--------------------------------------");
+	counters = getNumberOfPossibleItems(solveResult, setSubTypes(m3, system));
+	loc analysisResultOutputFile = getProjectLocation() + "../anaysis_results_without_docblock.txt";
+	logMessage("Writing output to file <analysisResultOutputFile>.", 2);
+	writeTextValueFile(analysisResultOutputFile, solveResult);
+	logMessage("Writing done.", 2);
+	//iprintln(counters);
 }
 
 private M3 getM3ForSystem(System system)
