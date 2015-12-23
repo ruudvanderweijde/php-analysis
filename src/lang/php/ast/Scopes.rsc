@@ -15,7 +15,7 @@ public &T <: node annotateWithDeclScopes(&T <: node t, loc scope, set[str] allow
 {
 	t@scope = scope;
 	
-	if (t@decl? && isAllowedScope(t@decl.scheme, allowedScopeTypes))
+	if ("decl" in getAnnotations(t) && isAllowedScope(t@decl.scheme, allowedScopeTypes))
 	{
 		scope = t@decl;
 	}

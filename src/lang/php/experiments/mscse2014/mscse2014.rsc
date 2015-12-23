@@ -38,7 +38,7 @@ loc projectLocation = |file:///PHPAnalysis/systems/doctrine_lexer/doctrine_lexer
 private loc getProjectLocation() = projectLocation;
 private void setProjectLocation(loc pl) { projectLocation = pl; }
 
-loc cacheFolder = |file:///Users/ruud/tmp/m3/|;
+loc cacheFolder = |file:///tmp/m3/|;
 loc finalM3CacheFile = cacheFolder + "final_m3_<projectLocation.file>.bin";
 
 loc getLastM3CacheFile() = cacheFolder + "<getProjectLocation().file>_m3_last.bin";
@@ -144,8 +144,17 @@ public void main() {
 	//println(" ⤷ runAll(|file:///PHPAnalysis/systems/swiftmailer_swiftmailer/swiftmailer_swiftmailer-v5.2.1|); (=pretty big!!!)");
 	
 	for (c <- resultCorpus) {
-		if (!isFile(toLocation("file:///PHPAnalysis/systems/<c>/anaysis_results_without_docblock.txt"))) {
-			println(" ⤷ runAll(|file:///PHPAnalysis/systems/<c>/<c>-<resultCorpus[c]>|);");
+		if (!isFile(toLocation("file:///home/awsgui/PHPAnalysis/systems/<c>/anaysis_results_without_docblock.txt"))) {
+			println(" ⤷ runAll(|file:///home/awsgui/PHPAnalysis/systems/<c>/<c>-<resultCorpus[c]>|);");
+			//break;
+		}
+	}
+
+	println("\nAlready done:");
+			
+	for (c <- resultCorpus) {
+		if (isFile(toLocation("file:///home/awsgui/PHPAnalysis/systems/<c>/anaysis_results_without_docblock.txt"))) {
+			println(" ⤷ runAll(|file:///home/awsgui/PHPAnalysis/systems/<c>/<c>-<resultCorpus[c]>|);");
 			//break;
 		}
 	}
