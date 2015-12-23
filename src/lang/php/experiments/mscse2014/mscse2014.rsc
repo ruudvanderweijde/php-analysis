@@ -150,6 +150,14 @@ public void main() {
 		}
 	}
 	
+	println("...");
+	for (c <- resultCorpus) {
+		if (isFile(toLocation("file:///PHPAnalysis/systems/<c>/anaysis_results_without_docblock.txt"))) {
+			println(" ⤷ runAll(|file:///PHPAnalysis/systems/<c>/<c>-<resultCorpus[c]>|);");
+			//break;
+		}
+	}
+	
 }
 
 public void runAll(loc project) {
