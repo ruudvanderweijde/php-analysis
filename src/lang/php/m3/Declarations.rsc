@@ -14,7 +14,8 @@ public loc standardLibraryLoc = |php://stdlib|;
 public M3 fillDeclarations(M3 m3, Script script) {
 	visit (script) {
 		case node n: {
-			if ( (n@at)? && (n@decl)? ) {
+			annos = getAnnotations(n);
+			if ( "at" in annos && "decl" in annos ) {
 				m3@declarations += {<n@decl, n@at>};
 				m3@names += {<n@decl.file, n@decl>};
 			}

@@ -14,7 +14,9 @@ import lang::php::parser::DocBlockParser;
 public M3 fillPhpDocAnnotations(M3 m3, Script script) {
 	visit (script) {
 		case node n:
-			if ( "phpdoc" in getAnnotations(n) && "decl" in getAnnotations(n) )
+		{
+			annos = getAnnotations(n);
+			if ( "phpdoc" in annos && "decl" in annos )
 			{
 				try {
 					; // todo: add option to use annotations or not.
@@ -26,6 +28,7 @@ public M3 fillPhpDocAnnotations(M3 m3, Script script) {
 					m3@messages += error("Unknown error while parsing annotation: <n@phpdoc>", n@at);
 				}
 			}
+		}
 	}
 	
 	return m3;
