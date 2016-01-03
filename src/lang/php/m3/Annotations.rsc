@@ -6,6 +6,7 @@ import String;
 import Set;
 import List;
 import Relation;
+import Node;
 
 import lang::php::types::TypeSymbol;
 import lang::php::parser::DocBlockParser;
@@ -13,7 +14,7 @@ import lang::php::parser::DocBlockParser;
 public M3 fillPhpDocAnnotations(M3 m3, Script script) {
 	visit (script) {
 		case node n:
-			if ( n@phpdoc? && n@decl? )
+			if ( "phpdoc" in getAnnotations(n) && "decl" in getAnnotations(n) )
 			{
 				try {
 					; // todo: add option to use annotations or not.
@@ -65,7 +66,7 @@ private set[loc] varToLoc(str var, node n)
 	varName = var[1..]; // remove the first char
 	
 	if (var(name(name(str name))) := n && name == varName) {
-		return ((n@decl?) ? { n@decl } : {}); // return the decl is available
+		return (("decl" in getAnnotations(n)) ? { n@decl } : {}); // return the decl if available
 	}
 
 	println("varToLoc Error: var \'<var>\' is not found in node \'<n>\'"); 

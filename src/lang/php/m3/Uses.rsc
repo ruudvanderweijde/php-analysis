@@ -137,7 +137,7 @@ public M3 calculateUsesFlowInsensitive(M3 m3, node ast)
             	if (isGlobalVar(varNode)) {
 	            	m3 = addVarUse(m3, varNode, v@at, globalNamespace);
 	            } else {
-		            if (v@decl?) // Special case for assign with Operation. They can be both declarations AND uses
+		            if ("decl" in getAnnotations(v)) // Special case for assign with Operation. They can be both declarations AND uses
 		            {	
 		                /* if parent is $i++; or $i += 1; */
 		                if (unaryOperation(_,_) := parentNode || assignWOp(_,_,_) := parentNode) {

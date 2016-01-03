@@ -18,6 +18,7 @@ import lang::php::ast::System;
 import lang::php::parser::Annotation;
 
 import Set;
+import Node;
 
 private System modifiedSystem = ();
 public System getModifiedSystem() = modifiedSystem;
@@ -253,7 +254,7 @@ private M3 fillAnnotations(M3 m3, Script script)
 	visit (script)
 	{
 		case n:node _: 
-			if (n@phpdoc?)
+			if ("phpdoc" in getAnnotations(n))
 				m3 = addAnnotationsForNode(n, m3);
 	}
 	

@@ -19,6 +19,7 @@ import String; // for toLowerCase
 import Set; // for isEmpty
 import Map; // for size
 import Relation; // for domain
+import Node; // for getAnnotations
 import ListRelation;
 import List;
 
@@ -172,7 +173,7 @@ private void addConstraints(Stmt statement, M3 m3)
 		case exprstmt(Expr expr): 				addConstraints(expr, m3);
 		
 		case f:function(str name, bool byRef, list[Param] params, list[Stmt] body): {
-			if (f@phpdoc? && /@jms-builtin/ := f@phpdoc) {
+			if ("phpdoc" in getAnnotations(f) && /@jms-builtin/ := f@phpdoc) {
 				// builtin function	
 				addConstraintsForBuiltIn(f, params);
 			} else { 
@@ -240,7 +241,7 @@ private void addConstraints(ClassItem ci, &T <: node parentNode, M3 m3)
 		}
 		
 		case m:method(str name, set[Modifier] modifiers, bool byRef, list[Param] params, list[Stmt] body): {
-			if (parentNode@phpdoc? && /@jms-builtin/ := parentNode@phpdoc || m@phpdoc? && /@jms-builtin/ := m@phpdoc) {
+			if ("phpdoc" in getAnnotations(parentNode) && /@jms-builtin/ := parentNode@phpdoc || "phpdoc" in getAnnotations(m) && /@jms-builtin/ := m@phpdoc) {
 				// builtin class or method 
 				addConstraintsForBuiltIn(m, params);
 			} else { 
@@ -1028,7 +1029,7 @@ public void addConstraintsOnAllVarsForScript(&T <: node t, m3)
 	// get all vars except for $this
 	for (/v:var(name(name(_))) <- t, var(name(name("this"))) !:= v) {
 		set[loc] decls = { d | d <- m3@uses[v@at], isVariable(d) };
-		if (isEmpty(decls) && v@decl?) {
+		if (isEmpty(decls) && "decl" in getAnnotations(v)) {
 			// if variable is a declaration, add itself
 			decls += v@decl;
 		}
