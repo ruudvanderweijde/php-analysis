@@ -126,6 +126,8 @@ private str textStep4 = "4) Run run4() to solve the constraints (and write resul
 private str textStep5 = "5) Run run5() to print the results";
 
 public void main() {
+	useAnnotations = true; // Use same setting in RunAll()
+	
 	println("Run instructions: (current selected project: `<projectLocation>`)");
 	println("----------------");
 	println(textStep1);
@@ -144,7 +146,7 @@ public void main() {
 	//println(" ⤷ runAll(|file:///PHPAnalysis/systems/swiftmailer_swiftmailer/swiftmailer_swiftmailer-v5.2.1|); (=pretty big!!!)");
 	
 	for (c <- resultCorpus) {
-		if (!isFile(toLocation("file:///home/awsgui/PHPAnalysis/systems/<c>/anaysis_results_without_docblock.txt"))) {
+		if (!isFile(toLocation("file:///home/awsgui/PHPAnalysis/systems/<c>/<getOutputFilename()>"))) {
 			println(" ⤷ runAll(|file:///home/awsgui/PHPAnalysis/systems/<c>/<c>-<resultCorpus[c]>|);");
 			//break;
 		}
@@ -153,7 +155,7 @@ public void main() {
 	println("\nAlready done:");
 			
 	for (c <- resultCorpus) {
-		if (isFile(toLocation("file:///home/awsgui/PHPAnalysis/systems/<c>/anaysis_results_without_docblock.txt"))) {
+		if (isFile(toLocation("file:///home/awsgui/PHPAnalysis/systems/<c>/<getOutputFilename()>"))) {
 			println(" ⤷ runAll(|file:///home/awsgui/PHPAnalysis/systems/<c>/<c>-<resultCorpus[c]>|);");
 			//break;
 		}
@@ -161,7 +163,7 @@ public void main() {
 	
 	println("...");
 	for (c <- resultCorpus) {
-		if (isFile(toLocation("file:///PHPAnalysis/systems/<c>/anaysis_results_without_docblock.txt"))) {
+		if (isFile(toLocation("file:///PHPAnalysis/systems/<c>/<getOutputFilename()>"))) {
 			println(" ⤷ runAll(|file:///PHPAnalysis/systems/<c>/<c>-<resultCorpus[c]>|);");
 			//break;
 		}
@@ -170,6 +172,7 @@ public void main() {
 }
 
 public void runAll(loc project) {
+	useAnnotations = true; // Use same setting in Main()
 
 	projectLocation = project;
 	//projectLocation = |file:///PHPAnalysis/systems/sebastianbergmann_php-timer/sebastianbergmann_php-timer-1.0.5|; // latest
@@ -183,6 +186,8 @@ public void runAll(loc project) {
 	//printSubTypeGraph();
 
 }
+
+private str getOutputFilename() = useAnnotations ? "anaysis_results_with_docblock.txt" : "anaysis_results_without_docblock.txt";
 
 public void run1() {
 	logMessage(textStep1, 1);
@@ -306,7 +311,7 @@ public void run5() {
 	
 	println("--------------------------------------");
 	counters = getNumberOfPossibleItems(solveResult, setSubTypes(m3, system));
-	loc analysisResultOutputFile = getProjectLocation() + "../anaysis_results_without_docblock.txt";
+	loc analysisResultOutputFile = getProjectLocation() + "../<getOutputFilename()>";
 	logMessage("Writing output to file <analysisResultOutputFile>.", 2);
 	writeTextValueFile(analysisResultOutputFile, solveResult);
 	logMessage("Writing done.", 2);

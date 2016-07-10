@@ -124,7 +124,7 @@ private rel[loc decl, Annotation annotation] getVarAnnotations(str input, &T <: 
 	
 	 //#1 match `@(var|type) type $var` 
 	if (/@(var|type)\s+<types:[^\$\s]+>\s+\$<varName:[^\s]+>/i := input) {
-		if (v:var(_) := relatedNode && v.name? && v.name.name?) { // var(name(name(str name))) results in: Expected Expr, but got ClassItem
+		if (v:var(name:name(name(_))) := relatedNode) { // var(name(name(str name))) results in: Expected Expr, but got ClassItem
 			// relatedNode is a variable
 			if (/@(var|type)\s+<types:[^\$\s]+>\s+\$<varName>/i := input) {
 				annotations += { <v@decl, varType(parseTypes(types, relatedNode, m3))> };

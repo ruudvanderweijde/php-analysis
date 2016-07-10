@@ -23,6 +23,7 @@ import Node; // for getAnnotations
 import ListRelation;
 import List;
 
+public bool useAnnotations = false; // this value will be overwritten
 private set[Constraint] constraints = {};
 private map[loc file, lrel[loc decl, loc location] vars] variableMapping = ();
 
@@ -183,6 +184,15 @@ private void addConstraints(Stmt statement, M3 m3)
 			
 				addConstraints(body, m3);
 			}
+
+            // possibly add annotations
+			if (useAnnotations && "phpdoc" in getAnnotations(f)) {
+                for (varType({varType:_}) <- m3@annotations[f@decl]) {
+                    addConstraints(f, { 
+                        subtyp(typeOf(f@decl), varType)
+                    }); 
+                }
+            }
 			// todo add parameters
 		}
 		
@@ -220,11 +230,22 @@ private void addConstraints(ClassItem ci, &T <: node parentNode, M3 m3)
 	top-down-break visit (ci) {
 		case property(set[Modifier] modifiers, list[Property] prop): {
 			for (p:property(str propertyName, OptionExpr defaultValue) <- prop) {
-				addConstraints(p, { eq(typeOf(p@decl), typeOf(p@at)) });
+				addDeclarationConstraint(p);
+				// line below same as line above
+				// addConstraints(p, { eq(typeOf(p@decl), typeOf(p@at)) });
 				
 				if (someExpr(e) := defaultValue) {
 					addConstraints(e, m3);
 					addConstraints(p, { eq(typeOf(p@at), typeOf(e@at)) });
+				}
+				
+				// possibly add annotations
+				if (useAnnotations) {
+					for (varType({varType:_}) <- m3@annotations[p@decl]) {
+						addConstraints(p, { 
+							subtyp(typeOf(p@decl), varType)
+						}); 
+					}
 				}
 			}
 		}
@@ -251,6 +272,16 @@ private void addConstraints(ClassItem ci, &T <: node parentNode, M3 m3)
 			
 				for (stmt <- body) addConstraints(stmt, m3);
 			}
+			
+			// possibly add annotations
+			if (useAnnotations) {
+				for (returnType({varType:_}) <- m3@annotations[m@decl]) {
+					addConstraints(m, { 
+						subtyp(typeOf(m@decl), varType)
+					}); 
+				}
+			}
+			
 			// TODO params !!!!!!!!!!!!!!!!
 		}
 	//| traitUse(list[Name] traits, list[Adaptation] adaptations)
@@ -795,6 +826,15 @@ private void addConstraints(Expr e, M3 m3)
 			;
 				addConstraints(v, { subtyp(typeOf(v@at), \any()) });
 			}
+			
+			// possibly add annotations
+			if (useAnnotations && "decl" in getAnnotations(v)) {
+				for (varType({varType:_}) <- m3@annotations[v@decl]) {
+					addConstraints(v, { 
+						subtyp(typeOf(v@decl), varType)
+					}); 
+				}
+			}
 		}
 		// variable variable
 		case v:var(expr(e)): { addConstraints(v, { subtyp(typeOf(v@at), \any()) }); }
@@ -1083,7 +1123,7 @@ public void addConstraintsOnAllReturnStatementsWithinScope(&T <: node t)
 public void addDeclarationConstraint(&T <: node t)
 {
 	// instead of adding these constraints we can add all declarations...
-	// addConstraints(t, { eq(typeOf(t@decl), typeOf(t@at)) });
+	 addConstraints(t, { eq(typeOf(t@decl), typeOf(t@at)) });
 }
 
 public void addConstraintsForBuiltIn(&T <: node t, list[Param] params)

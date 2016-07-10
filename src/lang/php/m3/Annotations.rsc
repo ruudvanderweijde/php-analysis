@@ -9,24 +9,32 @@ import Relation;
 import Node;
 
 import lang::php::types::TypeSymbol;
-import lang::php::parser::DocBlockParser;
+import lang::php::parser::Annotation;
+
+private M3 providedM3;
 
 public M3 fillPhpDocAnnotations(M3 m3, Script script) {
+	providedM3 = m3;
 	visit (script) {
 		case node n:
 		{
 			annos = getAnnotations(n);
 			if ( "phpdoc" in annos && "decl" in annos )
 			{
-				try {
-					; // todo: add option to use annotations or not.
-					//set[Annotation] annotations = parseAnnotation(n);
-					//m3@annotations += { <n@decl, a> | a <- annotations };
-				} catch ParseError(loc l): {
-					m3@messages += error("Parse error while parsing annotation: <n@phpdoc>", n@at);
-				} catch: {
-					m3@messages += error("Unknown error while parsing annotation: <n@phpdoc>", n@at);
-				}
+				addAnnotationsForNode(n, m3);
+				// Do not use the code below, using the rascal parser
+				// because the docblock syntax is too inconsitent,
+				// the parser will fail too many times
+				//
+				//try {
+				//	; // todo: add option to use annotations or not.
+				//	set[Annotation] annotations = parseAnnotation(n);
+				//	m3@annotations += { <n@decl, a> | a <- annotations };
+				//} catch ParseError(loc l): {
+				//	 m3@messages += [ error("Parse error while parsing annotation: <n@phpdoc>", n@at) ];
+				//} catch: {
+				//	m3@messages += [ error("Unknown error while parsing annotation: <n@phpdoc>", n@at) ];
+				//}
 			}
 		}
 	}
@@ -36,7 +44,7 @@ public M3 fillPhpDocAnnotations(M3 m3, Script script) {
 
 public set[Annotation] parseAnnotation(node n) {
 	set[Annotation] annotations = {};
-	
+
 	node nodes = implode(#node, parse(#DocBlock, n@phpdoc));
 	
 	set[TypeSymbol] returnTypes = getReturnTypes(nodes);
@@ -44,7 +52,8 @@ public set[Annotation] parseAnnotation(node n) {
 	rel[str, TypeSymbol] varTypes = getVarTypes(nodes);
 	
 	// add parameter annotations
-	annotations += { parameterType(types, params[var]) 	| var <- domain(params), types <- paramToLoc(var, n) };
+	// todo fix me parameter type
+	// annotations += { parameterType(types, params[var]) 	| var <- domain(params), types <- paramToLoc(var, n) };
 	// add var type annotations
 	annotations += { varType(types, varTypes[var]) 		| var <- domain(varTypes), types <- varToLoc(var, n) };
 	
@@ -80,9 +89,13 @@ private set[TypeSymbol] getReturnTypes(node nodes) = { toTypeSymbol(t) | /"retur
 private rel[str, TypeSymbol] getParams(node nodes) = { <var, toTypeSymbol(t)> | /"param"(<"types"(types),"variable"(str var)>) <- nodes, t <- types };
 private rel[str, TypeSymbol] getVarTypes(node nodes) = { <var, toTypeSymbol(t)> | /"var"(<"types"(types),"variable"(str var)>) <- nodes, t <- types };
 
-private TypeSymbol toTypeSymbol("int"()) = \int();
-private TypeSymbol toTypeSymbol("string"()) = string();
-private TypeSymbol toTypeSymbol("mixed"()) = mixed();
-private TypeSymbol toTypeSymbol("null"()) = \null();
-private TypeSymbol toTypeSymbol("class"(str className)) = class(className);
+private TypeSymbol toTypeSymbol("int"()) = integerType();
+private TypeSymbol toTypeSymbol("string"()) = stringType();
+private TypeSymbol toTypeSymbol("mixed"()) = \any();
+private TypeSymbol toTypeSymbol("null"()) = nullType();
+private TypeSymbol toTypeSymbol("class"(str className)) = getClassType(className);
 default TypeSymbol toTypeSymbol(node n) { throw("Type \'<n>\' is not supported"); }
+
+private TypeSymbol getClassType(className) {
+	return classType(|php+abc:///|);
+}
