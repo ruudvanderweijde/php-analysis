@@ -4,6 +4,7 @@ import lang::php::ast::AbstractSyntax;
 
 import lang::php::m3::Core;
 import lang::php::m3::Containment;
+import lang::php::m3::Declarations;
 import lang::php::ast::System;
 //import lang::php::ast::Scopes;
 
@@ -174,7 +175,7 @@ private void addConstraints(Stmt statement, M3 m3)
 		case exprstmt(Expr expr): 				addConstraints(expr, m3);
 		
 		case f:function(str name, bool byRef, list[Param] params, list[Stmt] body): {
-			if ("phpdoc" in getAnnotations(f) && /@jms-builtin/ := f@phpdoc) {
+			if ("phpdoc" in getAnnotations(f) && isBuiltIn(f@at)) {
 				// builtin function	
 				addConstraintsForBuiltIn(f, params);
 			} else { 
@@ -187,7 +188,7 @@ private void addConstraints(Stmt statement, M3 m3)
 
             // possibly add annotations
 			if (useAnnotations && "phpdoc" in getAnnotations(f)) {
-                for (varType({varType:_}) <- m3@annotations[f@decl]) {
+                for (returnType({varType:_}) <- m3@annotations[f@decl]) {
                     addConstraints(f, { 
                         subtyp(typeOf(f@decl), varType)
                     }); 
@@ -262,7 +263,7 @@ private void addConstraints(ClassItem ci, &T <: node parentNode, M3 m3)
 		}
 		
 		case m:method(str name, set[Modifier] modifiers, bool byRef, list[Param] params, list[Stmt] body): {
-			if ("phpdoc" in getAnnotations(parentNode) && /@jms-builtin/ := parentNode@phpdoc || "phpdoc" in getAnnotations(m) && /@jms-builtin/ := m@phpdoc) {
+			if ("phpdoc" in getAnnotations(m) && isBuiltIn(m@at)) {
 				// builtin class or method 
 				addConstraintsForBuiltIn(m, params);
 			} else { 
@@ -1134,7 +1135,8 @@ public void addConstraintsForBuiltIn(&T <: node t, list[Param] params)
 	// Instead add general constraints. Later: reading annotations can restrict this.
 
 	// return type of the function/method
-	addConstraints(t, { eq(typeOf(t@at), \any()) }); 
+	//addConstraints(t, { eq(typeOf(t@at), \any()) }); 
+	addConstraints(t, { eq(typeOf(t@at), typeOf(t@decl)) }); 
 	
 	// todo: handle parameters
 }

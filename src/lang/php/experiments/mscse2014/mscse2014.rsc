@@ -127,6 +127,7 @@ private str textStep5 = "5) Run run5() to print the results";
 
 public void main() {
 	useAnnotations = true; // Use same setting in RunAll()
+	includePhpInternals = true;
 	
 	println("Run instructions: (current selected project: `<projectLocation>`)");
 	println("----------------");
@@ -173,6 +174,7 @@ public void main() {
 
 public void runAll(loc project) {
 	useAnnotations = true; // Use same setting in Main()
+	includePhpInternals = true;
 
 	projectLocation = project;
 	//projectLocation = |file:///PHPAnalysis/systems/sebastianbergmann_php-timer/sebastianbergmann_php-timer-1.0.5|; // latest
@@ -187,7 +189,7 @@ public void runAll(loc project) {
 
 }
 
-private str getOutputFilename() = useAnnotations ? "anaysis_results_with_docblock.txt" : "anaysis_results_without_docblock.txt";
+private str getOutputFilename() = "anaysis_results_<useAnnotations ? "with_docblock" : "without_docblock">_<includePhpInternals ? "with_phpfunctions" : "without_phpfunctions">.txt";
 
 public void run1() {
 	logMessage(textStep1, 1);

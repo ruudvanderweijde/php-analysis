@@ -109,8 +109,12 @@ private System loadPHPFiles(loc l, set[str] extensions, Script(loc,bool,bool) lo
 	// regex filter exlucdes test/	
 	list[loc] entries = [ l + e | e <- listEntries(l)];
 	list[loc] dirEntries = [ e | e <- entries, isDirectory(e)];
+	if (!includePhpInternals) {
+		// don't match files in 'php_internals' folder
+		dirEntries = [ e | e <- dirEntries, /php_internals/!:=e.file]; 
+	}
 	list[loc] phpEntries = [ e | e <- entries, e.extension in extensions];
-
+	
 	System phpNodes = ( );
 	
 	increaseFolderCounter();
@@ -301,9 +305,7 @@ public int countFolders(loc d) = (1 | it + countFolders(d+f) | str f <- listEntr
 }
 public void logMessage(str message, int level) {
 	if (level <= logLevel) {
-		//str date = printDate(now(), "Y-MM-dd HH:mm:ss");
 		println("<now()> :: <message>");
-		//println("<date> :: <message>");
 	}
 }
 
