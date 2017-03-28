@@ -1,0 +1,604 @@
+/Users/ruud/.composer/vendor/phploc/phploc/phploc ./doctrine_annotations > phploc/doctrine_annotations.phploc
+/Users/ruud/.composer/vendor/phploc/phploc/phploc ./doctrine_cache > phploc/doctrine_cache.phploc
+/Users/ruud/.composer/vendor/phploc/phploc/phploc ./doctrine_collections > phploc/doctrine_collections.phploc
+/Users/ruud/.composer/vendor/phploc/phploc/phploc ./doctrine_common > phploc/doctrine_common.phploc
+/Users/ruud/.composer/vendor/phploc/phploc/phploc ./doctrine_dbal > phploc/doctrine_dbal.phploc
+/Users/ruud/.composer/vendor/phploc/phploc/phploc ./doctrine_inflector > phploc/doctrine_inflector.phploc
+/Users/ruud/.composer/vendor/phploc/phploc/phploc ./doctrine_lexer > phploc/doctrine_lexer.phploc
+/Users/ruud/.composer/vendor/phploc/phploc/phploc ./guzzle_guzzle > phploc/guzzle_guzzle.phploc
+/Users/ruud/.composer/vendor/phploc/phploc/phploc ./monolog_monolog > phploc/monolog_monolog.phploc
+/Users/ruud/.composer/vendor/phploc/phploc/phploc ./phpunit_php-code-coverage > phploc/phpunit_php-code-coverage.phploc
+/Users/ruud/.composer/vendor/phploc/phploc/phploc ./phpunit_php-token-stream > phploc/phpunit_php-token-stream.phploc
+/Users/ruud/.composer/vendor/phploc/phploc/phploc ./phpunit_phpunit > phploc/phpunit_phpunit.phploc
+/Users/ruud/.composer/vendor/phploc/phploc/phploc ./phpunit_phpunit-mock-objects > phploc/phpunit_phpunit-mock-objects.phploc
+/Users/ruud/.composer/vendor/phploc/phploc/phploc ./psr_log > phploc/psr_log.phploc
+/Users/ruud/.composer/vendor/phploc/phploc/phploc ./swiftmailer_swiftmailer > phploc/swiftmailer_swiftmailer.phploc
+/Users/ruud/.composer/vendor/phploc/phploc/phploc ./symfony_browser-kit > phploc/symfony_browser-kit.phploc
+/Users/ruud/.composer/vendor/phploc/phploc/phploc ./symfony_console > phploc/symfony_console.phploc
+/Users/ruud/.composer/vendor/phploc/phploc/phploc ./symfony_css-selector > phploc/symfony_css-selector.phploc
+/Users/ruud/.composer/vendor/phploc/phploc/phploc ./symfony_debug > phploc/symfony_debug.phploc
+/Users/ruud/.composer/vendor/phploc/phploc/phploc ./symfony_dom-crawler > phploc/symfony_dom-crawler.phploc
+/Users/ruud/.composer/vendor/phploc/phploc/phploc ./symfony_event-dispatcher > phploc/symfony_event-dispatcher.phploc
+/Users/ruud/.composer/vendor/phploc/phploc/phploc ./symfony_filesystem > phploc/symfony_filesystem.phploc
+/Users/ruud/.composer/vendor/phploc/phploc/phploc ./symfony_finder > phploc/symfony_finder.phploc
+/Users/ruud/.composer/vendor/phploc/phploc/phploc ./symfony_http-foundation > phploc/symfony_http-foundation.phploc
+/Users/ruud/.composer/vendor/phploc/phploc/phploc ./symfony_http-kernel > phploc/symfony_http-kernel.phploc
+/Users/ruud/.composer/vendor/phploc/phploc/phploc ./symfony_process > phploc/symfony_process.phploc
+/Users/ruud/.composer/vendor/phploc/phploc/phploc ./symfony_routing > phploc/symfony_routing.phploc
+/Users/ruud/.composer/vendor/phploc/phploc/phploc ./symfony_translation > phploc/symfony_translation.phploc
+/Users/ruud/.composer/vendor/phploc/phploc/phploc ./symfony_yaml > phploc/symfony_yaml.phploc
+/Users/ruud/.composer/vendor/phploc/phploc/phploc ./twig_twig > phploc/twig_twig.phploc
+
+
+Results::
+
+Project & Directories & Files & LOC & LLOC & GLOC
+doctrine_annotations & 2                                20                                          3807                            649 (17.05%)                             33 (5.08%)
+doctrine_collections & 1                                12                                    2167                            310 (14.31%)                             29 (9.35%)
+doctrine_common & 15                              110                                               2036                            308 (15.13%)                             21 (6.82%)
+doctrine_dbal & 50                              280                                           16679                           2444 (14.65%)                            212 (8.67%)
+guzzle_guzzle & 48                              248                                         51229                           7840 (15.30%)                            713 (9.09%)
+monolog_monolog & 7                                80                                              385                             44 (11.43%)                              1 (2.27%)
+phpunit_php-code-coverage & 26                               55                                265                             42 (15.85%)                              1 (2.38%)
+phpunit_php-token-stream & 4                                 6                              27537                           5645 (20.50%)                            804 (14.24%)
+phpunit_phpunit-mock-objects & 13                               54                             7989                           1464 (18.33%)                            167 (11.41%)
+phpunit_phpunit & 63                              262                                                   10676                           1711 (16.03%)                             18 (1.05%)
+psr_log & 1                                 9                                                           1714                            285 (16.63%)                              0 (0.00%)
+swiftmailer_swiftmailer & 25                              171                                               6462                            629 (9.73%)                              22 (3.50%)
+symfony_browser-kit & 2                                15                                     50470                           6667 (13.21%)                            111 (1.66%)
+symfony_console & 10                               58                                   571                             69 (12.08%)                             10 (14.49%)
+symfony_css-selector & 8                                48                                            22387                           3388 (15.13%)                             29 (0.86%)
+symfony_debug & 2                                16                                                4154                            705 (16.97%)                             22 (3.12%)
+symfony_dom-crawler & 1                                 9                                     11004                           2146 (19.50%)                            200 (9.32%)
+symfony_event-dispatcher & 2                                11                                      4752                            757 (15.93%)                            133 (17.57%)
+symfony_filesystem & 1                                 5                                     1920                            417 (21.72%)                             40 (9.59%)
+symfony_finder & 6                                37                                               2560                            441 (17.23%)                             12 (2.72%)
+symfony_http-foundation & 10                               61                                           1466                            239 (16.30%)                             23 (9.62%)
+symfony_http-kernel & 35                              206                                          602                             99 (16.45%)                              7 (7.07%)
+symfony_process & 1                                13                                         4488                            815 (18.16%)                             68 (8.34%)
+symfony_routing & 7                                43                                                 11895                           1763 (14.82%)                             99 (5.62%)
+symfony_translation & 6                                44                                         27837                           4754 (17.08%)                            551 (11.59%)
+symfony_yaml & 1                                10                                             2710                            510 (18.82%)                             25 (4.90%)
+twig_twig & 16                              166                                                5872                           1115 (18.99%)                            122 (10.94%)
+                                                                                                   3896                            705 (18.10%)                            115 (16.31%)
+                                                                                            1782                            415 (23.29%)                             16 (3.86%)
+                                                                                        14221                           2544 (17.89%)                              3 (0.12%)
+
+
+ruuds-mbp:phploc ruud$ grep Files *
+doctrine_annotations.phploc:Files                                               20
+doctrine_collections.phploc:Files                                               12
+doctrine_common.phploc:Files                                              110
+doctrine_dbal.phploc:Files                                              280
+guzzle_guzzle.phploc:Files                                              248
+monolog_monolog.phploc:Files                                               80
+phpunit_php-code-coverage.phploc:Files                                               55
+phpunit_php-token-stream.phploc:Files                                                6
+phpunit_phpunit-mock-objects.phploc:Files                                               54
+phpunit_phpunit.phploc:Files                                              262
+psr_log.phploc:Files                                                9
+swiftmailer_swiftmailer.phploc:Files                                              171
+symfony_browser-kit.phploc:Files                                               15
+symfony_console.phploc:Files                                               58
+symfony_css-selector.phploc:Files                                               48
+symfony_debug.phploc:Files                                               16
+symfony_dom-crawler.phploc:Files                                                9
+symfony_event-dispatcher.phploc:Files                                               11
+symfony_filesystem.phploc:Files                                                5
+symfony_finder.phploc:Files                                               37
+symfony_http-foundation.phploc:Files                                               61
+symfony_http-kernel.phploc:Files                                              206
+symfony_process.phploc:Files                                               13
+symfony_routing.phploc:Files                                               43
+symfony_translation.phploc:Files                                               44
+symfony_yaml.phploc:Files                                               10
+twig_twig.phploc:Files                                              166
+
+
+
+
+
+
+ruuds-mbp:phploc ruud$ grep "  Lines of Code (LOC)" *
+doctrine_annotations.phploc:  Lines of Code (LOC)                             3807
+doctrine_cache.phploc:  Lines of Code (LOC)                             2167
+doctrine_collections.phploc:  Lines of Code (LOC)                             2036
+doctrine_common.phploc:  Lines of Code (LOC)                            16679
+doctrine_dbal.phploc:  Lines of Code (LOC)                            51229
+doctrine_inflector.phploc:  Lines of Code (LOC)                              385
+doctrine_lexer.phploc:  Lines of Code (LOC)                              265
+guzzle_guzzle.phploc:  Lines of Code (LOC)                            27537
+monolog_monolog.phploc:  Lines of Code (LOC)                             7989
+phpunit_php-code-coverage.phploc:  Lines of Code (LOC)                            10676
+phpunit_php-token-stream.phploc:  Lines of Code (LOC)                             1714
+phpunit_phpunit-mock-objects.phploc:  Lines of Code (LOC)                             6462
+phpunit_phpunit.phploc:  Lines of Code (LOC)                            50470
+psr_log.phploc:  Lines of Code (LOC)                              571
+swiftmailer_swiftmailer.phploc:  Lines of Code (LOC)                            22387
+symfony_browser-kit.phploc:  Lines of Code (LOC)                             4154
+symfony_console.phploc:  Lines of Code (LOC)                            11004
+symfony_css-selector.phploc:  Lines of Code (LOC)                             4752
+symfony_debug.phploc:  Lines of Code (LOC)                             1920
+symfony_dom-crawler.phploc:  Lines of Code (LOC)                             2560
+symfony_event-dispatcher.phploc:  Lines of Code (LOC)                             1466
+symfony_filesystem.phploc:  Lines of Code (LOC)                              602
+symfony_finder.phploc:  Lines of Code (LOC)                             4488
+symfony_http-foundation.phploc:  Lines of Code (LOC)                            11895
+symfony_http-kernel.phploc:  Lines of Code (LOC)                            27837
+symfony_process.phploc:  Lines of Code (LOC)                             2710
+symfony_routing.phploc:  Lines of Code (LOC)                             5872
+symfony_translation.phploc:  Lines of Code (LOC)                             3896
+symfony_yaml.phploc:  Lines of Code (LOC)                             1782
+twig_twig.phploc:  Lines of Code (LOC)                            14221
+
+
+
+
+
+
+ruuds-mbp:phploc ruud$ grep "Logical Lines of Code (LLOC)" *
+doctrine_annotations.phploc:  Logical Lines of Code (LLOC)                     649 (17.05%)
+doctrine_cache.phploc:  Logical Lines of Code (LLOC)                     310 (14.31%)
+doctrine_collections.phploc:  Logical Lines of Code (LLOC)                     308 (15.13%)
+doctrine_common.phploc:  Logical Lines of Code (LLOC)                    2444 (14.65%)
+doctrine_dbal.phploc:  Logical Lines of Code (LLOC)                    7840 (15.30%)
+doctrine_inflector.phploc:  Logical Lines of Code (LLOC)                      44 (11.43%)
+doctrine_lexer.phploc:  Logical Lines of Code (LLOC)                      42 (15.85%)
+guzzle_guzzle.phploc:  Logical Lines of Code (LLOC)                    5645 (20.50%)
+monolog_monolog.phploc:  Logical Lines of Code (LLOC)                    1464 (18.33%)
+phpunit_php-code-coverage.phploc:  Logical Lines of Code (LLOC)                    1711 (16.03%)
+phpunit_php-token-stream.phploc:  Logical Lines of Code (LLOC)                     285 (16.63%)
+phpunit_phpunit-mock-objects.phploc:  Logical Lines of Code (LLOC)                     629 (9.73%)
+phpunit_phpunit.phploc:  Logical Lines of Code (LLOC)                    6667 (13.21%)
+psr_log.phploc:  Logical Lines of Code (LLOC)                      69 (12.08%)
+swiftmailer_swiftmailer.phploc:  Logical Lines of Code (LLOC)                    3388 (15.13%)
+symfony_browser-kit.phploc:  Logical Lines of Code (LLOC)                     705 (16.97%)
+symfony_console.phploc:  Logical Lines of Code (LLOC)                    2146 (19.50%)
+symfony_css-selector.phploc:  Logical Lines of Code (LLOC)                     757 (15.93%)
+symfony_debug.phploc:  Logical Lines of Code (LLOC)                     417 (21.72%)
+symfony_dom-crawler.phploc:  Logical Lines of Code (LLOC)                     441 (17.23%)
+symfony_event-dispatcher.phploc:  Logical Lines of Code (LLOC)                     239 (16.30%)
+symfony_filesystem.phploc:  Logical Lines of Code (LLOC)                      99 (16.45%)
+symfony_finder.phploc:  Logical Lines of Code (LLOC)                     815 (18.16%)
+symfony_http-foundation.phploc:  Logical Lines of Code (LLOC)                    1763 (14.82%)
+symfony_http-kernel.phploc:  Logical Lines of Code (LLOC)                    4754 (17.08%)
+symfony_process.phploc:  Logical Lines of Code (LLOC)                     510 (18.82%)
+symfony_routing.phploc:  Logical Lines of Code (LLOC)                    1115 (18.99%)
+symfony_translation.phploc:  Logical Lines of Code (LLOC)                     705 (18.10%)
+symfony_yaml.phploc:  Logical Lines of Code (LLOC)                     415 (23.29%)
+twig_twig.phploc:  Logical Lines of Code (LLOC)                    2544 (17.89%)
+
+
+
+
+
+
+
+
+
+ruuds-mbp:phploc ruud$ grep -r "Not in classes or functions" *
+doctrine_annotations.phploc:    Not in classes or functions                     33 (5.08%)
+doctrine_cache.phploc:    Not in classes or functions                     29 (9.35%)
+doctrine_collections.phploc:    Not in classes or functions                     21 (6.82%)
+doctrine_common.phploc:    Not in classes or functions                    212 (8.67%)
+doctrine_dbal.phploc:    Not in classes or functions                    713 (9.09%)
+doctrine_inflector.phploc:    Not in classes or functions                      1 (2.27%)
+doctrine_lexer.phploc:    Not in classes or functions                      1 (2.38%)
+guzzle_guzzle.phploc:    Not in classes or functions                    804 (14.24%)
+monolog_monolog.phploc:    Not in classes or functions                    167 (11.41%)
+phpunit_php-code-coverage.phploc:    Not in classes or functions                     18 (1.05%)
+phpunit_php-token-stream.phploc:    Not in classes or functions                      0 (0.00%)
+phpunit_phpunit-mock-objects.phploc:    Not in classes or functions                     22 (3.50%)
+phpunit_phpunit.phploc:    Not in classes or functions                    111 (1.66%)
+psr_log.phploc:    Not in classes or functions                     10 (14.49%)
+swiftmailer_swiftmailer.phploc:    Not in classes or functions                     29 (0.86%)
+symfony_browser-kit.phploc:    Not in classes or functions                     22 (3.12%)
+symfony_console.phploc:    Not in classes or functions                    200 (9.32%)
+symfony_css-selector.phploc:    Not in classes or functions                    133 (17.57%)
+symfony_debug.phploc:    Not in classes or functions                     40 (9.59%)
+symfony_dom-crawler.phploc:    Not in classes or functions                     12 (2.72%)
+symfony_event-dispatcher.phploc:    Not in classes or functions                     23 (9.62%)
+symfony_filesystem.phploc:    Not in classes or functions                      7 (7.07%)
+symfony_finder.phploc:    Not in classes or functions                     68 (8.34%)
+symfony_http-foundation.phploc:    Not in classes or functions                     99 (5.62%)
+symfony_http-kernel.phploc:    Not in classes or functions                    551 (11.59%)
+symfony_process.phploc:    Not in classes or functions                     25 (4.90%)
+symfony_routing.phploc:    Not in classes or functions                    122 (10.94%)
+symfony_translation.phploc:    Not in classes or functions                    115 (16.31%)
+symfony_yaml.phploc:    Not in classes or functions                     16 (3.86%)
+twig_twig.phploc:    Not in classes or functions                      3 (0.12%)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    Project ; Directories ; Files ; LOC ; LLOC ; GLOC 
+    doctrine annotations ; 2 ; 20 ; 3807 ; 649 (17.05 \%) ; 33 (5.08 \%) 
+    doctrine cache ; - ; - ; 2167 ; 310 (14.31 \%) ; 29 (9.35 \%) 
+    doctrine collections ; - ; - ; 2036 ; 308 (15.13 \%) ; 21 (6.82 \%) 
+    doctrine common ; 15 ; 110 ; 16679 ; 2444 (14.65 \%) ; 212 (8.67 \%) 
+    doctrine dbal ; 50 ; 280 ; 51229 ; 7840 (15.30 \%) ; 713 (9.09 \%) 
+    doctrine inflector ; - ; - ; 385 ; 44 (11.43 \%) ; 1 (2.27 \%) 
+    doctrine lexer ; - ; - ; 265 ; 42 (15.85 \%) ; 1 (2.38 \%) 
+    guzzle guzzle ; 48 ; 248 ; 27537 ; 5645 (20.50 \%) ; 804 (14.24 \%) 
+    monolog monolog ; 7 ; 80 ; 7989 ; 1464 (18.33 \%) ; 167 (11.41 \%) 
+    phpunit php-code-coverage ; 26 ; 55 ; 10676 ; 1711 (16.03 \%) ; 18 (1.05 \%) 
+    phpunit php-token-stream ; 4 ; 6 ; 1714 ; 285 (16.63 \%) ; 0 (0.00 \%) 
+    phpunit phpunit-mock-objects ; 13 ; 54 ; 6462 ; 629 (9.73 \%) ; 22 (3.50 \%) 
+    phpunit phpunit ; 63 ; 262 ; 50470 ; 6667 (13.21 \%) ; 111 (1.66 \%) 
+    psr log ; 1 ; 9 ; 571 ; 69 (12.08 \%) ; 10 (14.49 \%) 
+    swiftmailer swiftmailer ; 25 ; 171 ; 22387 ; 3388 (15.13 \%) ; 29 (0.86 \%) 
+    symfony browser-kit ; 2 ; 15 ; 4154 ; 705 (16.97 \%) ; 22 (3.12 \%) 
+    symfony console ; 10 ; 58 ; 11004 ; 2146 (19.50 \%) ; 200 (9.32 \%) 
+    symfony css-selector ; 8 ; 48 ; 4752 ; 757 (15.93 \%) ; 133 (17.57 \%) 
+    symfony debug ; 2 ; 16 ; 1920 ; 417 (21.72 \%) ; 40 (9.59 \%) 
+    symfony dom-crawler ; 1 ; 9 ; 2560 ; 441 (17.23 \%) ; 12 (2.72 \%) 
+    symfony event-dispatcher ; 2 ; 11 ; 1466 ; 239 (16.30 \%) ; 23 (9.62 \%) 
+    symfony filesystem ; 1 ; 5 ; 602 ; 99 (16.45 \%) ; 7 (7.07 \%) 
+    symfony finder ; 6 ; 37 ; 4488 ; 815 (18.16 \%) ; 68 (8.34 \%) 
+    symfony http-foundation ; 10 ; 61 ; 11895 ; 1763 (14.82 \%) ; 99 (5.62 \%) 
+    symfony http-kernel ; 35 ; 206 ; 27837 ; 4754 (17.08 \%) ; 551 (11.59 \%) 
+    symfony process ; 1 ; 13 ; 2710 ; 510 (18.82 \%) ; 25 (4.90 \%) 
+    symfony routing ; 7 ; 43 ; 5872 ; 1115 (18.99 \%) ; 122 (10.94 \%) 
+    symfony translation ; 6 ; 44 ; 3896 ; 705 (18.10 \%) ; 115 (16.31 \%) 
+    symfony yaml ; 1 ; 10 ; 1782 ; 415 (23.29 \%) ; 16 (3.86 \%) 
+    twig twig ; 16 ; 166 ;  14221 ; 2544 (17.89 \%) ; 3 (0.12 \%) 
+    
+    
+    
+    
+    
+    
+/// sorted results
+
+
+    Project ; Directories ; Files ; LOC ; LLOC ; GLOC
+    doctrine lexer & - & - & 265 & 42 (15.85 \%) & 1 (2.38 \%)
+    doctrine inflector & - & - & 385 & 44 (11.43 \%) & 1 (2.27 \%)
+    psr log & 1 & 9 & 571 & 69 (12.08 \%) & 10 (14.49 \%)
+    symfony filesystem & 1 & 5 & 602 & 99 (16.45 \%) & 7 (7.07 \%)
+    symfony event-dispatcher & 2 & 11 & 1466 & 239 (16.30 \%) & 23 (9.62 \%)
+    phpunit php-token-stream & 4 & 6 & 1714 & 285 (16.63 \%) & 0 (0.00 \%)
+    symfony yaml & 1 & 10 & 1782 & 415 (23.29 \%) & 16 (3.86 \%)
+    symfony debug & 2 & 16 & 1920 & 417 (21.72 \%) & 40 (9.59 \%)
+    doctrine collections & - & - & 2036 & 308 (15.13 \%) & 21 (6.82 \%)
+    doctrine cache & - & - & 2167 & 310 (14.31 \%) & 29 (9.35 \%)
+    symfony dom-crawler & 1 & 9 & 2560 & 441 (17.23 \%) & 12 (2.72 \%)
+    symfony process & 1 & 13 & 2710 & 510 (18.82 \%) & 25 (4.90 \%)
+    doctrine annotations & 2 & 20 & 3807 & 649 (17.05 \%) & 33 (5.08 \%)
+    symfony translation & 6 & 44 & 3896 & 705 (18.10 \%) & 115 (16.31 \%)
+    symfony browser-kit & 2 & 15 & 4154 & 705 (16.97 \%) & 22 (3.12 \%)
+    symfony finder & 6 & 37 & 4488 & 815 (18.16 \%) & 68 (8.34 \%)
+    symfony css-selector & 8 & 48 & 4752 & 757 (15.93 \%) & 133 (17.57 \%)
+    symfony routing & 7 & 43 & 5872 & 1115 (18.99 \%) & 122 (10.94 \%)
+    phpunit phpunit-mock-objects & 13 & 54 & 6462 & 629 (9.73 \%) & 22 (3.50 \%)
+    monolog monolog & 7 & 80 & 7989 & 1464 (18.33 \%) & 167 (11.41 \%)
+    phpunit php-code-coverage & 26 & 55 & 10676 & 1711 (16.03 \%) & 18 (1.05 \%)
+    symfony console & 10 & 58 & 11004 & 2146 (19.50 \%) & 200 (9.32 \%)
+    symfony http-foundation & 10 & 61 & 11895 & 1763 (14.82 \%) & 99 (5.62 \%)
+    twig twig & 16 & 166 & 14221 & 2544 (17.89 \%) & 3 (0.12 \%)
+    doctrine common & 15 & 110 & 16679 & 2444 (14.65 \%) & 212 (8.67 \%)
+    swiftmailer swiftmailer & 25 & 171 & 22387 & 3388 (15.13 \%) & 29 (0.86 \%)
+    guzzle guzzle & 48 & 248 & 27537 & 5645 (20.50 \%) & 804 (14.24 \%)
+    symfony http-kernel & 35 & 206 & 27837 & 4754 (17.08 \%) & 551 (11.59 \%)
+    phpunit phpunit & 63 & 262 & 50470 & 6667 (13.21 \%) & 111 (1.66 \%)
+    doctrine dbal & 50 & 280 & 51229 & 7840 (15.30 \%) & 713 (9.09 \%)
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+put all folders in 
+
+mkdir /PHPAnalysis/systems/doctrine_annotations/doctrine_annotations-1.2.0
+ cp -a doctrine_annotations/doctrine_annotations-1.2.0 /PHPAnalysis/systems/doctrine_annotations/doctrine_annotations-1.2.0
+mkdir -p /PHPAnalysis/systems/doctrine_cache/doctrine_cache-1.3.0
+ cp -a doctrine_cache/doctrine_cache-1.3.0 /PHPAnalysis/systems/doctrine_cache/doctrine_cache-1.3.0
+mkdir -p /PHPAnalysis/systems/doctrine_collections/doctrine_collections-1.2
+ cp -a doctrine_collections/doctrine_collections-1.2 /PHPAnalysis/systems/doctrine_collections/doctrine_collections-1.2
+mkdir -p /PHPAnalysis/systems/doctrine_common/doctrine_common-2.4.2
+ cp -a doctrine_common/doctrine_common-2.4.2 /PHPAnalysis/systems/doctrine_common/doctrine_common-2.4.2
+mkdir -p /PHPAnalysis/systems/doctrine_dbal/doctrine_dbal-2.4.2
+ cp -a doctrine_dbal/doctrine_dbal-2.4.2 /PHPAnalysis/systems/doctrine_dbal/doctrine_dbal-2.4.2
+mkdir -p /PHPAnalysis/systems/doctrine_inflector/doctrine_inflector-1.0
+ cp -a doctrine_inflector/doctrine_inflector-1.0 /PHPAnalysis/systems/doctrine_inflector/doctrine_inflector-1.0
+mkdir -p /PHPAnalysis/systems/doctrine_lexer/doctrine_lexer-1.0
+ cp -a doctrine_lexer/doctrine_lexer-1.0 /PHPAnalysis/systems/doctrine_lexer/doctrine_lexer-1.0
+mkdir -p /PHPAnalysis/systems/guzzle_guzzle/guzzle_guzzle-3.9.2
+ cp -a guzzle_guzzle/guzzle_guzzle-3.9.2 /PHPAnalysis/systems/guzzle_guzzle/guzzle_guzzle-3.9.2
+mkdir -p /PHPAnalysis/systems/monolog_monolog/monolog_monolog-1.10.0
+ cp -a monolog_monolog/monolog_monolog-1.10.0 /PHPAnalysis/systems/monolog_monolog/monolog_monolog-1.10.0
+mkdir -p /PHPAnalysis/systems/phpunit_php-code-coverage/phpunit_php-code-coverage-2.0.10
+ cp -a phpunit_php-code-coverage/phpunit_php-code-coverage-2.0.10 /PHPAnalysis/systems/phpunit_php-code-coverage/phpunit_php-code-coverage-2.0.10
+mkdir -p /PHPAnalysis/systems/phpunit_php-token-stream/phpunit_php-token-stream-1.2.2
+ cp -a phpunit_php-token-stream/phpunit_php-token-stream-1.2.2 /PHPAnalysis/systems/phpunit_php-token-stream/phpunit_php-token-stream-1.2.2
+mkdir -p /PHPAnalysis/systems/phpunit_phpunit/phpunit_phpunit-4.2.2
+ cp -a phpunit_phpunit/phpunit_phpunit-4.2.2 /PHPAnalysis/systems/phpunit_phpunit/phpunit_phpunit-4.2.2
+mkdir -p /PHPAnalysis/systems/phpunit_phpunit-mock-objects/phpunit_phpunit-mock-objects-2.2.0
+ cp -a phpunit_phpunit-mock-objects/phpunit_phpunit-mock-objects-2.2.0 /PHPAnalysis/systems/phpunit_phpunit-mock-objects/phpunit_phpunit-mock-objects-2.2.0
+mkdir -p /PHPAnalysis/systems/psr_log/psr_log-1.0.0
+ cp -a psr_log/psr_log-1.0.0 /PHPAnalysis/systems/psr_log/psr_log-1.0.0
+mkdir -p /PHPAnalysis/systems/swiftmailer_swiftmailer/swiftmailer_swiftmailer-5.2.1
+ cp -a swiftmailer_swiftmailer/swiftmailer_swiftmailer-5.2.1 /PHPAnalysis/systems/swiftmailer_swiftmailer/swiftmailer_swiftmailer-5.2.1
+mkdir -p /PHPAnalysis/systems/symfony_browser-kit/symfony_browser-kit-2.5.3
+ cp -a symfony_browser-kit/symfony_browser-kit-2.5.3 /PHPAnalysis/systems/symfony_browser-kit/symfony_browser-kit-2.5.3
+mkdir -p /PHPAnalysis/systems/symfony_console/symfony_console-2.5.3
+ cp -a symfony_console/symfony_console-2.5.3 /PHPAnalysis/systems/symfony_console/symfony_console-2.5.3
+mkdir -p /PHPAnalysis/systems/symfony_css-selector/symfony_css-selector-2.5.3
+ cp -a symfony_css-selector/symfony_css-selector-2.5.3 /PHPAnalysis/systems/symfony_css-selector/symfony_css-selector-2.5.3
+mkdir -p /PHPAnalysis/systems/symfony_debug/symfony_debug-2.5.3
+ cp -a symfony_debug/symfony_debug-2.5.3 /PHPAnalysis/systems/symfony_debug/symfony_debug-2.5.3
+mkdir -p /PHPAnalysis/systems/symfony_dom-crawler/symfony_dom-crawler-2.5.3
+ cp -a symfony_dom-crawler/symfony_dom-crawler-2.5.3 /PHPAnalysis/systems/symfony_dom-crawler/symfony_dom-crawler-2.5.3
+mkdir -p /PHPAnalysis/systems/symfony_event-dispatcher/symfony_event-dispatcher-2.5.3
+ cp -a symfony_event-dispatcher/symfony_event-dispatcher-2.5.3 /PHPAnalysis/systems/symfony_event-dispatcher/symfony_event-dispatcher-2.5.3
+mkdir -p /PHPAnalysis/systems/symfony_filesystem/symfony_filesystem-2.5.3
+ cp -a symfony_filesystem/symfony_filesystem-2.5.3 /PHPAnalysis/systems/symfony_filesystem/symfony_filesystem-2.5.3
+mkdir -p /PHPAnalysis/systems/symfony_finder/symfony_finder-2.5.3
+ cp -a symfony_finder/symfony_finder-2.5.3 /PHPAnalysis/systems/symfony_finder/symfony_finder-2.5.3
+mkdir -p /PHPAnalysis/systems/symfony_http-foundation/symfony_http-foundation-2.5.3
+ cp -a symfony_http-foundation/symfony_http-foundation-2.5.3 /PHPAnalysis/systems/symfony_http-foundation/symfony_http-foundation-2.5.3
+mkdir -p /PHPAnalysis/systems/symfony_http-kernel/symfony_http-kernel-2.5.3
+ cp -a symfony_http-kernel/symfony_http-kernel-2.5.3 /PHPAnalysis/systems/symfony_http-kernel/symfony_http-kernel-2.5.3
+mkdir -p /PHPAnalysis/systems/symfony_process/symfony_process-2.5.3
+ cp -a symfony_process/symfony_process-2.5.3 /PHPAnalysis/systems/symfony_process/symfony_process-2.5.3
+mkdir -p /PHPAnalysis/systems/symfony_routing/symfony_routing-2.5.3
+ cp -a symfony_routing/symfony_routing-2.5.3 /PHPAnalysis/systems/symfony_routing/symfony_routing-2.5.3
+mkdir -p /PHPAnalysis/systems/symfony_translation/symfony_translation-2.5.3
+ cp -a symfony_translation/symfony_translation-2.5.3 /PHPAnalysis/systems/symfony_translation/symfony_translation-2.5.3
+mkdir -p /PHPAnalysis/systems/symfony_yaml/symfony_yaml-2.5.3
+ cp -a symfony_yaml/symfony_yaml-2.5.3 /PHPAnalysis/systems/symfony_yaml/symfony_yaml-2.5.3
+mkdir -p /PHPAnalysis/systems/twig_twig/twig_twig-1.16.0
+ cp -a twig_twig/twig_twig-1.16.0 /PHPAnalysis/systems/twig_twig/twig_twig-1.16.0
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+     Project 						& Directories 	& Files     & Classes   & Interfaces    & Traits & LOC 		& LLOC 				& GLOC \\ \hline
+     doctrine lexer 				& - 			& - 		& 1         & 0             & 0		 & 265 		& 42 (15.85 \%) 	& 1 (2.38 \%) \\ \hline
+     doctrine inflector 			& - 			& - 		& 1         & 0             & 0		 & 385 		& 44 (11.43 \%) 	& 1 (2.27 \%) \\ \hline
+     psr log 						& 1 			& 9 		& 6         & 2             & 2		 & 571 		& 69 (12.08 \%) 	& 10 (14.49 \%) \\ \hline
+     symfony filesystem 			& 1 			& 5 		& 3         & 2             & 0		 & 602 		& 99 (16.45 \%) 	& 7 (7.07 \%) \\ \hline
+     symfony event-dispatcher 		& 2 			& 11 		& 8         & 3             & 0		 & 1466 	& 239 (16.30 \%) 	& 23 (9.62 \%) \\ \hline
+     phpunit php-token-stream 		& 4 			& 6 		& 167       & 0             & 0		 & 1714 	& 285 (16.63 \%) 	& 0 (0.00 \%) \\ \hline
+     symfony yaml 					& 1 			& 10 		& 9         & 1             & 0		 & 1782 	& 415 (23.29 \%) 	& 16 (3.86 \%) \\ \hline
+     symfony debug 					& 2 			& 16 		& 16        & 1             & 0		 & 1920 	& 417 (21.72 \%) 	& 40 (9.59 \%) \\ \hline
+     doctrine collections 			& - 			& - 		& 9         & 3             & 0		 & 2036 	& 308 (15.13 \%) 	& 21 (6.82 \%) \\ \hline
+     doctrine cache 				& - 			& - 		& 16        & 1             & 0		 & 2167 	& 310 (14.31 \%) 	& 29 (9.35 \%) \\ \hline
+     symfony dom-crawler 			& 1 			& 9 		& 9         & 0             & 0		 & 2560 	& 441 (17.23 \%) 	& 12 (2.72 \%) \\ \hline
+     symfony process 				& 1 			& 13 		& 12        & 1             & 0		 & 2710 	& 510 (18.82 \%) 	& 25 (4.90 \%) \\ \hline
+     doctrine annotations 			& 2 			& 20 		& 19        & 1             & 0		 & 3807 	& 649 (17.05 \%) 	& 33 (5.08 \%) \\ \hline
+     symfony translation 			& 6 			& 44 		& 36        & 8             & 0		 & 3896 	& 705 (18.10 \%) 	& 115 (16.31 \%) \\ \hline
+     symfony browser-kit 			& 2 			& 15 		& 15        & 0             & 0		 & 4154 	& 705 (16.97 \%) 	& 22 (3.12 \%) \\ \hline
+     symfony finder 				& 6 			& 37 		& 34        & 3             & 0		 & 4488 	& 815 (18.16 \%) 	& 68 (8.34 \%) \\ \hline
+     symfony css-selector 			& 8 			& 48 		& 42        & 6             & 0		 & 4752 	& 757 (15.93 \%) 	& 133 (17.57 \%) \\ \hline
+     symfony routing 				& 7 			& 43 		& 32        & 11            & 0		 & 5872 	& 1115 (18.99 \%)	& 122 (10.94 \%) \\ \hline
+     phpunit phpunit-mock-objects 	& 13 			& 54 		& 36        & 16            & 0		 & 6462 	& 629 (9.73 \%) 	& 22 (3.50 \%) \\ \hline
+     monolog monolog 				& 7 			& 80 		& 74        & 5             & 2		 & 7989 	& 1464 (18.33 \%)	& 167 (11.41 \%) \\ \hline
+     phpunit php-code-coverage 		& 26 			& 55 		& 210       & 1             & 0		 & 10676	& 1711 (16.03 \%)	& 18 (1.05 \%) \\ \hline
+     symfony console 				& 10 			& 58 		& 50        & 8             & 0		 & 11004	& 2146 (19.50 \%)	& 200 (9.32 \%) \\ \hline
+     symfony http-foundation 		& 10 			& 61 		& 53        & 9             & 0		 & 11895	& 1763 (14.82 \%)	& 99 (5.62 \%) \\ \hline
+     twig twig 						& 16 			& 166 		& 146       & 19            & 0		 & 14221	& 2544 (17.89 \%)	& 3 (0.12 \%) \\ \hline
+     doctrine common 				& 15 			& 110 		& 86        & 24            & 0		 & 16679	& 2444 (14.65 \%)	& 212 (8.67 \%) \\ \hline
+     swiftmailer swiftmailer 		& 25 			& 171 		& 114       & 47            & 0		 & 22387	& 3388 (15.13 \%)	& 29 (0.86 \%) \\ \hline
+     guzzle guzzle 					& 48 			& 248 		& 194       & 53            & 0		 & 27537	& 5645 (20.50 \%)	& 804 (14.24 \%) \\ \hline
+     symfony http-kernel 			& 35 			& 206 		& 175       & 32            & 2		 & 27837	& 4754 (17.08 \%)	& 551 (11.59 \%) \\ \hline
+     phpunit phpunit 				& 63 			& 262 		& 386       & 26            & 0		 & 50470	& 6667 (13.21 \%)	& 111 (1.66 \%) \\ \hline
+     doctrine dbal 					& 50 			& 280 		& 243       & 35            & 0		 & 51229	& 7840 (15.30 \%)	& 713 (9.09 \%) \\ \hline
+
+
+
+     uuds-MacBook-Pro:phploc ruud$ grep -r Interface *
+     doctrine_annotations.phploc:  Interfaces
+     doctrine_cache.phploc:  Interfaces
+     doctrine_collections.phploc:  Interfaces
+     doctrine_common.phploc:  Interfaces
+     doctrine_dbal.phploc:  Interfaces
+     doctrine_inflector.phploc:  Interfaces                             
+     doctrine_lexer.phploc:  Interfaces                                 
+     guzzle_guzzle.phploc:  Interfaces                                  
+     monolog_monolog.phploc:  Interfaces                                
+     phpunit_php-code-coverage.phploc:  Interfaces                      
+     phpunit_php-token-stream.phploc:  Interfaces                       
+     phpunit_phpunit-mock-objects.phploc:  Interfaces                   
+     phpunit_phpunit.phploc:  Interfaces                                
+     psr_log.phploc:  Interfaces                                        
+     swiftmailer_swiftmailer.phploc:  Interfaces                        
+     symfony_browser-kit.phploc:  Interfaces                            
+     symfony_console.phploc:  Interfaces                                
+     symfony_css-selector.phploc:  Interfaces                           
+     symfony_debug.phploc:  Interfaces                                  
+     symfony_dom-crawler.phploc:  Interfaces                            
+     symfony_event-dispatcher.phploc:  Interfaces                       
+     symfony_filesystem.phploc:  Interfaces                             
+     symfony_finder.phploc:  Interfaces                                 
+     symfony_http-foundation.phploc:  Interfaces                        
+     symfony_http-kernel.phploc:  Interfaces                            
+     symfony_process.phploc:  Interfaces                                
+     symfony_routing.phploc:  Interfaces                                
+     symfony_translation.phploc:  Interfaces                            
+     symfony_yaml.phploc:  Interfaces                                   
+     twig_twig.phploc:  Interfaces                                       
+     
+     Ruuds-MacBook-Pro:phploc ruud$ grep -r Trait *
+     doctrine_annotations.phploc:  Traits                                             0
+     doctrine_cache.phploc:  Traits                                             0
+     doctrine_collections.phploc:  Traits                                             0
+     doctrine_common.phploc:  Traits                                             0
+     doctrine_dbal.phploc:  Traits                                             0
+     doctrine_inflector.phploc:  Traits                                             0
+     doctrine_lexer.phploc:  Traits                                             0
+     guzzle_guzzle.phploc:  Traits                                             0
+     monolog_monolog.phploc:  Traits                                             2
+     phpunit_php-code-coverage.phploc:  Traits                                             0
+     phpunit_php-token-stream.phploc:  Traits                                             0
+     phpunit_phpunit-mock-objects.phploc:  Traits                                             0
+     phpunit_phpunit.phploc:  Traits                                             0
+     psr_log.phploc:  Traits                                             2
+     swiftmailer_swiftmailer.phploc:  Traits                                             0
+     symfony_browser-kit.phploc:  Traits                                             0
+     symfony_console.phploc:  Traits                                             0
+     symfony_css-selector.phploc:  Traits                                             0
+     symfony_debug.phploc:  Traits                                             0
+     symfony_dom-crawler.phploc:  Traits                                             0
+     symfony_event-dispatcher.phploc:  Traits                                             0
+     symfony_filesystem.phploc:  Traits                                             0
+     symfony_finder.phploc:  Traits                                             0
+     symfony_http-foundation.phploc:  Traits                                             0
+     symfony_http-kernel.phploc:  Traits                                             2
+     symfony_process.phploc:  Traits                                             0
+     symfony_routing.phploc:  Traits                                             0
+     symfony_translation.phploc:  Traits                                             0
+     symfony_yaml.phploc:  Traits                                             0
+     twig_twig.phploc:  Traits                                             0                        
+
+
+
+"doctrine_annotations":"1.2.0",
+"doctrine_cache":"1.3.0",
+"doctrine_collections":"1.2",
+"doctrine_common":"2.4.2",
+"doctrine_dbal":"2.4.2",
+"doctrine_inflector":"1.0",
+"doctrine_lexer":"1.0",
+"guzzle_guzzle":"3.9.2",
+"monolog_monolog":"1.10.0",
+"phpunit_php-code-coverage":"2.0.10",
+"phpunit_php-token-stream":"1.2.2",
+"phpunit_phpunit":"4.2.2",
+"phpunit_phpunit-mock-objects":"2.2.0",
+"psr_log":"1.0.0",
+"swiftmailer_swiftmailer":"5.2.1",
+"symfony_browser-kit":"2.5.3",
+"symfony_console":"2.5.3",
+"symfony_css-selector":"2.5.3",
+"symfony_debug":"2.5.3",
+"symfony_dom-crawler":"2.5.3",
+"symfony_event-dispatcher":"2.5.3",
+"symfony_filesystem":"2.5.3",
+"symfony_finder":"2.5.3",
+"symfony_http-foundation":"2.5.3",
+"symfony_http-kernel":"2.5.3",
+"symfony_process":"2.5.3",
+"symfony_routing":"2.5.3",
+"symfony_translation":"2.5.3",
+"symfony_yaml":"2.5.3",
+"twig_twig":"1.16.0",
+
+
+	// sorted in LOC
+:%s/doctrine lexer/doctrine lexer \& 1.0
+:%s/doctrine inflector/doctrine inflector \& 1.0
+:%s/psr log/psr log \& 1.0.0
+:%s/symfony filesystem/symfony filesystem \& 2.5.3
+:%s/symfony event-dispatcher/symfony event-dispatcher \& 2.5.3
+:%s/phpunit php-token-stream/phpunit php-token-stream \& 1.2.2
+:%s/symfony yaml/symfony yaml \& 2.5.3
+:%s/symfony debug/symfony debug \& 2.5.3
+:%s/doctrine collections/doctrine collections \& 1.2
+:%s/doctrine cache/doctrine cache \& 1.3.0
+:%s/symfony dom-crawler/symfony dom-crawler \& 2.5.3
+:%s/symfony process/symfony process \& 2.5.3
+:%s/doctrine annotations/doctrine annotations \& 1.2.0
+:%s/symfony translation/symfony translation \& 2.5.3
+:%s/symfony browser-kit/symfony browser-kit \& 2.5.3
+:%s/symfony finder/symfony finder \& 2.5.3
+:%s/symfony css-selector/symfony css-selector \& 2.5.3
+:%s/symfony routing/symfony routing \& 2.5.3
+:%s/phpunit phpunit-mock-objects/phpunit phpunit-mock-objects \& 2.2.0
+:%s/monolog monolog/monolog monolog \& 1.10.0
+:%s/phpunit php-code-coverage/phpunit php-code-coverage \& 2.0.10
+:%s/symfony console/symfony console \& 2.5.3
+:%s/symfony http-foundation/symfony http-foundation \& 2.5.3
+:%s/twig twig/twig twig \& 1.16.0
+:%s/doctrine common/doctrine common \& 2.4.2
+:%s/swiftmailer swiftmailer/swiftmailer swiftmailer \& 5.2.1
+:%s/guzzle guzzle/guzzle guzzle \& 3.9.2
+//:%s/symfony http-kernel/symfony http-kernel \& 2.5.3
+:%s/phpunit phpunit/phpunit phpunit \& 4.2.2
+:%s/doctrine dbal/doctrine dbal \& 2.4.2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+     Project & Version 					& Dirs          & Files     & Classes   & Interfaces    & Traits & LOC 		& LLOC 				& GLOC \\ \hline
+     doctrine lexer & 1.0  				& - 			& - 		& 1         & 0             & 0		 & 265 		& 42 (15.85 \%) 	& 1 (2.38 \%) \\
+     doctrine inflector & 1.0 			& - 			& - 		& 1         & 0             & 0		 & 385 		& 44 (11.43 \%) 	& 1 (2.27 \%) \\
+     psr log & 1.0.0 					& 1 			& 9 		& 6         & 2             & 2		 & 571 		& 69 (12.08 \%) 	& 10 (14.49 \%) \\
+     symfony filesystem & 2.5.3 		    & 1 			& 5 		& 3         & 2             & 0		 & 602 		& 99 (16.45 \%) 	& 7 (7.07 \%) \\
+     symfony event-dispatcher & 2.5.3 	& 2 			& 11 		& 8         & 3             & 0		 & 1466 	& 239 (16.30 \%) 	& 23 (9.62 \%) \\
+     phpunit php-token-stream & 1.2.2 	& 4 			& 6 		& 167       & 0             & 0		 & 1714 	& 285 (16.63 \%) 	& 0 (0.00 \%) \\
+     symfony yaml & 2.5.3 				& 1 			& 10 		& 9         & 1             & 0		 & 1782 	& 415 (23.29 \%) 	& 16 (3.86 \%) \\
+     symfony debug & 2.5.3 				& 2 			& 16 		& 16        & 1             & 0		 & 1920 	& 417 (21.72 \%) 	& 40 (9.59 \%) \\
+     doctrine collections & 1.2 		    & - 			& - 		& 9         & 3             & 0		 & 2036 	& 308 (15.13 \%) 	& 21 (6.82 \%) \\
+     doctrine cache & 1.3.0 			    & - 			& - 		& 16        & 1             & 0		 & 2167 	& 310 (14.31 \%) 	& 29 (9.35 \%) \\
+     symfony dom-crawler & 2.5.3 		& 1 			& 9 		& 9         & 0             & 0		 & 2560 	& 441 (17.23 \%) 	& 12 (2.72 \%) \\
+     symfony process & 2.5.3 			& 1 			& 13 		& 12        & 1             & 0		 & 2710 	& 510 (18.82 \%) 	& 25 (4.90 \%) \\
+     doctrine annotations & 1.2.0 		& 2 			& 20 		& 19        & 1             & 0		 & 3807 	& 649 (17.05 \%) 	& 33 (5.08 \%) \\
+     symfony translation & 2.5.3 		& 6 			& 44 		& 36        & 8             & 0		 & 3896 	& 705 (18.10 \%) 	& 115 (16.31 \%) \\
+     symfony browser-kit & 2.5.3 		& 2 			& 15 		& 15        & 0             & 0		 & 4154 	& 705 (16.97 \%) 	& 22 (3.12 \%) \\
+     symfony finder & 2.5.3 			    & 6 			& 37 		& 34        & 3             & 0		 & 4488 	& 815 (18.16 \%) 	& 68 (8.34 \%) \\
+     symfony css-selector & 2.5.3 		& 8 			& 48 		& 42        & 6             & 0		 & 4752 	& 757 (15.93 \%) 	& 133 (17.57 \%) \\
+     symfony routing & 2.5.3 			& 7 			& 43 		& 32        & 11            & 0		 & 5872 	& 1115 (18.99 \%)	& 122 (10.94 \%) \\
+     phpunit phpunit-mock-objects & 2.2.0 & 13 			& 54 		& 36        & 16            & 0		 & 6462 	& 629 (9.73 \%) 	& 22 (3.50 \%) \\
+     monolog monolog & 1.10.0 			& 7 			& 80 		& 74        & 5             & 2		 & 7989 	& 1464 (18.33 \%)	& 167 (11.41 \%) \\
+     phpunit php-code-coverage & 2.0.10	& 26 			& 55 		& 210       & 1             & 0		 & 10676	& 1711 (16.03 \%)	& 18 (1.05 \%) \\
+     symfony console & 2.5.3 			& 10 			& 58 		& 50        & 8             & 0		 & 11004	& 2146 (19.50 \%)	& 200 (9.32 \%) \\
+     symfony http-foundation & 2.5.3 	& 10 			& 61 		& 53        & 9             & 0		 & 11895	& 1763 (14.82 \%)	& 99 (5.62 \%) \\
+     twig twig & 1.16.0 				    & 16 			& 166 		& 146       & 19            & 0		 & 14221	& 2544 (17.89 \%)	& 3 (0.12 \%) \\
+     doctrine common & 2.4.2 			& 15 			& 110 		& 86        & 24            & 0		 & 16679	& 2444 (14.65 \%)	& 212 (8.67 \%) \\
+     swiftmailer swiftmailer & 5.2.1 	& 25 			& 171 		& 114       & 47            & 0		 & 22387	& 3388 (15.13 \%)	& 29 (0.86 \%) \\
+     guzzle guzzle & 3.9.2 				& 48 			& 248 		& 194       & 53            & 0		 & 27537	& 5645 (20.50 \%)	& 804 (14.24 \%) \\
+     symfony http-kernel & 2.5.3        & 35 			& 206 		& 175       & 32            & 2		 & 27837	& 4754 (17.08 \%)	& 551 (11.59 \%) \\
+     phpunit phpunit & 4.2.2 			& 63 			& 262 		& 386       & 26            & 0		 & 50470	& 6667 (13.21 \%)	& 111 (1.66 \%) \\
+     doctrine dbal & 2.4.2 				& 50 			& 280 		& 243       & 35            & 0		 & 51229	& 7840 (15.30 \%)	& 713 (9.09 \%) \\

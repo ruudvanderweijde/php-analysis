@@ -1,0 +1,390 @@
+mkdir psr_log
+ cd psr_log
+mkdir psr_log-1.0.0
+cd psr_log-1.0.0
+echo "{ \"require\": { \"psr/log\": \"1.0.0\" } } " > composer.json
+composer install
+rm -rf composer.json composer.lock vendor/autoload.php vendor/composer
+mv vendor/* ./
+rm -rf vendor
+cd ..
+cd ..
+
+
+mkdir monolog_monolog
+ cd monolog_monolog
+mkdir monolog_monolog-1.10.0
+cd monolog_monolog-1.10.0
+echo "{ \"require\": { \"monolog/monolog\": \"1.10.0\" } } " > composer.json
+composer install
+rm -rf composer.json composer.lock vendor/autoload.php vendor/composer
+mv vendor/* ./
+rm -rf vendor
+cd ..
+cd ..
+
+
+mkdir symfony_event-dispatcher
+ cd symfony_event-dispatcher
+mkdir symfony_event-dispatcher-2.5.3
+cd symfony_event-dispatcher-2.5.3
+echo "{ \"require\": { \"symfony/event-dispatcher\": \"2.5.3\" } } " > composer.json
+composer install
+rm -rf composer.json composer.lock vendor/autoload.php vendor/composer
+mv vendor/* ./
+rm -rf vendor
+cd ..
+cd ..
+
+
+mkdir symfony_console
+ cd symfony_console
+mkdir symfony_console-2.5.3
+cd symfony_console-2.5.3
+echo "{ \"require\": { \"symfony/console\": \"2.5.3\" } } " > composer.json
+composer install
+rm -rf composer.json composer.lock vendor/autoload.php vendor/composer
+mv vendor/* ./
+rm -rf vendor
+cd ..
+cd ..
+
+
+mkdir swiftmailer_swiftmailer
+ cd swiftmailer_swiftmailer
+mkdir swiftmailer_swiftmailer-5.2.1
+cd swiftmailer_swiftmailer-5.2.1
+echo "{ \"require\": { \"swiftmailer/swiftmailer\": \"5.2.1\" } } " > composer.json
+composer install
+rm -rf composer.json composer.lock vendor/autoload.php vendor/composer
+mv vendor/* ./
+rm -rf vendor
+cd ..
+cd ..
+
+
+mkdir symfony_finder
+ cd symfony_finder
+mkdir symfony_finder-2.5.3
+cd symfony_finder-2.5.3
+echo "{ \"require\": { \"symfony/finder\": \"2.5.3\" } } " > composer.json
+composer install
+rm -rf composer.json composer.lock vendor/autoload.php vendor/composer
+mv vendor/* ./
+rm -rf vendor
+cd ..
+cd ..
+
+
+mkdir doctrine_annotations
+ cd doctrine_annotations
+mkdir doctrine_annotations-1.2.0
+cd doctrine_annotations-1.2.0
+echo "{ \"require\": { \"doctrine/annotations\": \"1.2.0\" } } " > composer.json
+composer install
+rm -rf composer.json composer.lock vendor/autoload.php vendor/composer
+mv vendor/* ./
+rm -rf vendor
+cd ..
+cd ..
+
+
+mkdir symfony_filesystem
+ cd symfony_filesystem
+mkdir symfony_filesystem-2.5.3
+cd symfony_filesystem-2.5.3
+echo "{ \"require\": { \"symfony/filesystem\": \"2.5.3\" } } " > composer.json
+composer install
+rm -rf composer.json composer.lock vendor/autoload.php vendor/composer
+mv vendor/* ./
+rm -rf vendor
+cd ..
+cd ..
+
+
+mkdir symfony_process
+ cd symfony_process
+mkdir symfony_process-2.5.3
+cd symfony_process-2.5.3
+echo "{ \"require\": { \"symfony/process\": \"2.5.3\" } } " > composer.json
+composer install
+rm -rf composer.json composer.lock vendor/autoload.php vendor/composer
+mv vendor/* ./
+rm -rf vendor
+cd ..
+cd ..
+
+
+mkdir doctrine_common
+ cd doctrine_common
+mkdir doctrine_common-2.4.2
+cd doctrine_common-2.4.2
+echo "{ \"require\": { \"doctrine/common\": \"2.4.2\" } } " > composer.json
+composer install
+rm -rf composer.json composer.lock vendor/autoload.php vendor/composer
+mv vendor/* ./
+rm -rf vendor
+cd ..
+cd ..
+
+
+mkdir doctrine_lexer
+ cd doctrine_lexer
+mkdir doctrine_lexer-1.0
+cd doctrine_lexer-1.0
+echo "{ \"require\": { \"doctrine/lexer\": \"1.0\" } } " > composer.json
+composer install
+rm -rf composer.json composer.lock vendor/autoload.php vendor/composer
+mv vendor/* ./
+rm -rf vendor
+cd ..
+cd ..
+
+
+mkdir doctrine_cache
+ cd doctrine_cache
+mkdir doctrine_cache-1.3.0
+cd doctrine_cache-1.3.0
+echo "{ \"require\": { \"doctrine/cache\": \"1.3.0\" } } " > composer.json
+composer install
+rm -rf composer.json composer.lock vendor/autoload.php vendor/composer
+mv vendor/* ./
+rm -rf vendor
+cd ..
+cd ..
+
+
+mkdir doctrine_collections
+ cd doctrine_collections
+mkdir doctrine_collections-1.2
+cd doctrine_collections-1.2
+echo "{ \"require\": { \"doctrine/collections\": \"1.2\" } } " > composer.json
+composer install
+rm -rf composer.json composer.lock vendor/autoload.php vendor/composer
+mv vendor/* ./
+rm -rf vendor
+cd ..
+cd ..
+
+
+mkdir doctrine_inflector
+ cd doctrine_inflector
+mkdir doctrine_inflector-1.0
+cd doctrine_inflector-1.0
+echo "{ \"require\": { \"doctrine/inflector\": \"1.0\" } } " > composer.json
+composer install
+rm -rf composer.json composer.lock vendor/autoload.php vendor/composer
+mv vendor/* ./
+rm -rf vendor
+cd ..
+cd ..
+
+
+mkdir twig_twig
+ cd twig_twig
+mkdir twig_twig-1.16.0
+cd twig_twig-1.16.0
+echo "{ \"require\": { \"twig/twig\": \"1.16.0\" } } " > composer.json
+composer install
+rm -rf composer.json composer.lock vendor/autoload.php vendor/composer
+mv vendor/* ./
+rm -rf vendor
+cd ..
+cd ..
+
+
+mkdir symfony_yaml
+ cd symfony_yaml
+mkdir symfony_yaml-2.5.3
+cd symfony_yaml-2.5.3
+echo "{ \"require\": { \"symfony/yaml\": \"2.5.3\" } } " > composer.json
+composer install
+rm -rf composer.json composer.lock vendor/autoload.php vendor/composer
+mv vendor/* ./
+rm -rf vendor
+cd ..
+cd ..
+
+
+mkdir phpunit_phpunit
+ cd phpunit_phpunit
+mkdir phpunit_phpunit-4.2.2
+cd phpunit_phpunit-4.2.2
+echo "{ \"require\": { \"phpunit/phpunit\": \"4.2.2\" } } " > composer.json
+composer install
+rm -rf composer.json composer.lock vendor/autoload.php vendor/composer
+mv vendor/* ./
+rm -rf vendor
+cd ..
+cd ..
+
+
+mkdir symfony_http-foundation
+ cd symfony_http-foundation
+mkdir symfony_http-foundation-2.5.3
+cd symfony_http-foundation-2.5.3
+echo "{ \"require\": { \"symfony/http-foundation\": \"2.5.3\" } } " > composer.json
+composer install
+rm -rf composer.json composer.lock vendor/autoload.php vendor/composer
+mv vendor/* ./
+rm -rf vendor
+cd ..
+cd ..
+
+
+mkdir symfony_translation
+ cd symfony_translation
+mkdir symfony_translation-2.5.3
+cd symfony_translation-2.5.3
+echo "{ \"require\": { \"symfony/translation\": \"2.5.3\" } } " > composer.json
+composer install
+rm -rf composer.json composer.lock vendor/autoload.php vendor/composer
+mv vendor/* ./
+rm -rf vendor
+cd ..
+cd ..
+
+
+mkdir phpunit_php-code-coverage
+ cd phpunit_php-code-coverage
+mkdir phpunit_php-code-coverage-2.0.10
+cd phpunit_php-code-coverage-2.0.10
+echo "{ \"require\": { \"phpunit/php-code-coverage\": \"2.0.10\" } } " > composer.json
+composer install
+rm -rf composer.json composer.lock vendor/autoload.php vendor/composer
+mv vendor/* ./
+rm -rf vendor
+cd ..
+cd ..
+
+
+mkdir doctrine_dbal
+ cd doctrine_dbal
+mkdir doctrine_dbal-2.4.2
+cd doctrine_dbal-2.4.2
+echo "{ \"require\": { \"doctrine/dbal\": \"2.4.2\" } } " > composer.json
+composer install
+rm -rf composer.json composer.lock vendor/autoload.php vendor/composer
+mv vendor/* ./
+rm -rf vendor
+cd ..
+cd ..
+
+
+mkdir guzzle_guzzle
+ cd guzzle_guzzle
+mkdir guzzle_guzzle-3.9.2
+cd guzzle_guzzle-3.9.2
+echo "{ \"require\": { \"guzzle/guzzle\": \"3.9.2\" } } " > composer.json
+composer install
+rm -rf composer.json composer.lock vendor/autoload.php vendor/composer
+mv vendor/* ./
+rm -rf vendor
+cd ..
+cd ..
+
+
+mkdir phpunit_phpunit-mock-objects
+ cd phpunit_phpunit-mock-objects
+mkdir phpunit_phpunit-mock-objects-2.2.0
+cd phpunit_phpunit-mock-objects-2.2.0
+echo "{ \"require\": { \"phpunit/phpunit-mock-objects\": \"2.2.0\" } } " > composer.json
+composer install
+rm -rf composer.json composer.lock vendor/autoload.php vendor/composer
+mv vendor/* ./
+rm -rf vendor
+cd ..
+cd ..
+
+
+mkdir phpunit_php-token-stream
+ cd phpunit_php-token-stream
+mkdir phpunit_php-token-stream-1.2.2
+cd phpunit_php-token-stream-1.2.2
+echo "{ \"require\": { \"phpunit/php-token-stream\": \"1.2.2\" } } " > composer.json
+composer install
+rm -rf composer.json composer.lock vendor/autoload.php vendor/composer
+mv vendor/* ./
+rm -rf vendor
+cd ..
+cd ..
+
+
+mkdir symfony_dom-crawler
+ cd symfony_dom-crawler
+mkdir symfony_dom-crawler-2.5.3
+cd symfony_dom-crawler-2.5.3
+echo "{ \"require\": { \"symfony/dom-crawler\": \"2.5.3\" } } " > composer.json
+composer install
+rm -rf composer.json composer.lock vendor/autoload.php vendor/composer
+mv vendor/* ./
+rm -rf vendor
+cd ..
+cd ..
+
+
+mkdir symfony_http-kernel
+ cd symfony_http-kernel
+mkdir symfony_http-kernel-2.5.3
+cd symfony_http-kernel-2.5.3
+echo "{ \"require\": { \"symfony/http-kernel\": \"2.5.3\" } } " > composer.json
+composer install
+rm -rf composer.json composer.lock vendor/autoload.php vendor/composer
+mv vendor/* ./
+rm -rf vendor
+cd ..
+cd ..
+
+
+mkdir symfony_css-selector
+ cd symfony_css-selector
+mkdir symfony_css-selector-2.5.3
+cd symfony_css-selector-2.5.3
+echo "{ \"require\": { \"symfony/css-selector\": \"2.5.3\" } } " > composer.json
+composer install
+rm -rf composer.json composer.lock vendor/autoload.php vendor/composer
+mv vendor/* ./
+rm -rf vendor
+cd ..
+cd ..
+
+
+mkdir symfony_browser-kit
+ cd symfony_browser-kit
+mkdir symfony_browser-kit-2.5.3
+cd symfony_browser-kit-2.5.3
+echo "{ \"require\": { \"symfony/browser-kit\": \"2.5.3\" } } " > composer.json
+composer install
+rm -rf composer.json composer.lock vendor/autoload.php vendor/composer
+mv vendor/* ./
+rm -rf vendor
+cd ..
+cd ..
+
+
+mkdir symfony_routing
+ cd symfony_routing
+mkdir symfony_routing-2.5.3
+cd symfony_routing-2.5.3
+echo "{ \"require\": { \"symfony/routing\": \"2.5.3\" } } " > composer.json
+composer install
+rm -rf composer.json composer.lock vendor/autoload.php vendor/composer
+mv vendor/* ./
+rm -rf vendor
+cd ..
+cd ..
+
+
+mkdir symfony_debug
+ cd symfony_debug
+mkdir symfony_debug-2.5.3
+cd symfony_debug-2.5.3
+echo "{ \"require\": { \"symfony/debug\": \"2.5.3\" } } " > composer.json
+composer install
+rm -rf composer.json composer.lock vendor/autoload.php vendor/composer
+mv vendor/* ./
+rm -rf vendor
+cd ..
+cd ..
+
+

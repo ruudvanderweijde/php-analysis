@@ -24,16 +24,7 @@ import lang::php::experiments::mscse2014::ConstraintSolver;
 import lang::php::experiments::mscse2014::ResultDataType;
 import lang::php::experiments::mscse2014::ResultAnalysis;
 
-//loc projectLocation = |file:///PHPAnalysis/systems/WerkspotNoTests/WerkspotNoTests-oldWebsiteNoTests/plugins/wsCorePlugin/modules/craftsman/lib|;
-//loc projectLocation = |file:///PHPAnalysis/systems/WerkspotNoTests/WerkspotNoTests-oldWebsiteNoTests/plugins/wsCorePlugin/modules/craftsman|;
-//loc projectLocation = |file:///PHPAnalysis/systems/WerkspotNoTests/WerkspotNoTests-oldWebsiteNoTests/|;
-//loc projectLocation = |file:///PHPAnalysis/systems/Kohana|;
-//loc projectLocation = |file:///Users/ruud/git/php-analysis/src/tests/resources/experiments/mscse2014/variable|;
-loc projectLocation = |file:///PHPAnalysis/systems/doctrine_lexer/doctrine_lexer-v1.0|; // latest
-//loc projectLocation = |file:///tmp/Calculator|;
-//loc projectLocation = |file:///PHPAnalysis/systems/doctrine_common/doctrine_common-v2.4.2|;
-//loc projectLocation = |file:///Users/ruud/test/types|;
-//loc projectLocation = |file:///Users/ruud/tmp/solve/scalar|;
+loc projectLocation = corpusRoot + "/doctrine_lexer/doctrine_lexer-v1.0"; // latest
 
 private loc getProjectLocation() = projectLocation;
 private void setProjectLocation(loc pl) { projectLocation = pl; }
@@ -48,23 +39,23 @@ loc getLastResultsCacheFile() = cacheFolder + "<getProjectLocation().file>_resul
 loc getParsedSystemCacheFile() = cacheFolder + "<getProjectLocation().file>_system_parsed.bin";
 
 
-private map[str,str] corpus = (
+private map[str,str] resultCorpus = (
 	
-	// sorted in LOC
+	// sorted in LOC (all are enabled except for Werkspot and Symfony)
 	"doctrine_lexer": "v1.0", // 1
 	"sebastianbergmann_php-timer": "1.0.5", // 2 
 	"sebastianbergmann_php-text-template": "1.2.0", // 3
 	"doctrine_inflector": "v1.0", // 4
 	"php-fig_log": "1.0.0", // 5
 	"sebastianbergmann_php-file-iterator": "1.3.4", // 6
-	"symfony_Filesystem": "v2.5.3" // 7
-	//"symfony_Yaml": "v2.5.3", // 8
-	//"sebastianbergmann_php-token-stream": "1.2.2", // 9
+	"symfony_Filesystem": "v2.5.3", // 7
+	"symfony_Yaml": "v2.5.3" // 8
+	//"sebastianbergmann_php-token-stream": "1.2.2" // 9
 	//"doctrine_collections": "v1.2", // 10
 	//"symfony_Process": "v2.5.3", // 11
 	//"symfony_Finder": "v2.5.3", // 12
 	//"symfony_DomCrawler": "v2.5.3", // 13
-	//"symfony_Translation": "v2.5.3", // 14
+	//"symfony_Translation": "v2.5.3" // 14
 	//"symfony_Console": "v2.5.3", // 15
 	//"symfony_HttpFoundation": "v2.5.3", // 16
 	//"fabpot_Twig": "v1.16.0", // 17
@@ -83,42 +74,6 @@ private map[str,str] corpus = (
 	//"Seldaek_monolog": "1.10.0" // 30
 	//"WerkspotNoTests":"oldWebsiteNoTests"
 );
-
-private map[str,str] resultCorpus = (
-	
-	// sorted in LOC (all are enabled except for Werkspot and Symfony)
-	"doctrine_lexer": "v1.0", // 1
-	"sebastianbergmann_php-timer": "1.0.5", // 2 
-	"sebastianbergmann_php-text-template": "1.2.0", // 3
-	"doctrine_inflector": "v1.0", // 4
-	"php-fig_log": "1.0.0", // 5
-	"sebastianbergmann_php-file-iterator": "1.3.4", // 6
-	//"symfony_Filesystem": "v2.5.3", // 7
-	//"symfony_Yaml": "v2.5.3", // 8
-	"sebastianbergmann_php-token-stream": "1.2.2", // 9
-	"doctrine_collections": "v1.2", // 10
-	//"symfony_Process": "v2.5.3", // 11
-	//"symfony_Finder": "v2.5.3", // 12
-	//"symfony_DomCrawler": "v2.5.3", // 13
-	//"symfony_Translation": "v2.5.3", // 14
-	//"symfony_Console": "v2.5.3", // 15
-	//"symfony_HttpFoundation": "v2.5.3", // 16
-	"fabpot_Twig": "v1.16.0", // 17
-	//"symfony_EventDispatcher": "v2.5.3", // 18
-	"swiftmailer_swiftmailer": "v5.2.1", // 19
-	"sebastianbergmann_php-code-coverage": "2.0.10", // 20
-	"sebastianbergmann_phpunit": "4.2.2", // 21
-	"sebastianbergmann_phpunit-mock-objects": "2.2.0", // 22
-	"doctrine_annotations": "v1.2.0", // 23
-	"doctrine_common": "v2.4.2", // 24
-	//"symfony_HttpKernel": "v2.5.3", // 25
-	"doctrine_cache": "v.1.3.0", // 26
-	"doctrine_dbal": "v2.4.2", // 27
-	"guzzle_guzzle3": "v3.9.2", // 28 
-	"doctrine_doctrine2": "v2.4.4", // 29
-	"Seldaek_monolog": "1.10.0" // 30
-	//"WerkspotNoTests":"oldWebsiteNoTests"
-);
 private str textStep1 = "1) Run run1() to parse the files (and save the parsed files to the cache)";
 private str textStep2 = "2) Run run2() to create the m3 (and save system and m3 to cache)";
 private str textStep3 = "3) Run run3() to collect constraints (and save the constraints to cache)";
@@ -127,7 +82,7 @@ private str textStep5 = "5) Run run5() to print the results";
 
 public void main() {
 	useAnnotations = true; // Use same setting in RunAll()
-	includePhpInternals = true;
+	includePhpInternals = false;
 	
 	println("Run instructions: (current selected project: `<projectLocation>`)");
 	println("----------------");
@@ -138,54 +93,35 @@ public void main() {
 	println(textStep5);
 	println("----------------");
 	println("Or runAll() with a project location, like:");
-	//println(" ⤷ runAll(|file:///Users/ruud/git/php-analysis/test|);");
-	//println(" ⤷ runAll(|file:///PHPAnalysis/systems/doctrine_lexer/doctrine_lexer-v1.0|);");
-	//println(" ⤷ runAll(|file:///PHPAnalysis/systems/sebastianbergmann_php-timer/sebastianbergmann_php-timer-1.0.5|);");
-	//println(" ⤷ runAll(|file:///PHPAnalysis/systems/sebastianbergmann_php-text-template/sebastianbergmann_php-text-template-1.2.0|);");
-	//println(" ⤷ runAll(|file:///PHPAnalysis/systems/sebastianbergmann_php-file-iterator/sebastianbergmann_php-file-iterator-1.3.4|);");
-	//println(" ⤷ runAll(|file:///PHPAnalysis/systems/php-fig_log/php-fig_log-1.0.0|);");
-	//println(" ⤷ runAll(|file:///PHPAnalysis/systems/swiftmailer_swiftmailer/swiftmailer_swiftmailer-v5.2.1|); (=pretty big!!!)");
-	
+
 	for (c <- resultCorpus) {
-		if (!isFile(toLocation("file:///home/awsgui/PHPAnalysis/systems/<c>/<getOutputFilename()>"))) {
-			println(" ⤷ runAll(|file:///home/awsgui/PHPAnalysis/systems/<c>/<c>-<resultCorpus[c]>|);");
+		if (!isFile(corpusRoot + "/<c>/<getOutputFilename()>")) {
+			println(" ⤷ runAll(<corpusRoot + "/<c>/<c>-<resultCorpus[c]>">);");
 			//break;
 		}
 	}
-
+	
 	println("\nAlready done:");
 			
 	for (c <- resultCorpus) {
-		if (isFile(toLocation("file:///home/awsgui/PHPAnalysis/systems/<c>/<getOutputFilename()>"))) {
-			println(" ⤷ runAll(|file:///home/awsgui/PHPAnalysis/systems/<c>/<c>-<resultCorpus[c]>|);");
+		if (isFile(corpusRoot + "/<c>/<getOutputFilename()>")) {
+			println(" ⤷ runAll(<corpusRoot + "/<c>/<c>-<resultCorpus[c]>">);");
 			//break;
 		}
-	}
-	
-	println("...");
-	for (c <- resultCorpus) {
-		if (isFile(toLocation("file:///PHPAnalysis/systems/<c>/<getOutputFilename()>"))) {
-			println(" ⤷ runAll(|file:///PHPAnalysis/systems/<c>/<c>-<resultCorpus[c]>|);");
-			//break;
-		}
-	}
-	
+	}	
 }
 
 public void runAll(loc project) {
 	useAnnotations = true; // Use same setting in Main()
-	includePhpInternals = true;
+	includePhpInternals = false;
 
 	projectLocation = project;
-	//projectLocation = |file:///PHPAnalysis/systems/sebastianbergmann_php-timer/sebastianbergmann_php-timer-1.0.5|; // latest
-	//projectLocation = |file:///tmp/Calculator|;
-	//projectLocation	= |file:///tmp/tst01|;
+
 	run1();
 	run2();
 	run3();
 	run4();
 	run5();
-	//printSubTypeGraph();
 
 }
 
@@ -420,7 +356,7 @@ public void printIncludeScopeInfo() {
 public void run1ForAll() {
 	loc projectLoc;	
 	for(c <- corpus) {
-		setProjectLocation(toLocation("file:///PHPAnalysis/systems/<c>/<c>-<corpus[c]>"));
+		setProjectLocation(corpusRoot + "/<c>/<c>-<corpus[c]>");
 		if (isFile(getParsedSystemCacheFile())) {
 			println("Skipped! If you want to recreate the files, please remove this file: <getParsedSystemCacheFile()>");	
 		} else {
@@ -433,7 +369,7 @@ public void run1ForAll() {
 public void run2ForAll() {
 	loc projectLoc;	
 	for(c <- corpus) {
-		setProjectLocation(toLocation("file:///PHPAnalysis/systems/<c>/<c>-<corpus[c]>"));
+		setProjectLocation(corpusRoot + "/<c>/<c>-<corpus[c]>");
 		if (isFile(getModifiedSystemCacheFile()) && isFile(getLastM3CacheFile())) {
 			println("Skipped! If you want to recreate the files, please remove these files: <getModifiedSystemCacheFile()> and <getLastM3CacheFile()>");
 		} else {
@@ -446,7 +382,7 @@ public void run2ForAll() {
 public void run3ForAll() {
 	loc projectLoc;	
 	for(c <- corpus) {
-		setProjectLocation(toLocation("file:///PHPAnalysis/systems/<c>/<c>-<corpus[c]>"));
+		setProjectLocation(corpusRoot + "/<c>/<c>-<corpus[c]>");
 		
 		// run unconditionally.
 	//	if (isFile(getModifiedSystemCacheFile()) && isFile(getLastM3CacheFile())) {
@@ -456,16 +392,7 @@ public void run3ForAll() {
 			run3();
 	//	}
 	}
-}	
-
-public void printIncludeScopeInfoForAll() {
-	loc projectLoc;	
-	for(c <- corpus) {
-		setProjectLocation(toLocation("file:///PHPAnalysis/systems/<c>"));
-		println("Running printIncludeScopeInfoFor <getProjectLocation()>");
-		printIncludeScopeInfo();
-	}
-}	
+}
 
 public void printSubTypeGraph()
 {
